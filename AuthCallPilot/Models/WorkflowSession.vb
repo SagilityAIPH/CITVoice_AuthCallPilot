@@ -7,5 +7,6 @@ End Class
 Public Class WorkflowNodeState
     Public Property Node As ChecklistNode
     Public Property Answer As Boolean?
+    Public Property StepNumber As Integer
 
 End Class

@@ -27,21 +27,45 @@ Public Class frmMain
             .Node = root
         })
 
+        'RenderWorkflow()
+    End Sub
+    Private Sub frmMain_Shown(sender As Object, e As EventArgs) Handles Me.Shown
+        'BeginInvoke(New MethodInvoker(AddressOf RenderWorkflow))
         RenderWorkflow()
     End Sub
     Private Sub RenderWorkflow()
-        flowWorkflow.Controls.Clear()
+        pnlWorkflow.SuspendLayout()
+        pnlWorkflow.Controls.Clear()
+
+        Dim y As Integer = 10
         Dim stepNumber As Integer = 1
+
         For Each state In Session.Path
             Dim ctrl As New ucWorkflowStep()
-            ctrl.LoadStep(state.Node)
             ctrl.StepNumber = stepNumber
+            ctrl.Width = pnlWorkflow.ClientSize.Width - 20
+            ctrl.LoadNode(state.Node)
+            ctrl.Left = 10
+            ctrl.Top = y
+
             AddHandler ctrl.AnswerSelected, AddressOf StepAnswered
-            flowWorkflow.Controls.Add(ctrl)
+            pnlWorkflow.Controls.Add(ctrl)
+            y += ctrl.Height + 10
             stepNumber += 1
         Next
+        pnlWorkflow.ResumeLayout(True)
+
     End Sub
     Private Sub StepAnswered(workflowStep As ucWorkflowStep, answer As Boolean)
-        MessageBox.Show("Question: " & workflowStep.CurrentNode.Question & vbCrLf & "Answer: " & answer.ToString())
+        MessageBox.Show(answer.ToString())
+        'MessageBox.Show("Question: " & workflowStep.CurrentNode.Question & vbCrLf & "Answer: " & answer.ToString())
+    End Sub
+    Private Sub frmMain_Resize(sender As Object, e As EventArgs) Handles Me.Resize
+        Dim y As Integer = 10
+        For Each ctrl As ucWorkflowStep In pnlWorkflow.Controls.OfType(Of ucWorkflowStep)()
+            ctrl.Width = pnlWorkflow.ClientSize.Width - 25
+            ctrl.Top = y
+            y += ctrl.Height + 10
+        Next
     End Sub
 End Class
