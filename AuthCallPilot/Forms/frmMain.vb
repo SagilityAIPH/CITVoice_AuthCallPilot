@@ -4,6 +4,7 @@ Imports MaterialSkin.Controls
 Public Class frmMain
     Inherits MaterialForm
     Private Session As WorkflowSession
+    Private _scrollToStep As Integer = 0
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Me.Text = "CallPilot V1.0"
 
@@ -79,6 +80,15 @@ Public Class frmMain
         pnlWorkflow.AutoScrollMinSize = New Size(0, y)
         pnlWorkflow.ResumeLayout(True)
 
+        If _scrollToStep > 0 Then
+            For Each ctrl As ucWorkflowStep In pnlWorkflow.Controls.OfType(Of ucWorkflowStep)()
+                If ctrl.StepNumber = _scrollToStep Then
+                    pnlWorkflow.ScrollControlIntoView(ctrl)
+                    Exit For
+                End If
+            Next
+        End If
+
     End Sub
     Private Sub StepAnswered(stepControl As ucWorkflowStep)
         'MessageBox.Show(stepControl.Answer.ToString())
@@ -102,6 +112,7 @@ Public Class frmMain
             Session.Path.Add(New WorkflowNodeState With {.Node = nextNode})
         End If
 
+        _scrollToStep = index + 2
         RenderWorkflow()
     End Sub
     Private Sub frmMain_Resize(sender As Object, e As EventArgs) Handles Me.Resize

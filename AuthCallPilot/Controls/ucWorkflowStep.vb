@@ -56,10 +56,13 @@
         'Me.Height = cardStep.Height
         flowInstructions.PerformLayout()
 
-        Dim requiredHeight As Integer = 70 + flowInstructions.PreferredSize.Height
+        Dim requiredHeight As Integer =
+            tblHeader.Height +
+            flowInstructions.PreferredSize.Height +
+            20
 
-        If requiredHeight < 85 Then
-            requiredHeight = 85
+        If requiredHeight < 90 Then
+            requiredHeight = 90
         End If
 
         Me.Height = requiredHeight
@@ -68,11 +71,10 @@
     End Sub
     Private Sub LoadInstructions(node As ChecklistNode)
 
-        flowInstructions.SuspendLayout()
         flowInstructions.Controls.Clear()
+        flowInstructions.SuspendLayout()
 
         For Each instruction As WorkflowInstruction In node.Instructions
-
             Dim lbl As New Guna.UI2.WinForms.Guna2HtmlLabel()
 
             lbl.AutoSize = True
@@ -84,7 +86,6 @@
             lbl.Text = "• " & instruction.Text
 
             flowInstructions.Controls.Add(lbl)
-
         Next
 
         flowInstructions.ResumeLayout(True)
