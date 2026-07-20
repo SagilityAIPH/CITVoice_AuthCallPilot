@@ -153,7 +153,7 @@ Partial Class frmMain
         '
         'pnlMiddleChecklist
         '
-        Me.pnlMiddleChecklist.AutoScroll = True
+        Me.pnlMiddleChecklist.AutoScroll = False
         Me.pnlMiddleChecklist.Controls.Add(Me.pnlWorkflow)
         Me.pnlMiddleChecklist.Dock = System.Windows.Forms.DockStyle.Fill
         Me.pnlMiddleChecklist.Location = New System.Drawing.Point(3, 63)
@@ -164,6 +164,7 @@ Partial Class frmMain
         'pnlWorkflow
         '
         Me.pnlWorkflow.AutoScroll = True
+        Me.pnlWorkflow.AutoSize = True
         Me.pnlWorkflow.BorderRadius = 15
         Me.pnlWorkflow.Dock = System.Windows.Forms.DockStyle.Fill
         Me.pnlWorkflow.FillColor = System.Drawing.Color.White
@@ -185,6 +186,7 @@ Partial Class frmMain
         Me.pnlTopInputs.ResumeLayout(False)
         Me.TableLayoutPanel1.ResumeLayout(False)
         Me.pnlMiddleChecklist.ResumeLayout(False)
+        Me.pnlMiddleChecklist.PerformLayout()
         Me.ResumeLayout(False)
 
     End Sub

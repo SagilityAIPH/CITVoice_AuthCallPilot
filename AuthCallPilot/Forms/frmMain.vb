@@ -32,40 +32,92 @@ Public Class frmMain
     Private Sub frmMain_Shown(sender As Object, e As EventArgs) Handles Me.Shown
         'BeginInvoke(New MethodInvoker(AddressOf RenderWorkflow))
         RenderWorkflow()
+
     End Sub
     Private Sub RenderWorkflow()
         pnlWorkflow.SuspendLayout()
         pnlWorkflow.Controls.Clear()
+        pnlWorkflow.AutoScrollPosition = New Point(0, 0)
 
         Dim y As Integer = 10
         Dim stepNumber As Integer = 1
+        Dim availableWidth As Integer =
+        pnlWorkflow.ClientSize.Width -
+        pnlWorkflow.Padding.Left -
+        pnlWorkflow.Padding.Right
 
         For Each state In Session.Path
             Dim ctrl As New ucWorkflowStep()
+            'MessageBox.Show("1. New Control = " & ctrl.Width)
             ctrl.StepNumber = stepNumber
-            ctrl.Width = pnlWorkflow.ClientSize.Width - 20
+            'ctrl.Width = pnlWorkflow.ClientSize.Width - 20
+            'ctrl.Width = pnlWorkflow.ClientSize.Width _
+            ' - pnlWorkflow.Padding.Left _
+            ' - pnlWorkflow.Padding.Right _
+            ' - 2
+            'MessageBox.Show("2. After Width = " & ctrl.Width)
+
             ctrl.LoadNode(state.Node)
+            If state.Answer.HasValue Then
+                ctrl.Answer = state.Answer
+            End If
+            'MessageBox.Show("3. After LoadNode = " & ctrl.Width)
+
             ctrl.Left = 10
             ctrl.Top = y
 
             AddHandler ctrl.AnswerSelected, AddressOf StepAnswered
             pnlWorkflow.Controls.Add(ctrl)
-            y += ctrl.Height + 10
+            ctrl.Width = availableWidth
+            'MessageBox.Show("After Reassign = " & ctrl.Width)
+
+            'MessageBox.Show("4. After Add = " & ctrl.Width)
+
+            y += ctrl.Height + 4
             stepNumber += 1
         Next
+        pnlWorkflow.AutoScrollMinSize = New Size(0, y)
         pnlWorkflow.ResumeLayout(True)
 
     End Sub
-    Private Sub StepAnswered(workflowStep As ucWorkflowStep, answer As Boolean)
-        MessageBox.Show(answer.ToString())
-        'MessageBox.Show("Question: " & workflowStep.CurrentNode.Question & vbCrLf & "Answer: " & answer.ToString())
+    Private Sub StepAnswered(stepControl As ucWorkflowStep)
+        'MessageBox.Show(stepControl.Answer.ToString())
+        Dim state As WorkflowNodeState = Session.Path.FirstOrDefault(Function(x) x.Node Is stepControl.CurrentNode)
+
+        If state Is Nothing Then Exit Sub
+        state.Answer = stepControl.Answer
+        Dim index As Integer = Session.Path.IndexOf(state)
+        While Session.Path.Count > index + 1
+            Session.Path.RemoveAt(Session.Path.Count - 1)
+        End While
+
+        Dim nextNode As ChecklistNode = Nothing
+        If state.Answer.Value Then
+            nextNode = state.Node.YesNode
+        Else
+            nextNode = state.Node.NoNode
+        End If
+
+        If nextNode IsNot Nothing Then
+            Session.Path.Add(New WorkflowNodeState With {.Node = nextNode})
+        End If
+
+        RenderWorkflow()
     End Sub
     Private Sub frmMain_Resize(sender As Object, e As EventArgs) Handles Me.Resize
         Dim y As Integer = 10
+        Dim availableWidth As Integer =
+        pnlWorkflow.ClientSize.Width -
+        pnlWorkflow.Padding.Left -
+        pnlWorkflow.Padding.Right - 2
+
         For Each ctrl As ucWorkflowStep In pnlWorkflow.Controls.OfType(Of ucWorkflowStep)()
-            ctrl.Width = pnlWorkflow.ClientSize.Width - 25
+            ctrl.Width = availableWidth
+            ctrl.Left = pnlWorkflow.Padding.Left
             ctrl.Top = y
-            y += ctrl.Height + 10
+
+            y += ctrl.Height + 4
         Next
     End Sub
+
 End Class
