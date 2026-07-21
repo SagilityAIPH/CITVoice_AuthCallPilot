@@ -5,6 +5,9 @@ Public Class frmMain
     Inherits MaterialForm
     Private Session As WorkflowSession
     Private _scrollToStep As Integer = 0
+    Dim section As New ucWorkflowSection()
+
+
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Me.Text = "CallPilot V1.0"
 
@@ -31,9 +34,17 @@ Public Class frmMain
         'RenderWorkflow()
     End Sub
     Private Sub frmMain_Shown(sender As Object, e As EventArgs) Handles Me.Shown
-        'BeginInvoke(New MethodInvoker(AddressOf RenderWorkflow))
-        RenderWorkflow()
+        'working
+        'RenderWorkflow()
 
+        'Testing
+        pnlWorkflow.Controls.Clear()
+        Dim section As New ucWorkflowSection()
+        section.Dock = DockStyle.Top
+        Dim workflowStep As New ucWorkflowStep()
+        workflowStep.LoadNode(Session.Root)
+        section.AddWorkflowStep(workflowStep)
+        pnlWorkflow.Controls.Add(section)
     End Sub
     Private Sub RenderWorkflow()
         pnlWorkflow.SuspendLayout()
