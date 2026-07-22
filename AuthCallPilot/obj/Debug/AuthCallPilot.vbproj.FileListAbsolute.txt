@@ -86,3 +86,4 @@ D:\Office Works\VS\HumanaCITVoiceCallAgent\CITVoice_AuthCallPilot\AuthCallPilot\
 D:\Office Works\VS\HumanaCITVoiceCallAgent\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.xml
 D:\Office Works\VS\HumanaCITVoiceCallAgent\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.pdb
 D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.ucWorkflowSection.resources
+D:\Office Works\VS\HumanaCITVoiceCallAgent\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.ucWorkflowSection.resources

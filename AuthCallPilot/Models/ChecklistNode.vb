@@ -2,7 +2,9 @@
 
     Public Property ID As String
     Public Property Question As String
+    Public Property ResponseType As WorkflowResponseType = WorkflowResponseType.Toggle
     Public Property Instructions As New List(Of WorkflowInstruction)
+    Public Property Responses As New List(Of WorkflowResponse)
     Public Property YesNode As ChecklistNode
     Public Property NoNode As ChecklistNode
 

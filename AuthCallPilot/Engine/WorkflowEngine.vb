@@ -1,5 +1,4 @@
 ﻿Public Module WorkflowEngine
-
     Public Function InitializeCallPilotTree() As ChecklistNode
 
         Dim q1 As New ChecklistNode("Q1",
@@ -31,9 +30,8 @@
         Dim endVerify As New ChecklistNode("END4", "End")
 
         endVerify.Instructions.Add(New WorkflowInstruction("Ask Member ID", InstructionType.Action))
-        endVerify.Instructions.Add(New WorkflowInstruction("Verify DOB", InstructionType.Action))
-        endVerify.Instructions.Add(New WorkflowInstruction("Verify Zip", InstructionType.Action))
-        endVerify.Instructions.Add(New WorkflowInstruction("Enter into CGA", InstructionType.Action))
+        endVerify.Instructions.Add(New WorkflowInstruction("Verify DOB, Zip Code and Group #", InstructionType.Action))
+        endVerify.Instructions.Add(New WorkflowInstruction("Enter information into CGA", InstructionType.Action))
 
         q1.YesNode = q2
         q1.NoNode = endGhost

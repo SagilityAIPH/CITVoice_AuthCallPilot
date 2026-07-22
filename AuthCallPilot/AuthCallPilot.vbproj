@@ -129,6 +129,7 @@
     <Compile Include="Controls\ucWorkflowStep.vb">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Engine\WorkflowController.vb" />
     <Compile Include="Engine\WorkflowEngine.vb" />
     <Compile Include="Forms\frmMain.vb">
       <SubType>Form</SubType>
@@ -138,7 +139,10 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Models\ChecklistNode.vb" />
+    <Compile Include="Models\Workflow.vb" />
     <Compile Include="Models\WorkflowInstruction.vb" />
+    <Compile Include="Models\WorkflowResponse.vb" />
+    <Compile Include="Models\WorkflowResponseType.vb" />
     <Compile Include="Models\WorkflowSession.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
