@@ -7,6 +7,8 @@
     Public Property Responses As New List(Of WorkflowResponse)
     Public Property YesNode As ChecklistNode
     Public Property NoNode As ChecklistNode
+    Public Property NodeType As NodeType = NodeType.Question
+    Public Property TargetWorkflow As String
 
     Public Sub New(id As String, question As String)
         Me.ID = id

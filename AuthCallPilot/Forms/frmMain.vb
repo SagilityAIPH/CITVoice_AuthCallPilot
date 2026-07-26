@@ -24,7 +24,8 @@ Public Class frmMain
             TextShade.WHITE
         )
 
-        Dim root As ChecklistNode = WorkflowEngine.InitializeCallPilotTree()
+        'Dim root As ChecklistNode = AuthenticationWorkflow.CreateWorkflow()
+        Dim root As ChecklistNode = WorkflowManager.GetWorkflow("Authentication")
         Session = New WorkflowSession()
         Controller = New WorkflowController(Session)
         Session.Root = root
@@ -79,8 +80,17 @@ Public Class frmMain
         Dim state As WorkflowNodeState = Controller.GetState(stepControl.CurrentNode)
         If state Is Nothing Then Exit Sub
         state.Answer = stepControl.Answer
+        state.SelectedResponse = stepControl.SelectedResponse
         _scrollToStep = Controller.AdvanceWorkflow(state)
         RenderWorkflow()
+    End Sub
+
+    Private Sub btnLaunchBrowser_Click(sender As Object, e As EventArgs) Handles btnLaunchBrowser.Click
+        Try
+            BrowserManager.Launch()
+        Catch ex As Exception
+            MessageBox.Show(ex.Message, "Browser Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
     End Sub
     'Private Sub frmMain_Resize(sender As Object, e As EventArgs) Handles Me.Resize
     '    Dim y As Integer = 10

@@ -23,13 +23,15 @@ Partial Class ucWorkflowStep
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.cardStep = New Guna.UI2.WinForms.Guna2Panel()
-        Me.tgAnswer = New Guna.UI2.WinForms.Guna2ToggleSwitch()
-        Me.lblQuestion = New Guna.UI2.WinForms.Guna2HtmlLabel()
-        Me.btnStepNumber = New Guna.UI2.WinForms.Guna2CircleButton()
-        Me.tblHeader = New System.Windows.Forms.TableLayoutPanel()
         Me.flowInstructions = New System.Windows.Forms.FlowLayoutPanel()
+        Me.tblHeader = New System.Windows.Forms.TableLayoutPanel()
+        Me.btnStepNumber = New Guna.UI2.WinForms.Guna2CircleButton()
+        Me.lblQuestion = New Guna.UI2.WinForms.Guna2HtmlLabel()
+        Me.tgAnswer = New Guna.UI2.WinForms.Guna2ToggleSwitch()
+        Me.pnlResponse = New Guna.UI2.WinForms.Guna2Panel()
         Me.cardStep.SuspendLayout()
         Me.tblHeader.SuspendLayout()
+        Me.pnlResponse.SuspendLayout()
         Me.SuspendLayout()
         '
         'cardStep
@@ -38,6 +40,7 @@ Partial Class ucWorkflowStep
         Me.cardStep.BorderColor = System.Drawing.Color.Gainsboro
         Me.cardStep.BorderRadius = 15
         Me.cardStep.BorderThickness = 1
+        Me.cardStep.Controls.Add(Me.pnlResponse)
         Me.cardStep.Controls.Add(Me.flowInstructions)
         Me.cardStep.Controls.Add(Me.tblHeader)
         Me.cardStep.Dock = System.Windows.Forms.DockStyle.Fill
@@ -51,37 +54,35 @@ Partial Class ucWorkflowStep
         Me.cardStep.Size = New System.Drawing.Size(530, 120)
         Me.cardStep.TabIndex = 0
         '
-        'tgAnswer
+        'flowInstructions
         '
-        Me.tgAnswer.Anchor = System.Windows.Forms.AnchorStyles.None
-        Me.tgAnswer.CheckedState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
-        Me.tgAnswer.CheckedState.FillColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
-        Me.tgAnswer.CheckedState.InnerBorderColor = System.Drawing.Color.White
-        Me.tgAnswer.CheckedState.InnerColor = System.Drawing.Color.White
-        Me.tgAnswer.Cursor = System.Windows.Forms.Cursors.Hand
-        Me.tgAnswer.Location = New System.Drawing.Point(453, 17)
-        Me.tgAnswer.Margin = New System.Windows.Forms.Padding(0)
-        Me.tgAnswer.Name = "tgAnswer"
-        Me.tgAnswer.Size = New System.Drawing.Size(38, 20)
-        Me.tgAnswer.TabIndex = 2
-        Me.tgAnswer.UncheckedState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(125, Byte), Integer), CType(CType(137, Byte), Integer), CType(CType(149, Byte), Integer))
-        Me.tgAnswer.UncheckedState.FillColor = System.Drawing.Color.FromArgb(CType(CType(125, Byte), Integer), CType(CType(137, Byte), Integer), CType(CType(149, Byte), Integer))
-        Me.tgAnswer.UncheckedState.InnerBorderColor = System.Drawing.Color.White
-        Me.tgAnswer.UncheckedState.InnerColor = System.Drawing.Color.White
+        Me.flowInstructions.AutoSize = True
+        Me.flowInstructions.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
+        Me.flowInstructions.Dock = System.Windows.Forms.DockStyle.Top
+        Me.flowInstructions.FlowDirection = System.Windows.Forms.FlowDirection.TopDown
+        Me.flowInstructions.Location = New System.Drawing.Point(15, 70)
+        Me.flowInstructions.Margin = New System.Windows.Forms.Padding(0)
+        Me.flowInstructions.Name = "flowInstructions"
+        Me.flowInstructions.Size = New System.Drawing.Size(500, 0)
+        Me.flowInstructions.TabIndex = 4
+        Me.flowInstructions.WrapContents = False
         '
-        'lblQuestion
+        'tblHeader
         '
-        Me.lblQuestion.AutoSize = False
-        Me.lblQuestion.BackColor = System.Drawing.Color.Transparent
-        Me.lblQuestion.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.lblQuestion.Font = New System.Drawing.Font("Segoe UI", 11.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.lblQuestion.Location = New System.Drawing.Point(55, 0)
-        Me.lblQuestion.Margin = New System.Windows.Forms.Padding(0)
-        Me.lblQuestion.Name = "lblQuestion"
-        Me.lblQuestion.Size = New System.Drawing.Size(390, 55)
-        Me.lblQuestion.TabIndex = 1
-        Me.lblQuestion.Text = "Was there a response?"
-        Me.lblQuestion.TextAlignment = System.Drawing.ContentAlignment.MiddleLeft
+        Me.tblHeader.ColumnCount = 3
+        Me.tblHeader.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 55.0!))
+        Me.tblHeader.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.tblHeader.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 55.0!))
+        Me.tblHeader.Controls.Add(Me.btnStepNumber, 0, 0)
+        Me.tblHeader.Controls.Add(Me.lblQuestion, 1, 0)
+        Me.tblHeader.Dock = System.Windows.Forms.DockStyle.Top
+        Me.tblHeader.Location = New System.Drawing.Point(15, 15)
+        Me.tblHeader.Margin = New System.Windows.Forms.Padding(0)
+        Me.tblHeader.Name = "tblHeader"
+        Me.tblHeader.RowCount = 1
+        Me.tblHeader.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
+        Me.tblHeader.Size = New System.Drawing.Size(500, 55)
+        Me.tblHeader.TabIndex = 3
         '
         'btnStepNumber
         '
@@ -102,36 +103,47 @@ Partial Class ucWorkflowStep
         Me.btnStepNumber.TabIndex = 0
         Me.btnStepNumber.Text = "1"
         '
-        'tblHeader
+        'lblQuestion
         '
-        Me.tblHeader.ColumnCount = 3
-        Me.tblHeader.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 55.0!))
-        Me.tblHeader.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.tblHeader.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 55.0!))
-        Me.tblHeader.Controls.Add(Me.btnStepNumber, 0, 0)
-        Me.tblHeader.Controls.Add(Me.lblQuestion, 1, 0)
-        Me.tblHeader.Controls.Add(Me.tgAnswer, 2, 0)
-        Me.tblHeader.Dock = System.Windows.Forms.DockStyle.Top
-        Me.tblHeader.Location = New System.Drawing.Point(15, 15)
-        Me.tblHeader.Margin = New System.Windows.Forms.Padding(0)
-        Me.tblHeader.Name = "tblHeader"
-        Me.tblHeader.RowCount = 1
-        Me.tblHeader.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.tblHeader.Size = New System.Drawing.Size(500, 55)
-        Me.tblHeader.TabIndex = 3
+        Me.lblQuestion.AutoSize = False
+        Me.lblQuestion.BackColor = System.Drawing.Color.Transparent
+        Me.lblQuestion.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.lblQuestion.Font = New System.Drawing.Font("Segoe UI", 11.25!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.lblQuestion.Location = New System.Drawing.Point(55, 0)
+        Me.lblQuestion.Margin = New System.Windows.Forms.Padding(0)
+        Me.lblQuestion.Name = "lblQuestion"
+        Me.lblQuestion.Size = New System.Drawing.Size(390, 55)
+        Me.lblQuestion.TabIndex = 1
+        Me.lblQuestion.Text = "Was there a response?"
+        Me.lblQuestion.TextAlignment = System.Drawing.ContentAlignment.MiddleLeft
         '
-        'flowInstructions
+        'tgAnswer
         '
-        Me.flowInstructions.AutoSize = True
-        Me.flowInstructions.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-        Me.flowInstructions.Dock = System.Windows.Forms.DockStyle.Top
-        Me.flowInstructions.FlowDirection = System.Windows.Forms.FlowDirection.TopDown
-        Me.flowInstructions.Location = New System.Drawing.Point(15, 15)
-        Me.flowInstructions.Margin = New System.Windows.Forms.Padding(0)
-        Me.flowInstructions.Name = "flowInstructions"
-        Me.flowInstructions.Size = New System.Drawing.Size(500, 0)
-        Me.flowInstructions.TabIndex = 4
-        Me.flowInstructions.WrapContents = False
+        Me.tgAnswer.Anchor = System.Windows.Forms.AnchorStyles.None
+        Me.tgAnswer.CheckedState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
+        Me.tgAnswer.CheckedState.FillColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
+        Me.tgAnswer.CheckedState.InnerBorderColor = System.Drawing.Color.White
+        Me.tgAnswer.CheckedState.InnerColor = System.Drawing.Color.White
+        Me.tgAnswer.Cursor = System.Windows.Forms.Cursors.Hand
+        Me.tgAnswer.Location = New System.Drawing.Point(11, 13)
+        Me.tgAnswer.Margin = New System.Windows.Forms.Padding(0)
+        Me.tgAnswer.Name = "tgAnswer"
+        Me.tgAnswer.Size = New System.Drawing.Size(38, 20)
+        Me.tgAnswer.TabIndex = 2
+        Me.tgAnswer.UncheckedState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(125, Byte), Integer), CType(CType(137, Byte), Integer), CType(CType(149, Byte), Integer))
+        Me.tgAnswer.UncheckedState.FillColor = System.Drawing.Color.FromArgb(CType(CType(125, Byte), Integer), CType(CType(137, Byte), Integer), CType(CType(149, Byte), Integer))
+        Me.tgAnswer.UncheckedState.InnerBorderColor = System.Drawing.Color.White
+        Me.tgAnswer.UncheckedState.InnerColor = System.Drawing.Color.White
+        '
+        'pnlResponse
+        '
+        Me.pnlResponse.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.pnlResponse.Controls.Add(Me.tgAnswer)
+        Me.pnlResponse.Location = New System.Drawing.Point(4, 2)
+        Me.pnlResponse.Name = "pnlResponse"
+        Me.pnlResponse.Size = New System.Drawing.Size(200, 40)
+        Me.pnlResponse.TabIndex = 5
         '
         'ucWorkflowStep
         '
@@ -146,6 +158,7 @@ Partial Class ucWorkflowStep
         Me.cardStep.ResumeLayout(False)
         Me.cardStep.PerformLayout()
         Me.tblHeader.ResumeLayout(False)
+        Me.pnlResponse.ResumeLayout(False)
         Me.ResumeLayout(False)
 
     End Sub
@@ -156,4 +169,5 @@ Partial Class ucWorkflowStep
     Friend WithEvents lblQuestion As Guna.UI2.WinForms.Guna2HtmlLabel
     Friend WithEvents tblHeader As TableLayoutPanel
     Friend WithEvents flowInstructions As FlowLayoutPanel
+    Friend WithEvents pnlResponse As Guna.UI2.WinForms.Guna2Panel
 End Class

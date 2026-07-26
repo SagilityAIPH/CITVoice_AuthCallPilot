@@ -60,6 +60,9 @@
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=8.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>packages\Microsoft.Bcl.AsyncInterfaces.8.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
+    <Reference Include="Selenium.Support, Version=4.0.0.0, Culture=neutral, PublicKeyToken=1c2bd1631853048f, processorArchitecture=MSIL">
+      <HintPath>packages\Selenium.Support.4.46.0\lib\netstandard2.0\Selenium.Support.dll</HintPath>
+    </Reference>
     <Reference Include="Selenium.WebDriver, Version=4.0.0.0, Culture=neutral, PublicKeyToken=1c2bd1631853048f, processorArchitecture=MSIL">
       <HintPath>packages\Selenium.WebDriver.4.46.0\lib\net462\Selenium.WebDriver.dll</HintPath>
     </Reference>
@@ -131,6 +134,7 @@
     </Compile>
     <Compile Include="Engine\WorkflowController.vb" />
     <Compile Include="Engine\WorkflowEngine.vb" />
+    <Compile Include="Engine\WorkflowManager.vb" />
     <Compile Include="Forms\frmMain.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -139,11 +143,12 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Models\ChecklistNode.vb" />
+    <Compile Include="Models\NodeType.vb" />
     <Compile Include="Models\Workflow.vb" />
     <Compile Include="Models\WorkflowInstruction.vb" />
     <Compile Include="Models\WorkflowResponse.vb" />
     <Compile Include="Models\WorkflowResponseType.vb" />
-    <Compile Include="Models\WorkflowSession.vb" />
+    <Compile Include="Engine\WorkflowSession.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -159,12 +164,17 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="ucWorkflowSection.Designer.vb">
+    <Compile Include="Services\BrowserManager.vb" />
+    <Compile Include="Controls\ucWorkflowSection.Designer.vb">
       <DependentUpon>ucWorkflowSection.vb</DependentUpon>
     </Compile>
-    <Compile Include="ucWorkflowSection.vb">
+    <Compile Include="Controls\ucWorkflowSection.vb">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="Workflows\AuthenticationWorkflow.vb" />
+    <Compile Include="Workflows\CheckIfOutOfScopeWorkflow.vb" />
+    <Compile Include="Workflows\ProviderTriageWorkflow.vb" />
+    <Compile Include="Workflows\RecommendationWorkflow.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Controls\ucWorkflowStep.resx">
@@ -179,7 +189,7 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="ucWorkflowSection.resx">
+    <EmbeddedResource Include="Controls\ucWorkflowSection.resx">
       <DependentUpon>ucWorkflowSection.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
@@ -196,6 +206,7 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

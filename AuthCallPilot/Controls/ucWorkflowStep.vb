@@ -3,28 +3,19 @@
     Public Sub New()
         InitializeComponent()
     End Sub
-    'Private Sub ucWorkflowStep_Resize(sender As Object, e As EventArgs) Handles Me.Resize
-
-    '    btnStepNumber.Location = New Point(15, 15)
-
-    '    tgAnswer.Location = New Point(Me.ClientSize.Width - tgAnswer.Width - 20, 18)
-
-    '    lblQuestion.Location = New Point(70, 18)
-    '    lblQuestion.Width = tgAnswer.Left - lblQuestion.Left - 20
-
-    '    flowInstructions.Location = New Point(70, 55)
-
-    'End Sub
     Private Sub ArrangeControls()
 
         btnStepNumber.Location = New Point(15, 15)
 
-        tgAnswer.Left = Me.ClientSize.Width - tgAnswer.Width - 15
-        tgAnswer.Top = 18
+        pnlResponse.Width = 120
+        pnlResponse.Height = 35
+
+        pnlResponse.Left = Me.ClientSize.Width - pnlResponse.Width - 15
+        pnlResponse.Top = 15
 
         lblQuestion.Left = 70
         lblQuestion.Top = 18
-        lblQuestion.Width = tgAnswer.Left - lblQuestion.Left - 15
+        lblQuestion.Width = pnlResponse.Left - lblQuestion.Left - 15
 
         flowInstructions.Left = 70
         flowInstructions.Top = 50
@@ -39,21 +30,8 @@
         CurrentNode = node
         lblQuestion.Text = node.Question
         LoadInstructions(node)
+        RenderResponses(node)
         ArrangeControls()
-        'Me.Height = Math.Max(95, 60 + flowInstructions.PreferredSize.Height)
-        'flowInstructions.PerformLayout()
-        'Dim cardHeight As Integer =
-        'flowInstructions.Bottom + 15
-
-        'Dim requiredHeight As Integer =
-        'flowInstructions.Bottom + 15
-
-        'If requiredHeight < 100 Then
-        '    requiredHeight = 100
-        'End If
-
-        'cardStep.Height = requiredHeight
-        'Me.Height = cardStep.Height
         flowInstructions.PerformLayout()
 
         Dim requiredHeight As Integer =
@@ -101,18 +79,21 @@
             btnStepNumber.Text = value.ToString()
         End Set
     End Property
+    Private _selectedResponse As WorkflowResponse
+    Public Property SelectedResponse As WorkflowResponse
+        Get
+            Return _selectedResponse
+        End Get
+
+        Set(value As WorkflowResponse)
+            _selectedResponse = value
+        End Set
+    End Property
     Private _answer As Boolean?
     Public Property Answer As Boolean?
         Get
             Return _answer
         End Get
-
-        'Set(value As Boolean?)
-        '    _answer = value
-        '    If value.HasValue Then
-        '        tgAnswer.Checked = value.Value
-        '    End If
-        'End Set
         Set(value As Boolean?)
             _loading = True
             _answer = value
@@ -126,10 +107,51 @@
             _loading = False
         End Set
     End Property
-
     Private Sub tgAnswer_CheckedChanged_1(sender As Object, e As EventArgs) Handles tgAnswer.CheckedChanged
         If _loading Then Exit Sub
         Answer = tgAnswer.Checked
+        RaiseEvent AnswerSelected(Me)
+    End Sub
+    Private Sub RenderResponses(node As ChecklistNode)
+        pnlResponse.Controls.Clear()
+        If node.Responses.Count <= 2 Then
+            RenderToggle(node)
+        Else
+            RenderRadioButtons(node)
+        End If
+    End Sub
+    Private Sub RenderToggle(node As ChecklistNode)
+        tgAnswer.Tag = node
+        tgAnswer.Visible = True
+        pnlResponse.Controls.Add(tgAnswer)
+    End Sub
+    Private Sub RenderRadioButtons(node As ChecklistNode)
+        Dim y As Integer = 5
+        For Each response As WorkflowResponse In node.Responses
+            Dim rb As New RadioButton()
+            rb.Text = response.Text
+            rb.Tag = response
+
+            rb.AutoSize = True
+            rb.Left = 5
+            rb.Top = y
+
+            AddHandler rb.CheckedChanged, AddressOf RadioButton_CheckedChanged
+            pnlResponse.Controls.Add(rb)
+            y += rb.Height + 5
+        Next
+    End Sub
+    Private Sub RadioButton_CheckedChanged(sender As Object, e As EventArgs)
+        Dim rb As RadioButton = CType(sender, RadioButton)
+        If Not rb.Checked Then Exit Sub
+        SelectedResponse = CType(rb.Tag, WorkflowResponse)
+        If CurrentNode IsNot Nothing AndAlso CurrentNode.Responses.Count >= 2 Then
+            If tgAnswer.Checked Then
+                SelectedResponse = CurrentNode.Responses(0)
+            Else
+                SelectedResponse = CurrentNode.Responses(1)
+            End If
+        End If
         RaiseEvent AnswerSelected(Me)
     End Sub
 End Class

@@ -30,6 +30,7 @@ Partial Class frmMain
         Me.txtCallback = New Guna.UI2.WinForms.Guna2TextBox()
         Me.pnlMiddleChecklist = New System.Windows.Forms.Panel()
         Me.pnlWorkflow = New Guna.UI2.WinForms.Guna2Panel()
+        Me.btnLaunchBrowser = New Guna.UI2.WinForms.Guna2Button()
         Me.TableLayoutPanel.SuspendLayout()
         Me.pnlTopInputs.SuspendLayout()
         Me.TableLayoutPanel1.SuspendLayout()
@@ -153,7 +154,6 @@ Partial Class frmMain
         '
         'pnlMiddleChecklist
         '
-        Me.pnlMiddleChecklist.AutoScroll = False
         Me.pnlMiddleChecklist.Controls.Add(Me.pnlWorkflow)
         Me.pnlMiddleChecklist.Dock = System.Windows.Forms.DockStyle.Fill
         Me.pnlMiddleChecklist.Location = New System.Drawing.Point(3, 63)
@@ -174,11 +174,26 @@ Partial Class frmMain
         Me.pnlWorkflow.Size = New System.Drawing.Size(422, 317)
         Me.pnlWorkflow.TabIndex = 0
         '
+        'btnLaunchBrowser
+        '
+        Me.btnLaunchBrowser.DisabledState.BorderColor = System.Drawing.Color.DarkGray
+        Me.btnLaunchBrowser.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray
+        Me.btnLaunchBrowser.DisabledState.FillColor = System.Drawing.Color.FromArgb(CType(CType(169, Byte), Integer), CType(CType(169, Byte), Integer), CType(CType(169, Byte), Integer))
+        Me.btnLaunchBrowser.DisabledState.ForeColor = System.Drawing.Color.FromArgb(CType(CType(141, Byte), Integer), CType(CType(141, Byte), Integer), CType(CType(141, Byte), Integer))
+        Me.btnLaunchBrowser.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnLaunchBrowser.ForeColor = System.Drawing.Color.White
+        Me.btnLaunchBrowser.Location = New System.Drawing.Point(309, 33)
+        Me.btnLaunchBrowser.Name = "btnLaunchBrowser"
+        Me.btnLaunchBrowser.Size = New System.Drawing.Size(119, 25)
+        Me.btnLaunchBrowser.TabIndex = 1
+        Me.btnLaunchBrowser.Text = "Launch Browser"
+        '
         'frmMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(434, 450)
+        Me.Controls.Add(Me.btnLaunchBrowser)
         Me.Controls.Add(Me.TableLayoutPanel)
         Me.Name = "frmMain"
         Me.Text = "AuthCallPilot"
@@ -199,4 +214,5 @@ Partial Class frmMain
     Friend WithEvents Guna2TextBox1 As Guna.UI2.WinForms.Guna2TextBox
     Friend WithEvents txtFaxRef As Guna.UI2.WinForms.Guna2TextBox
     Friend WithEvents txtCallback As Guna.UI2.WinForms.Guna2TextBox
+    Friend WithEvents btnLaunchBrowser As Guna.UI2.WinForms.Guna2Button
 End Class

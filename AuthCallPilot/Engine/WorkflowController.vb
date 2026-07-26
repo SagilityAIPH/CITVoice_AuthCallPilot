@@ -14,7 +14,15 @@
     End Function
     Public Function GetNextNode(state As WorkflowNodeState) As ChecklistNode
         If state Is Nothing Then Return Nothing
+
+        ' New response-driven engine
+        If state.SelectedResponse IsNot Nothing Then
+            Return state.SelectedResponse.NextNode
+        End If
+
+        ' Backward compatibility
         If Not state.Answer.HasValue Then Return Nothing
+
         If state.Answer.Value Then
             Return state.Node.YesNode
         Else
@@ -36,4 +44,12 @@
         Return index + 2
 
     End Function
+    'Private Sub StartWorkflow(workflowName As String)
+    '    Dim root As ChecklistNode = WorkflowRegistry.GetWorkflow(workflowName)
+    '    If root Is Nothing Then Exit Sub
+    '    _session.Path.Clear()
+    '    _session.Path.Add(New WorkflowNodeState With {
+    '        .Node = root
+    '    })
+    'End Sub
 End Class
