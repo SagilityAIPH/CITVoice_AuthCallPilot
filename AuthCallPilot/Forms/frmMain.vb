@@ -3,11 +3,38 @@ Imports MaterialSkin.Controls
 
 Public Class frmMain
     Inherits MaterialForm
-    Private Session As WorkflowSession
-    Private Controller As WorkflowController
-    Private _scrollToStep As Integer = 0
-    Dim section As New ucWorkflowSection()
+    'Private Session As WorkflowSession
+    'Private Controller As WorkflowController
+    'Private _scrollToStep As Integer = 0
+    'Dim section As New ucWorkflowSection()
+    Private _authenticationSession As WorkflowSession
+    Private _outOfScopeSession As WorkflowSession
+    Private _providerTriageSession As WorkflowSession
 
+    Private _authenticationController As WorkflowController
+    Private _outOfScopeController As WorkflowController
+    Private _providerTriageController As WorkflowController
+
+    Private _authenticationSection As ucWorkflowSection
+    Private _outOfScopeSection As ucWorkflowSection
+    Private _providerTriageSection As ucWorkflowSection
+    Private Function CreateSession(rootNode As ChecklistNode) As WorkflowSession
+        If rootNode Is Nothing Then
+            Throw New ArgumentNullException(NameOf(rootNode))
+        End If
+
+        Dim workflowSession As New WorkflowSession With {
+        .Root = rootNode,
+        .Current = rootNode
+    }
+
+        workflowSession.Path.Add(New WorkflowNodeState With {
+        .Node = rootNode,
+        .StepNumber = 1
+    })
+
+        Return workflowSession
+    End Function
 
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Me.Text = "CallPilot V1.0"
@@ -24,67 +51,165 @@ Public Class frmMain
             TextShade.WHITE
         )
 
-        'Dim root As ChecklistNode = AuthenticationWorkflow.CreateWorkflow()
-        Dim root As ChecklistNode = WorkflowManager.GetWorkflow("Authentication")
-        Session = New WorkflowSession()
-        Controller = New WorkflowController(Session)
-        Session.Root = root
-        Session.Current = root
-        Session.Path.Add(New WorkflowNodeState With {
-            .Node = root
-        })
+        Dim authenticationRoot As ChecklistNode = AuthenticationWorkflow.CreateWorkflow()
+        Dim outOfScopeRoot As ChecklistNode = CheckIfOutOfScopeWorkflow.CreateWorkflow()
+        Dim providerTriageRoot As ChecklistNode = ProviderTriageWorkflow.CreateWorkflow()
 
-        'RenderWorkflow()
+        _authenticationSession = CreateSession(authenticationRoot)
+        _outOfScopeSession = CreateSession(outOfScopeRoot)
+        _providerTriageSession = CreateSession(providerTriageRoot)
+
+        _authenticationController = New WorkflowController(_authenticationSession)
+        _outOfScopeController = New WorkflowController(_outOfScopeSession)
+        _providerTriageController = New WorkflowController(_providerTriageSession)
     End Sub
     Private Sub frmMain_Shown(sender As Object, e As EventArgs) Handles Me.Shown
         'working
-        RenderWorkflow()
+        'RenderWorkflow()
 
-        'Testing
-        'pnlWorkflow.Controls.Clear()
-        'Dim section As New ucWorkflowSection()
-        'section.Dock = DockStyle.Top
-        'Dim workflowStep As New ucWorkflowStep()
-        'workflowStep.LoadNode(Session.Root)
-        'section.AddWorkflowStep(workflowStep)
-        'pnlWorkflow.Controls.Add(section)
+        'tsting
+        RenderAllWorkflowSections()
+
     End Sub
-    Private Sub RenderWorkflow()
+    Private Sub RenderAllWorkflowSections()
 
         pnlWorkflow.SuspendLayout()
         pnlWorkflow.Controls.Clear()
+        pnlWorkflow.AutoScrollPosition = Point.Empty
 
-        section = New ucWorkflowSection()
-        section.SectionTitle = "Authentication"
-        section.Dock = DockStyle.Top
+        _authenticationSection = CreateWorkflowSection("Authentication", _authenticationSession, AddressOf AuthenticationStepAnswered)
+        _outOfScopeSection = CreateWorkflowSection("Check If Out Of Scope", _outOfScopeSession, AddressOf OutOfScopeStepAnswered)
+        _providerTriageSection = CreateWorkflowSection("Provider Triage", _providerTriageSession, AddressOf ProviderTriageStepAnswered)
+
+        _authenticationSection.Expanded = True
+        _outOfScopeSection.Expanded = False
+        _providerTriageSection.Expanded = False
+
+        'DockStyle.Top stacking is reverse-order sensitive.
+        pnlWorkflow.Controls.Add(_providerTriageSection)
+        pnlWorkflow.Controls.Add(_outOfScopeSection)
+        pnlWorkflow.Controls.Add(_authenticationSection)
+
+        pnlWorkflow.ResumeLayout(True)
+
+    End Sub
+    Private Function CreateWorkflowSection(title As String, workflowSession As WorkflowSession, answerHandler As Action(Of ucWorkflowStep)) As ucWorkflowSection
+
+        Dim newSection As New ucWorkflowSection With {
+        .SectionTitle = title,
+        .Dock = DockStyle.Top,
+        .Margin = New Padding(0, 0, 0, 8)
+    }
 
         Dim stepNumber As Integer = 1
 
-        For Each state In Session.Path
-            Dim workflowStep As New ucWorkflowStep()
-            workflowStep.StepNumber = stepNumber
-            workflowStep.LoadNode(state.Node)
+        For Each state As WorkflowNodeState In workflowSession.Path
+
+            Dim stepControl As New ucWorkflowStep With {
+            .StepNumber = stepNumber,
+            .SelectedResponse = state.SelectedResponse
+        }
+
+            stepControl.LoadNode(state.Node)
+
             If state.Answer.HasValue Then
-                workflowStep.Answer = state.Answer
+                stepControl.Answer = state.Answer
             End If
-            AddHandler workflowStep.AnswerSelected, AddressOf StepAnswered
-            section.AddWorkflowStep(workflowStep)
+
+            AddHandler stepControl.AnswerSelected,
+            Sub(senderStep As ucWorkflowStep)
+                answerHandler(senderStep)
+            End Sub
+
+            newSection.AddWorkflowStep(stepControl)
+
             stepNumber += 1
 
         Next
-        pnlWorkflow.Controls.Add(section)
-        pnlWorkflow.ResumeLayout()
 
+        Return newSection
+
+    End Function
+    Private Sub AuthenticationStepAnswered(stepControl As ucWorkflowStep)
+        HandleWorkflowAnswer(stepControl, _authenticationController, _authenticationSession, _authenticationSection, AddressOf AuthenticationStepAnswered)
     End Sub
-    Private Sub StepAnswered(stepControl As ucWorkflowStep)
-        Dim state As WorkflowNodeState = Controller.GetState(stepControl.CurrentNode)
+    Private Sub OutOfScopeStepAnswered(stepControl As ucWorkflowStep)
+        HandleWorkflowAnswer(stepControl, _outOfScopeController, _outOfScopeSession, _outOfScopeSection, AddressOf OutOfScopeStepAnswered)
+    End Sub
+    Private Sub ProviderTriageStepAnswered(stepControl As ucWorkflowStep)
+        HandleWorkflowAnswer(stepControl, _providerTriageController, _providerTriageSession, _providerTriageSection, AddressOf ProviderTriageStepAnswered)
+    End Sub
+    Private Sub HandleWorkflowAnswer(stepControl As ucWorkflowStep, controller As WorkflowController, workflowSession As WorkflowSession, workflowSection As ucWorkflowSection, answerHandler As Action(Of ucWorkflowStep)
+)
+        Dim state As WorkflowNodeState = controller.GetState(stepControl.CurrentNode)
         If state Is Nothing Then Exit Sub
+
         state.Answer = stepControl.Answer
         state.SelectedResponse = stepControl.SelectedResponse
-        _scrollToStep = Controller.AdvanceWorkflow(state)
-        RenderWorkflow()
-    End Sub
 
+        controller.AdvanceWorkflow(state)
+        RefreshWorkflowSection(workflowSection, workflowSession, answerHandler)
+    End Sub
+    Private Sub RefreshWorkflowSection(workflowSection As ucWorkflowSection, workflowSession As WorkflowSession, answerHandler As Action(Of ucWorkflowStep)
+)
+
+        If workflowSection Is Nothing Then Exit Sub
+        If workflowSession Is Nothing Then Exit Sub
+
+        Dim wasExpanded As Boolean = workflowSection.Expanded
+
+        workflowSection.SuspendLayout()
+        workflowSection.ClearWorkflowSteps()
+
+        Dim stepNumber As Integer = 1
+        Dim newestStep As ucWorkflowStep = Nothing
+
+        For Each state As WorkflowNodeState In workflowSession.Path
+
+            Dim stepControl As New ucWorkflowStep With {
+            .StepNumber = stepNumber,
+            .SelectedResponse = state.SelectedResponse
+        }
+
+            stepControl.LoadNode(state.Node)
+
+            If state.Answer.HasValue Then
+                stepControl.Answer = state.Answer
+            End If
+
+            AddHandler stepControl.AnswerSelected,
+            Sub(senderStep As ucWorkflowStep)
+                answerHandler(senderStep)
+            End Sub
+
+            workflowSection.AddWorkflowStep(stepControl)
+
+            newestStep = stepControl
+            stepNumber += 1
+
+        Next
+
+        workflowSection.Expanded = wasExpanded
+        workflowSection.ResumeLayout(True)
+
+        If IsHandleCreated Then
+
+            BeginInvoke(
+        New MethodInvoker(
+            Sub()
+
+                workflowSection.PerformLayout()
+                workflowSection.ResizeWorkflowSteps()
+
+                If newestStep IsNot Nothing AndAlso wasExpanded Then
+                    pnlWorkflow.ScrollControlIntoView(newestStep)
+                End If
+
+            End Sub))
+
+        End If
+
+    End Sub
     Private Sub btnLaunchBrowser_Click(sender As Object, e As EventArgs) Handles btnLaunchBrowser.Click
         Try
             BrowserManager.Launch()
