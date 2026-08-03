@@ -1,40 +1,10 @@
 ﻿Imports MaterialSkin
 Imports MaterialSkin.Controls
-
+Imports System.Linq
 Public Class frmMain
-    Inherits MaterialForm
-    'Private Session As WorkflowSession
-    'Private Controller As WorkflowController
-    'Private _scrollToStep As Integer = 0
-    'Dim section As New ucWorkflowSection()
-    Private _authenticationSession As WorkflowSession
-    Private _outOfScopeSession As WorkflowSession
-    Private _providerTriageSession As WorkflowSession
-
-    Private _authenticationController As WorkflowController
-    Private _outOfScopeController As WorkflowController
-    Private _providerTriageController As WorkflowController
-
-    Private _authenticationSection As ucWorkflowSection
-    Private _outOfScopeSection As ucWorkflowSection
-    Private _providerTriageSection As ucWorkflowSection
-    Private Function CreateSession(rootNode As ChecklistNode) As WorkflowSession
-        If rootNode Is Nothing Then
-            Throw New ArgumentNullException(NameOf(rootNode))
-        End If
-
-        Dim workflowSession As New WorkflowSession With {
-        .Root = rootNode,
-        .Current = rootNode
-    }
-
-        workflowSession.Path.Add(New WorkflowNodeState With {
-        .Node = rootNode,
-        .StepNumber = 1
-    })
-
-        Return workflowSession
-    End Function
+    Private _currentContext As CallContext
+    Private _currentLookup As LookupResult
+    Private _currentQuestionId As String
 
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Me.Text = "CallPilot V1.0"
@@ -51,165 +21,30 @@ Public Class frmMain
             TextShade.WHITE
         )
 
-        Dim authenticationRoot As ChecklistNode = AuthenticationWorkflow.CreateWorkflow()
-        Dim outOfScopeRoot As ChecklistNode = CheckIfOutOfScopeWorkflow.CreateWorkflow()
-        Dim providerTriageRoot As ChecklistNode = ProviderTriageWorkflow.CreateWorkflow()
+        cmbScenario.Items.Clear()
+        cmbScenario.Items.Add("NEW AUTHORIZATION")
+        cmbScenario.Items.Add("UPDATING AUTHORIZATION")
+        cmbScenario.Items.Add("CHECKING STATUS OF THE AUTHORIZATION")
+        cmbScenario.SelectedIndex = -1
 
-        _authenticationSession = CreateSession(authenticationRoot)
-        _outOfScopeSession = CreateSession(outOfScopeRoot)
-        _providerTriageSession = CreateSession(providerTriageRoot)
+        txtOverAllOutput.Clear()
+        txtNextBestAction.Clear()
 
-        _authenticationController = New WorkflowController(_authenticationSession)
-        _outOfScopeController = New WorkflowController(_outOfScopeSession)
-        _providerTriageController = New WorkflowController(_providerTriageSession)
+        pnlActions.Controls.Clear()
+        pnlActions.Visible = False
+
+        'txtOverAllOutput.ReadOnly = True
+        txtNextBestAction.ReadOnly = True
     End Sub
     Private Sub frmMain_Shown(sender As Object, e As EventArgs) Handles Me.Shown
         'working
         'RenderWorkflow()
 
         'tsting
-        RenderAllWorkflowSections()
+        'RenderAllWorkflowSections()
 
     End Sub
-    Private Sub RenderAllWorkflowSections()
 
-        pnlWorkflow.SuspendLayout()
-        pnlWorkflow.Controls.Clear()
-        pnlWorkflow.AutoScrollPosition = Point.Empty
-
-        _authenticationSection = CreateWorkflowSection("Authentication", _authenticationSession, AddressOf AuthenticationStepAnswered)
-        _outOfScopeSection = CreateWorkflowSection("Check If Out Of Scope", _outOfScopeSession, AddressOf OutOfScopeStepAnswered)
-        _providerTriageSection = CreateWorkflowSection("Provider Triage", _providerTriageSession, AddressOf ProviderTriageStepAnswered)
-
-        _authenticationSection.Expanded = True
-        _outOfScopeSection.Expanded = False
-        _providerTriageSection.Expanded = False
-
-        'DockStyle.Top stacking is reverse-order sensitive.
-        pnlWorkflow.Controls.Add(_providerTriageSection)
-        pnlWorkflow.Controls.Add(_outOfScopeSection)
-        pnlWorkflow.Controls.Add(_authenticationSection)
-
-        pnlWorkflow.ResumeLayout(True)
-
-    End Sub
-    Private Function CreateWorkflowSection(title As String, workflowSession As WorkflowSession, answerHandler As Action(Of ucWorkflowStep)) As ucWorkflowSection
-
-        Dim newSection As New ucWorkflowSection With {
-        .SectionTitle = title,
-        .Dock = DockStyle.Top,
-        .Margin = New Padding(0, 0, 0, 8)
-    }
-
-        Dim stepNumber As Integer = 1
-
-        For Each state As WorkflowNodeState In workflowSession.Path
-
-            Dim stepControl As New ucWorkflowStep With {
-            .StepNumber = stepNumber,
-            .SelectedResponse = state.SelectedResponse
-        }
-
-            stepControl.LoadNode(state.Node)
-
-            If state.Answer.HasValue Then
-                stepControl.Answer = state.Answer
-            End If
-
-            AddHandler stepControl.AnswerSelected,
-            Sub(senderStep As ucWorkflowStep)
-                answerHandler(senderStep)
-            End Sub
-
-            newSection.AddWorkflowStep(stepControl)
-
-            stepNumber += 1
-
-        Next
-
-        Return newSection
-
-    End Function
-    Private Sub AuthenticationStepAnswered(stepControl As ucWorkflowStep)
-        HandleWorkflowAnswer(stepControl, _authenticationController, _authenticationSession, _authenticationSection, AddressOf AuthenticationStepAnswered)
-    End Sub
-    Private Sub OutOfScopeStepAnswered(stepControl As ucWorkflowStep)
-        HandleWorkflowAnswer(stepControl, _outOfScopeController, _outOfScopeSession, _outOfScopeSection, AddressOf OutOfScopeStepAnswered)
-    End Sub
-    Private Sub ProviderTriageStepAnswered(stepControl As ucWorkflowStep)
-        HandleWorkflowAnswer(stepControl, _providerTriageController, _providerTriageSession, _providerTriageSection, AddressOf ProviderTriageStepAnswered)
-    End Sub
-    Private Sub HandleWorkflowAnswer(stepControl As ucWorkflowStep, controller As WorkflowController, workflowSession As WorkflowSession, workflowSection As ucWorkflowSection, answerHandler As Action(Of ucWorkflowStep)
-)
-        Dim state As WorkflowNodeState = controller.GetState(stepControl.CurrentNode)
-        If state Is Nothing Then Exit Sub
-
-        state.Answer = stepControl.Answer
-        state.SelectedResponse = stepControl.SelectedResponse
-
-        controller.AdvanceWorkflow(state)
-        RefreshWorkflowSection(workflowSection, workflowSession, answerHandler)
-    End Sub
-    Private Sub RefreshWorkflowSection(workflowSection As ucWorkflowSection, workflowSession As WorkflowSession, answerHandler As Action(Of ucWorkflowStep)
-)
-
-        If workflowSection Is Nothing Then Exit Sub
-        If workflowSession Is Nothing Then Exit Sub
-
-        Dim wasExpanded As Boolean = workflowSection.Expanded
-
-        workflowSection.SuspendLayout()
-        workflowSection.ClearWorkflowSteps()
-
-        Dim stepNumber As Integer = 1
-        Dim newestStep As ucWorkflowStep = Nothing
-
-        For Each state As WorkflowNodeState In workflowSession.Path
-
-            Dim stepControl As New ucWorkflowStep With {
-            .StepNumber = stepNumber,
-            .SelectedResponse = state.SelectedResponse
-        }
-
-            stepControl.LoadNode(state.Node)
-
-            If state.Answer.HasValue Then
-                stepControl.Answer = state.Answer
-            End If
-
-            AddHandler stepControl.AnswerSelected,
-            Sub(senderStep As ucWorkflowStep)
-                answerHandler(senderStep)
-            End Sub
-
-            workflowSection.AddWorkflowStep(stepControl)
-
-            newestStep = stepControl
-            stepNumber += 1
-
-        Next
-
-        workflowSection.Expanded = wasExpanded
-        workflowSection.ResumeLayout(True)
-
-        If IsHandleCreated Then
-
-            BeginInvoke(
-        New MethodInvoker(
-            Sub()
-
-                workflowSection.PerformLayout()
-                workflowSection.ResizeWorkflowSteps()
-
-                If newestStep IsNot Nothing AndAlso wasExpanded Then
-                    pnlWorkflow.ScrollControlIntoView(newestStep)
-                End If
-
-            End Sub))
-
-        End If
-
-    End Sub
     Private Sub btnLaunchBrowser_Click(sender As Object, e As EventArgs) Handles btnLaunchBrowser.Click
         Try
             BrowserManager.Launch()
@@ -217,20 +52,150 @@ Public Class frmMain
             MessageBox.Show(ex.Message, "Browser Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
-    'Private Sub frmMain_Resize(sender As Object, e As EventArgs) Handles Me.Resize
-    '    Dim y As Integer = 10
-    '    Dim availableWidth As Integer =
-    '    pnlWorkflow.ClientSize.Width -
-    '    pnlWorkflow.Padding.Left -
-    '    pnlWorkflow.Padding.Right - 2
 
-    '    For Each ctrl As ucWorkflowStep In pnlWorkflow.Controls.OfType(Of ucWorkflowStep)()
-    '        ctrl.Width = availableWidth
-    '        ctrl.Left = pnlWorkflow.Padding.Left
-    '        ctrl.Top = y
+    Private Sub btnAnalyze_Click(sender As Object, e As EventArgs) Handles btnAnalyze.Click
+        Try
+            _currentContext = BuildCallContextFromUI()
 
-    '        y += ctrl.Height + 4
-    '    Next
-    'End Sub
+            'Temporary test values.
+            'Later these will come from Selenium/CGX.
+            _currentContext.Product = "Medicare HMO"
+            _currentContext.Conso = "CONSOL - FLORIDA"
+            _currentContext.IssueState = "FL"
+            _currentContext.GroupNumber = "333569"
+            _currentContext.HealthType = "PHYSICAL HEALTH"
+            _currentContext.CareSetting = "INPATIENT"
+            _currentContext.AuthorizationStatus = "PENDING"
 
+            _currentContext.ProcedureCodes.Clear()
+            _currentContext.ProcedureCodes.Add("11971")
+
+            _currentLookup =
+                CallPilotRepository.RunLookups(
+                    _currentContext)
+
+            RunRecommendation()
+
+        Catch ex As Exception
+
+            MessageBox.Show(
+                ex.ToString(),
+                "Analyze Error",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error)
+
+        End Try
+    End Sub
+    Private Function BuildCallContextFromUI() As CallContext
+
+        Dim dob As DateTime
+        Dim parsedDob As DateTime? = Nothing
+
+        If DateTime.TryParse(txtDOB.Text.Trim(), dob) Then
+            parsedDob = dob
+        End If
+
+        Return New CallContext With {
+            .CallerFirstName = txtCallerFirstName.Text.Trim(),
+            .CallerLastName = txtCallerLastName.Text.Trim(),
+            .MemberId = txtMemberId.Text.Trim(),
+            .DateOfBirth = parsedDob,
+            .Scenario = Convert.ToString(cmbScenario.SelectedItem)
+        }
+    End Function
+    Private Sub RunRecommendation()
+
+        If _currentContext Is Nothing Then Exit Sub
+        If _currentLookup Is Nothing Then Exit Sub
+
+        Dim result As RecommendationResult = RecommendationEngine.Analyze(_currentContext, _currentLookup)
+
+        txtOverAllOutput.Text = result.OverallOutput
+        txtNextBestAction.Text = result.NextBestAction
+        If result.RequiresAgentInput Then
+            ShowActionQuestion(result.QuestionId, result.QuestionText, result.QuestionOptions)
+        Else
+            ClearActionsPanel()
+        End If
+    End Sub
+    Private Sub ShowActionQuestion(questionId As String, questionText As String, options As IEnumerable(Of String))
+        ClearActionsPanel()
+        _currentQuestionId = questionId
+        pnlActions.SuspendLayout()
+
+        Dim questionLabel As New Label With {
+            .Text = questionText,
+            .AutoSize = False,
+            .Font = New Font("Segoe UI", 10.0!, FontStyle.Bold),
+            .Left = 12,
+            .Top = 10,
+            .Width = Math.Max(150, pnlActions.ClientSize.Width - 24),
+            .Height = 32
+        }
+
+        pnlActions.Controls.Add(questionLabel)
+
+        Dim y As Integer =
+            questionLabel.Bottom + 5
+
+        For Each optionText As String In options
+
+            Dim radio As New Guna.UI2.WinForms.Guna2RadioButton With
+            {
+            .Text = optionText,
+            .Tag = optionText,
+            .AutoSize = True,
+            .Left = 16,
+            .Top = y,
+            .Font = New Font(
+                "Segoe UI",
+                9.5!,
+                FontStyle.Regular)
+        }
+
+            AddHandler radio.CheckedChanged, AddressOf DynamicAction_CheckedChanged
+            pnlActions.Controls.Add(radio)
+            y += radio.Height + 8
+
+        Next
+
+        pnlActions.Height = y + 10
+        pnlActions.Visible = True
+        pnlActions.ResumeLayout(True)
+
+    End Sub
+    Private Sub DynamicAction_CheckedChanged(sender As Object, e As EventArgs)
+
+        Dim radio As Guna.UI2.WinForms.Guna2RadioButton = TryCast(sender, Guna.UI2.WinForms.Guna2RadioButton)
+
+        If radio Is Nothing OrElse Not radio.Checked Then
+            Exit Sub
+        End If
+
+        Dim selectedValue As String = Convert.ToString(radio.Tag)
+
+        Select Case _currentQuestionId
+            Case "EXPEDITED_REQUEST"
+                _currentContext.IsExpedited = String.Equals(selectedValue, "YES", StringComparison.OrdinalIgnoreCase)
+
+            Case "CALLER_TYPE"
+                _currentContext.CallerType = selectedValue
+
+        End Select
+        RunRecommendation()
+
+    End Sub
+    Private Sub ClearActionsPanel()
+        pnlActions.SuspendLayout()
+
+        For Each control As Control In pnlActions.Controls.Cast(Of Control)().ToList()
+            pnlActions.Controls.Remove(control)
+            control.Dispose()
+        Next
+
+        pnlActions.Visible = False
+        _currentQuestionId = Nothing
+        pnlActions.ResumeLayout(True)
+
+    End Sub
 End Class

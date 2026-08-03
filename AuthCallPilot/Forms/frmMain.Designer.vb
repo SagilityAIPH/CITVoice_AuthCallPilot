@@ -22,157 +22,23 @@ Partial Class frmMain
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
-        Me.TableLayoutPanel = New System.Windows.Forms.TableLayoutPanel()
-        Me.pnlTopInputs = New System.Windows.Forms.Panel()
-        Me.TableLayoutPanel1 = New System.Windows.Forms.TableLayoutPanel()
-        Me.txtFaxRef = New Guna.UI2.WinForms.Guna2TextBox()
-        Me.Guna2TextBox1 = New Guna.UI2.WinForms.Guna2TextBox()
-        Me.txtCallback = New Guna.UI2.WinForms.Guna2TextBox()
-        Me.pnlMiddleChecklist = New System.Windows.Forms.Panel()
-        Me.pnlWorkflow = New Guna.UI2.WinForms.Guna2Panel()
         Me.btnLaunchBrowser = New Guna.UI2.WinForms.Guna2Button()
-        Me.TableLayoutPanel.SuspendLayout()
-        Me.pnlTopInputs.SuspendLayout()
-        Me.TableLayoutPanel1.SuspendLayout()
-        Me.pnlMiddleChecklist.SuspendLayout()
+        Me.Guna2Panel1 = New Guna.UI2.WinForms.Guna2Panel()
+        Me.pnlOverallActions = New Guna.UI2.WinForms.Guna2Panel()
+        Me.pnlActions = New Guna.UI2.WinForms.Guna2Panel()
+        Me.cmbScenario = New Guna.UI2.WinForms.Guna2ComboBox()
+        Me.txtOverAllOutput = New Guna.UI2.WinForms.Guna2TextBox()
+        Me.txtNextBestAction = New Guna.UI2.WinForms.Guna2TextBox()
+        Me.btnAnalyze = New Guna.UI2.WinForms.Guna2Button()
+        Me.txtMemberId = New Guna.UI2.WinForms.Guna2TextBox()
+        Me.txtDOB = New Guna.UI2.WinForms.Guna2TextBox()
+        Me.txtCallerLastName = New Guna.UI2.WinForms.Guna2TextBox()
+        Me.txtCallerFirstName = New Guna.UI2.WinForms.Guna2TextBox()
+        Me.Guna2HtmlLabel1 = New Guna.UI2.WinForms.Guna2HtmlLabel()
+        Me.Guna2HtmlLabel2 = New Guna.UI2.WinForms.Guna2HtmlLabel()
+        Me.Guna2Panel1.SuspendLayout()
+        Me.pnlOverallActions.SuspendLayout()
         Me.SuspendLayout()
-        '
-        'TableLayoutPanel
-        '
-        Me.TableLayoutPanel.ColumnCount = 1
-        Me.TableLayoutPanel.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel.Controls.Add(Me.pnlTopInputs, 0, 0)
-        Me.TableLayoutPanel.Controls.Add(Me.pnlMiddleChecklist, 0, 1)
-        Me.TableLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel.Location = New System.Drawing.Point(3, 64)
-        Me.TableLayoutPanel.Name = "TableLayoutPanel"
-        Me.TableLayoutPanel.RowCount = 2
-        Me.TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 60.0!))
-        Me.TableLayoutPanel.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel.Size = New System.Drawing.Size(428, 383)
-        Me.TableLayoutPanel.TabIndex = 0
-        '
-        'pnlTopInputs
-        '
-        Me.pnlTopInputs.Controls.Add(Me.TableLayoutPanel1)
-        Me.pnlTopInputs.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.pnlTopInputs.Location = New System.Drawing.Point(3, 3)
-        Me.pnlTopInputs.Name = "pnlTopInputs"
-        Me.pnlTopInputs.Size = New System.Drawing.Size(422, 54)
-        Me.pnlTopInputs.TabIndex = 0
-        '
-        'TableLayoutPanel1
-        '
-        Me.TableLayoutPanel1.ColumnCount = 3
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33333!))
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334!))
-        Me.TableLayoutPanel1.ColumnStyles.Add(New System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.33334!))
-        Me.TableLayoutPanel1.Controls.Add(Me.txtFaxRef, 2, 0)
-        Me.TableLayoutPanel1.Controls.Add(Me.Guna2TextBox1, 0, 0)
-        Me.TableLayoutPanel1.Controls.Add(Me.txtCallback, 1, 0)
-        Me.TableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.TableLayoutPanel1.Location = New System.Drawing.Point(0, 0)
-        Me.TableLayoutPanel1.Name = "TableLayoutPanel1"
-        Me.TableLayoutPanel1.Padding = New System.Windows.Forms.Padding(10)
-        Me.TableLayoutPanel1.RowCount = 1
-        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100.0!))
-        Me.TableLayoutPanel1.RowStyles.Add(New System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 34.0!))
-        Me.TableLayoutPanel1.Size = New System.Drawing.Size(422, 54)
-        Me.TableLayoutPanel1.TabIndex = 0
-        '
-        'txtFaxRef
-        '
-        Me.txtFaxRef.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.txtFaxRef.BorderColor = System.Drawing.Color.FromArgb(CType(CType(210, Byte), Integer), CType(CType(214, Byte), Integer), CType(CType(219, Byte), Integer))
-        Me.txtFaxRef.BorderRadius = 6
-        Me.txtFaxRef.Cursor = System.Windows.Forms.Cursors.IBeam
-        Me.txtFaxRef.DefaultText = ""
-        Me.txtFaxRef.DisabledState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer))
-        Me.txtFaxRef.DisabledState.FillColor = System.Drawing.Color.FromArgb(CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer))
-        Me.txtFaxRef.DisabledState.ForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
-        Me.txtFaxRef.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
-        Me.txtFaxRef.FocusedState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(95, Byte), Integer), CType(CType(85, Byte), Integer))
-        Me.txtFaxRef.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.txtFaxRef.HoverState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
-        Me.txtFaxRef.Location = New System.Drawing.Point(280, 13)
-        Me.txtFaxRef.Name = "txtFaxRef"
-        Me.txtFaxRef.Padding = New System.Windows.Forms.Padding(10, 0, 0, 0)
-        Me.txtFaxRef.PlaceholderForeColor = System.Drawing.Color.FromArgb(CType(CType(150, Byte), Integer), CType(CType(150, Byte), Integer), CType(CType(150, Byte), Integer))
-        Me.txtFaxRef.PlaceholderText = "Fax #"
-        Me.txtFaxRef.SelectedText = ""
-        Me.txtFaxRef.Size = New System.Drawing.Size(129, 28)
-        Me.txtFaxRef.TabIndex = 5
-        Me.txtFaxRef.TextOffset = New System.Drawing.Point(8, 0)
-        '
-        'Guna2TextBox1
-        '
-        Me.Guna2TextBox1.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.Guna2TextBox1.BorderColor = System.Drawing.Color.FromArgb(CType(CType(210, Byte), Integer), CType(CType(214, Byte), Integer), CType(CType(219, Byte), Integer))
-        Me.Guna2TextBox1.BorderRadius = 6
-        Me.Guna2TextBox1.Cursor = System.Windows.Forms.Cursors.IBeam
-        Me.Guna2TextBox1.DefaultText = ""
-        Me.Guna2TextBox1.DisabledState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer))
-        Me.Guna2TextBox1.DisabledState.FillColor = System.Drawing.Color.FromArgb(CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer))
-        Me.Guna2TextBox1.DisabledState.ForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
-        Me.Guna2TextBox1.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
-        Me.Guna2TextBox1.FocusedState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(95, Byte), Integer), CType(CType(85, Byte), Integer))
-        Me.Guna2TextBox1.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.Guna2TextBox1.HoverState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
-        Me.Guna2TextBox1.Location = New System.Drawing.Point(13, 13)
-        Me.Guna2TextBox1.Name = "Guna2TextBox1"
-        Me.Guna2TextBox1.Padding = New System.Windows.Forms.Padding(10, 0, 0, 0)
-        Me.Guna2TextBox1.PlaceholderForeColor = System.Drawing.Color.FromArgb(CType(CType(150, Byte), Integer), CType(CType(150, Byte), Integer), CType(CType(150, Byte), Integer))
-        Me.Guna2TextBox1.PlaceholderText = "Caller Name"
-        Me.Guna2TextBox1.SelectedText = ""
-        Me.Guna2TextBox1.Size = New System.Drawing.Size(127, 28)
-        Me.Guna2TextBox1.TabIndex = 3
-        Me.Guna2TextBox1.TextOffset = New System.Drawing.Point(8, 0)
-        '
-        'txtCallback
-        '
-        Me.txtCallback.Anchor = CType((System.Windows.Forms.AnchorStyles.Left Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.txtCallback.BorderColor = System.Drawing.Color.FromArgb(CType(CType(210, Byte), Integer), CType(CType(214, Byte), Integer), CType(CType(219, Byte), Integer))
-        Me.txtCallback.BorderRadius = 6
-        Me.txtCallback.Cursor = System.Windows.Forms.Cursors.IBeam
-        Me.txtCallback.DefaultText = ""
-        Me.txtCallback.DisabledState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer))
-        Me.txtCallback.DisabledState.FillColor = System.Drawing.Color.FromArgb(CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer))
-        Me.txtCallback.DisabledState.ForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
-        Me.txtCallback.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
-        Me.txtCallback.FocusedState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(0, Byte), Integer), CType(CType(95, Byte), Integer), CType(CType(85, Byte), Integer))
-        Me.txtCallback.Font = New System.Drawing.Font("Segoe UI", 9.0!)
-        Me.txtCallback.HoverState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
-        Me.txtCallback.Location = New System.Drawing.Point(146, 13)
-        Me.txtCallback.Name = "txtCallback"
-        Me.txtCallback.Padding = New System.Windows.Forms.Padding(10, 0, 0, 0)
-        Me.txtCallback.PlaceholderForeColor = System.Drawing.Color.FromArgb(CType(CType(150, Byte), Integer), CType(CType(150, Byte), Integer), CType(CType(150, Byte), Integer))
-        Me.txtCallback.PlaceholderText = "Callback"
-        Me.txtCallback.SelectedText = ""
-        Me.txtCallback.Size = New System.Drawing.Size(128, 28)
-        Me.txtCallback.TabIndex = 4
-        Me.txtCallback.TextOffset = New System.Drawing.Point(8, 0)
-        '
-        'pnlMiddleChecklist
-        '
-        Me.pnlMiddleChecklist.Controls.Add(Me.pnlWorkflow)
-        Me.pnlMiddleChecklist.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.pnlMiddleChecklist.Location = New System.Drawing.Point(3, 63)
-        Me.pnlMiddleChecklist.Name = "pnlMiddleChecklist"
-        Me.pnlMiddleChecklist.Size = New System.Drawing.Size(422, 317)
-        Me.pnlMiddleChecklist.TabIndex = 1
-        '
-        'pnlWorkflow
-        '
-        Me.pnlWorkflow.AutoScroll = True
-        Me.pnlWorkflow.AutoSize = True
-        Me.pnlWorkflow.BorderRadius = 15
-        Me.pnlWorkflow.Dock = System.Windows.Forms.DockStyle.Fill
-        Me.pnlWorkflow.FillColor = System.Drawing.Color.White
-        Me.pnlWorkflow.Location = New System.Drawing.Point(0, 0)
-        Me.pnlWorkflow.Name = "pnlWorkflow"
-        Me.pnlWorkflow.Padding = New System.Windows.Forms.Padding(10)
-        Me.pnlWorkflow.Size = New System.Drawing.Size(422, 317)
-        Me.pnlWorkflow.TabIndex = 0
         '
         'btnLaunchBrowser
         '
@@ -180,39 +46,239 @@ Partial Class frmMain
         Me.btnLaunchBrowser.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray
         Me.btnLaunchBrowser.DisabledState.FillColor = System.Drawing.Color.FromArgb(CType(CType(169, Byte), Integer), CType(CType(169, Byte), Integer), CType(CType(169, Byte), Integer))
         Me.btnLaunchBrowser.DisabledState.ForeColor = System.Drawing.Color.FromArgb(CType(CType(141, Byte), Integer), CType(CType(141, Byte), Integer), CType(CType(141, Byte), Integer))
-        Me.btnLaunchBrowser.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnLaunchBrowser.Font = New System.Drawing.Font("Segoe UI", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
         Me.btnLaunchBrowser.ForeColor = System.Drawing.Color.White
-        Me.btnLaunchBrowser.Location = New System.Drawing.Point(309, 33)
+        Me.btnLaunchBrowser.Location = New System.Drawing.Point(255, 33)
         Me.btnLaunchBrowser.Name = "btnLaunchBrowser"
         Me.btnLaunchBrowser.Size = New System.Drawing.Size(119, 25)
         Me.btnLaunchBrowser.TabIndex = 1
         Me.btnLaunchBrowser.Text = "Launch Browser"
         '
+        'Guna2Panel1
+        '
+        Me.Guna2Panel1.Controls.Add(Me.Guna2HtmlLabel2)
+        Me.Guna2Panel1.Controls.Add(Me.Guna2HtmlLabel1)
+        Me.Guna2Panel1.Controls.Add(Me.pnlOverallActions)
+        Me.Guna2Panel1.Controls.Add(Me.txtOverAllOutput)
+        Me.Guna2Panel1.Controls.Add(Me.txtNextBestAction)
+        Me.Guna2Panel1.Controls.Add(Me.btnAnalyze)
+        Me.Guna2Panel1.Controls.Add(Me.txtMemberId)
+        Me.Guna2Panel1.Controls.Add(Me.txtDOB)
+        Me.Guna2Panel1.Controls.Add(Me.txtCallerLastName)
+        Me.Guna2Panel1.Controls.Add(Me.txtCallerFirstName)
+        Me.Guna2Panel1.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.Guna2Panel1.Location = New System.Drawing.Point(3, 64)
+        Me.Guna2Panel1.Name = "Guna2Panel1"
+        Me.Guna2Panel1.Size = New System.Drawing.Size(386, 602)
+        Me.Guna2Panel1.TabIndex = 2
+        '
+        'pnlOverallActions
+        '
+        Me.pnlOverallActions.Controls.Add(Me.pnlActions)
+        Me.pnlOverallActions.Controls.Add(Me.cmbScenario)
+        Me.pnlOverallActions.Location = New System.Drawing.Point(19, 99)
+        Me.pnlOverallActions.Name = "pnlOverallActions"
+        Me.pnlOverallActions.Size = New System.Drawing.Size(340, 223)
+        Me.pnlOverallActions.TabIndex = 8
+        '
+        'pnlActions
+        '
+        Me.pnlActions.Anchor = System.Windows.Forms.AnchorStyles.Top
+        Me.pnlActions.Location = New System.Drawing.Point(4, 53)
+        Me.pnlActions.Name = "pnlActions"
+        Me.pnlActions.Size = New System.Drawing.Size(333, 167)
+        Me.pnlActions.TabIndex = 5
+        '
+        'cmbScenario
+        '
+        Me.cmbScenario.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.cmbScenario.AutoRoundedCorners = True
+        Me.cmbScenario.BackColor = System.Drawing.Color.Transparent
+        Me.cmbScenario.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed
+        Me.cmbScenario.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList
+        Me.cmbScenario.FocusedColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
+        Me.cmbScenario.FocusedState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
+        Me.cmbScenario.Font = New System.Drawing.Font("Segoe UI", 8.25!)
+        Me.cmbScenario.ForeColor = System.Drawing.Color.FromArgb(CType(CType(68, Byte), Integer), CType(CType(88, Byte), Integer), CType(CType(112, Byte), Integer))
+        Me.cmbScenario.ItemHeight = 30
+        Me.cmbScenario.Items.AddRange(New Object() {"New Authorization", "Updating Authorization", "Checking Status Of The Authorization"})
+        Me.cmbScenario.Location = New System.Drawing.Point(29, 11)
+        Me.cmbScenario.Name = "cmbScenario"
+        Me.cmbScenario.Size = New System.Drawing.Size(271, 36)
+        Me.cmbScenario.TabIndex = 4
+        '
+        'txtOverAllOutput
+        '
+        Me.txtOverAllOutput.Cursor = System.Windows.Forms.Cursors.IBeam
+        Me.txtOverAllOutput.DefaultText = ""
+        Me.txtOverAllOutput.DisabledState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer))
+        Me.txtOverAllOutput.DisabledState.FillColor = System.Drawing.Color.FromArgb(CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer))
+        Me.txtOverAllOutput.DisabledState.ForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
+        Me.txtOverAllOutput.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
+        Me.txtOverAllOutput.FocusedState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
+        Me.txtOverAllOutput.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtOverAllOutput.HoverState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
+        Me.txtOverAllOutput.Location = New System.Drawing.Point(19, 476)
+        Me.txtOverAllOutput.Multiline = True
+        Me.txtOverAllOutput.Name = "txtOverAllOutput"
+        Me.txtOverAllOutput.PlaceholderText = ""
+        Me.txtOverAllOutput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.txtOverAllOutput.SelectedText = ""
+        Me.txtOverAllOutput.Size = New System.Drawing.Size(340, 114)
+        Me.txtOverAllOutput.TabIndex = 7
+        '
+        'txtNextBestAction
+        '
+        Me.txtNextBestAction.Cursor = System.Windows.Forms.Cursors.IBeam
+        Me.txtNextBestAction.DefaultText = ""
+        Me.txtNextBestAction.DisabledState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer))
+        Me.txtNextBestAction.DisabledState.FillColor = System.Drawing.Color.FromArgb(CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer))
+        Me.txtNextBestAction.DisabledState.ForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
+        Me.txtNextBestAction.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
+        Me.txtNextBestAction.FocusedState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
+        Me.txtNextBestAction.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.txtNextBestAction.HoverState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
+        Me.txtNextBestAction.Location = New System.Drawing.Point(19, 349)
+        Me.txtNextBestAction.Multiline = True
+        Me.txtNextBestAction.Name = "txtNextBestAction"
+        Me.txtNextBestAction.PlaceholderText = ""
+        Me.txtNextBestAction.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
+        Me.txtNextBestAction.SelectedText = ""
+        Me.txtNextBestAction.Size = New System.Drawing.Size(340, 100)
+        Me.txtNextBestAction.TabIndex = 6
+        '
+        'btnAnalyze
+        '
+        Me.btnAnalyze.DisabledState.BorderColor = System.Drawing.Color.DarkGray
+        Me.btnAnalyze.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray
+        Me.btnAnalyze.DisabledState.FillColor = System.Drawing.Color.FromArgb(CType(CType(169, Byte), Integer), CType(CType(169, Byte), Integer), CType(CType(169, Byte), Integer))
+        Me.btnAnalyze.DisabledState.ForeColor = System.Drawing.Color.FromArgb(CType(CType(141, Byte), Integer), CType(CType(141, Byte), Integer), CType(CType(141, Byte), Integer))
+        Me.btnAnalyze.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnAnalyze.ForeColor = System.Drawing.Color.White
+        Me.btnAnalyze.Location = New System.Drawing.Point(240, 68)
+        Me.btnAnalyze.Name = "btnAnalyze"
+        Me.btnAnalyze.Size = New System.Drawing.Size(119, 25)
+        Me.btnAnalyze.TabIndex = 5
+        Me.btnAnalyze.Text = "Analyze"
+        '
+        'txtMemberId
+        '
+        Me.txtMemberId.Cursor = System.Windows.Forms.Cursors.IBeam
+        Me.txtMemberId.DefaultText = ""
+        Me.txtMemberId.DisabledState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer))
+        Me.txtMemberId.DisabledState.FillColor = System.Drawing.Color.FromArgb(CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer))
+        Me.txtMemberId.DisabledState.ForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
+        Me.txtMemberId.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
+        Me.txtMemberId.FocusedState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
+        Me.txtMemberId.Font = New System.Drawing.Font("Segoe UI", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.txtMemberId.HoverState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
+        Me.txtMemberId.Location = New System.Drawing.Point(216, 12)
+        Me.txtMemberId.Name = "txtMemberId"
+        Me.txtMemberId.PlaceholderText = "Member ID"
+        Me.txtMemberId.SelectedText = ""
+        Me.txtMemberId.Size = New System.Drawing.Size(143, 22)
+        Me.txtMemberId.TabIndex = 3
+        '
+        'txtDOB
+        '
+        Me.txtDOB.Cursor = System.Windows.Forms.Cursors.IBeam
+        Me.txtDOB.DefaultText = ""
+        Me.txtDOB.DisabledState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer))
+        Me.txtDOB.DisabledState.FillColor = System.Drawing.Color.FromArgb(CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer))
+        Me.txtDOB.DisabledState.ForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
+        Me.txtDOB.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
+        Me.txtDOB.FocusedState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
+        Me.txtDOB.Font = New System.Drawing.Font("Segoe UI", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.txtDOB.HoverState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
+        Me.txtDOB.Location = New System.Drawing.Point(216, 40)
+        Me.txtDOB.Name = "txtDOB"
+        Me.txtDOB.PlaceholderText = "Date of Birth (MMddYY)"
+        Me.txtDOB.SelectedText = ""
+        Me.txtDOB.Size = New System.Drawing.Size(143, 22)
+        Me.txtDOB.TabIndex = 2
+        '
+        'txtCallerLastName
+        '
+        Me.txtCallerLastName.Cursor = System.Windows.Forms.Cursors.IBeam
+        Me.txtCallerLastName.DefaultText = ""
+        Me.txtCallerLastName.DisabledState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer))
+        Me.txtCallerLastName.DisabledState.FillColor = System.Drawing.Color.FromArgb(CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer))
+        Me.txtCallerLastName.DisabledState.ForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
+        Me.txtCallerLastName.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
+        Me.txtCallerLastName.FocusedState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
+        Me.txtCallerLastName.Font = New System.Drawing.Font("Segoe UI", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.txtCallerLastName.HoverState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
+        Me.txtCallerLastName.Location = New System.Drawing.Point(19, 40)
+        Me.txtCallerLastName.Name = "txtCallerLastName"
+        Me.txtCallerLastName.PlaceholderText = "Last Name"
+        Me.txtCallerLastName.SelectedText = ""
+        Me.txtCallerLastName.Size = New System.Drawing.Size(143, 22)
+        Me.txtCallerLastName.TabIndex = 1
+        '
+        'txtCallerFirstName
+        '
+        Me.txtCallerFirstName.Cursor = System.Windows.Forms.Cursors.IBeam
+        Me.txtCallerFirstName.DefaultText = ""
+        Me.txtCallerFirstName.DisabledState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer))
+        Me.txtCallerFirstName.DisabledState.FillColor = System.Drawing.Color.FromArgb(CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer))
+        Me.txtCallerFirstName.DisabledState.ForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
+        Me.txtCallerFirstName.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
+        Me.txtCallerFirstName.FocusedState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
+        Me.txtCallerFirstName.Font = New System.Drawing.Font("Segoe UI", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.txtCallerFirstName.HoverState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
+        Me.txtCallerFirstName.Location = New System.Drawing.Point(19, 12)
+        Me.txtCallerFirstName.Name = "txtCallerFirstName"
+        Me.txtCallerFirstName.PlaceholderText = "First Name"
+        Me.txtCallerFirstName.SelectedText = ""
+        Me.txtCallerFirstName.Size = New System.Drawing.Size(143, 22)
+        Me.txtCallerFirstName.TabIndex = 0
+        '
+        'Guna2HtmlLabel1
+        '
+        Me.Guna2HtmlLabel1.BackColor = System.Drawing.Color.Transparent
+        Me.Guna2HtmlLabel1.Location = New System.Drawing.Point(19, 455)
+        Me.Guna2HtmlLabel1.Name = "Guna2HtmlLabel1"
+        Me.Guna2HtmlLabel1.Size = New System.Drawing.Size(71, 15)
+        Me.Guna2HtmlLabel1.TabIndex = 9
+        Me.Guna2HtmlLabel1.Text = "Overall Output"
+        '
+        'Guna2HtmlLabel2
+        '
+        Me.Guna2HtmlLabel2.BackColor = System.Drawing.Color.Transparent
+        Me.Guna2HtmlLabel2.Location = New System.Drawing.Point(19, 328)
+        Me.Guna2HtmlLabel2.Name = "Guna2HtmlLabel2"
+        Me.Guna2HtmlLabel2.Size = New System.Drawing.Size(82, 15)
+        Me.Guna2HtmlLabel2.TabIndex = 10
+        Me.Guna2HtmlLabel2.Text = "Next Best Action"
+        '
         'frmMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(434, 450)
+        Me.ClientSize = New System.Drawing.Size(392, 669)
+        Me.Controls.Add(Me.Guna2Panel1)
         Me.Controls.Add(Me.btnLaunchBrowser)
-        Me.Controls.Add(Me.TableLayoutPanel)
         Me.Name = "frmMain"
         Me.Text = "AuthCallPilot"
-        Me.TableLayoutPanel.ResumeLayout(False)
-        Me.pnlTopInputs.ResumeLayout(False)
-        Me.TableLayoutPanel1.ResumeLayout(False)
-        Me.pnlMiddleChecklist.ResumeLayout(False)
-        Me.pnlMiddleChecklist.PerformLayout()
+        Me.Guna2Panel1.ResumeLayout(False)
+        Me.Guna2Panel1.PerformLayout()
+        Me.pnlOverallActions.ResumeLayout(False)
         Me.ResumeLayout(False)
 
     End Sub
-
-    Friend WithEvents TableLayoutPanel As TableLayoutPanel
-    Friend WithEvents pnlTopInputs As Panel
-    Friend WithEvents pnlMiddleChecklist As Panel
-    Friend WithEvents pnlWorkflow As Guna.UI2.WinForms.Guna2Panel
-    Friend WithEvents TableLayoutPanel1 As TableLayoutPanel
-    Friend WithEvents Guna2TextBox1 As Guna.UI2.WinForms.Guna2TextBox
-    Friend WithEvents txtFaxRef As Guna.UI2.WinForms.Guna2TextBox
-    Friend WithEvents txtCallback As Guna.UI2.WinForms.Guna2TextBox
     Friend WithEvents btnLaunchBrowser As Guna.UI2.WinForms.Guna2Button
+    Friend WithEvents Guna2Panel1 As Guna.UI2.WinForms.Guna2Panel
+    Friend WithEvents txtCallerLastName As Guna.UI2.WinForms.Guna2TextBox
+    Friend WithEvents txtCallerFirstName As Guna.UI2.WinForms.Guna2TextBox
+    Friend WithEvents txtMemberId As Guna.UI2.WinForms.Guna2TextBox
+    Friend WithEvents txtDOB As Guna.UI2.WinForms.Guna2TextBox
+    Friend WithEvents cmbScenario As Guna.UI2.WinForms.Guna2ComboBox
+    Friend WithEvents btnAnalyze As Guna.UI2.WinForms.Guna2Button
+    Friend WithEvents pnlOverallActions As Guna.UI2.WinForms.Guna2Panel
+    Friend WithEvents pnlActions As Guna.UI2.WinForms.Guna2Panel
+    Friend WithEvents txtOverAllOutput As Guna.UI2.WinForms.Guna2TextBox
+    Friend WithEvents txtNextBestAction As Guna.UI2.WinForms.Guna2TextBox
+    Friend WithEvents Guna2HtmlLabel2 As Guna.UI2.WinForms.Guna2HtmlLabel
+    Friend WithEvents Guna2HtmlLabel1 As Guna.UI2.WinForms.Guna2HtmlLabel
 End Class

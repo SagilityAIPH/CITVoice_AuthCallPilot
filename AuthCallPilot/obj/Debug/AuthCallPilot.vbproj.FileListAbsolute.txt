@@ -41,7 +41,6 @@ D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilo
 D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.pdb
 D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.exe.config
 D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.frmMain.resources
-D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.ucWorkflowStep.resources
 D:\Office Works\VS\HumanaCITVoiceCallAgent\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\runtimes\win\native\selenium-manager.exe
 D:\Office Works\VS\HumanaCITVoiceCallAgent\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\runtimes\linux\native\selenium-manager
 D:\Office Works\VS\HumanaCITVoiceCallAgent\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\runtimes\osx\native\selenium-manager
@@ -85,7 +84,6 @@ D:\Office Works\VS\HumanaCITVoiceCallAgent\CITVoice_AuthCallPilot\AuthCallPilot\
 D:\Office Works\VS\HumanaCITVoiceCallAgent\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.exe
 D:\Office Works\VS\HumanaCITVoiceCallAgent\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.xml
 D:\Office Works\VS\HumanaCITVoiceCallAgent\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.pdb
-D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.ucWorkflowSection.resources
 D:\Office Works\VS\HumanaCITVoiceCallAgent\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.ucWorkflowSection.resources
 D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\System.Runtime.InteropServices.RuntimeInformation.dll
 D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\Microsoft.Win32.Primitives.dll
@@ -333,3 +331,10 @@ D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\AuthCallPilot.
 D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.TrustInfo.xml
 D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.exe.manifest
 D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.application
+D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\AuthCallPilot.exe.manifest
+D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\AuthCallPilot.application
+D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.TrustInfo.xml
+D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.exe.manifest
+D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.application
+D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\System.Data.SQLite.dll
+D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\System.Data.SQLite.xml
