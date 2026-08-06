@@ -338,3 +338,6 @@ D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilo
 D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.application
 D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\System.Data.SQLite.dll
 D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\System.Data.SQLite.xml
+D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\Database\CallPilot.db
+D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\x64\SQLite.Interop.dll
+D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\x86\SQLite.Interop.dll
