@@ -14,46 +14,80 @@ Public Class frmMain
     Private _browserMonitorBusy As Boolean = False
     Private _ignoredMemberId As String
     Private _ignoredAuthorizationId As String
+
+    Private _lastProcessedUrl As String = String.Empty
+    Private _lastProcessedTitle As String = String.Empty
     Private Sub frmMain_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
         _browserMonitorTimer.Stop()
         BrowserManager.Close()
     End Sub
     Private Async Sub BrowserMonitorTimer_Tick(sender As Object, e As EventArgs) Handles _browserMonitorTimer.Tick
-        If _browserMonitorBusy Then Exit Sub
-        If Not BrowserManager.IsBrowserAvailable() Then Exit Sub
+        If _browserMonitorBusy Then
+            Exit Sub
+        End If
+
+        If Not BrowserManager.IsBrowserAvailable() Then
+            Exit Sub
+        End If
+
+        Dim currentUrl As String = String.Empty
+        Dim currentTitle As String = String.Empty
+
+        If Not BrowserManager.GetCurrentPageLocation(currentUrl, currentTitle) Then
+            Exit Sub
+        End If
+
+        'Do nothing while CGX remains on the same page.
+        If String.Equals(currentUrl, _lastProcessedUrl, StringComparison.OrdinalIgnoreCase) And String.Equals(currentTitle, _lastProcessedTitle, StringComparison.OrdinalIgnoreCase) Then
+            Exit Sub
+        End If
 
         _browserMonitorBusy = True
+
         Try
             Dim captured As BrowserCaptureResult =
-            Await Task.Run(
-                Function()
-                    Return BrowserManager.CaptureCurrentCgxPage()
-                End Function)
+                Await Task.Run(
+                    Function()
+                        Return BrowserManager.CaptureCurrentCgxPage()
+                    End Function)
 
-            If captured Is Nothing Or captured.Context Is Nothing Then
+            If captured Is Nothing Then
                 Exit Sub
             End If
 
             Select Case captured.PageType
 
                 Case CgxPageType.MemberInformation
+                    If captured.Context Is Nothing Then
+                        Exit Sub
+                    End If
+
                     ProcessDetectedMember(captured.Context)
+                    _lastProcessedUrl = currentUrl
+                    _lastProcessedTitle = currentTitle
 
                 Case CgxPageType.ViewAuthorization
+                    If captured.Context Is Nothing Then
+                        Exit Sub
+                    End If
+
                     ProcessDetectedAuthorization(captured.Context)
+                    _lastProcessedUrl = currentUrl
+                    _lastProcessedTitle = currentTitle
+
+                Case CgxPageType.Other
+                    _lastProcessedUrl = currentUrl
+                    _lastProcessedTitle = currentTitle
 
             End Select
-
         Catch ex As OpenQA.Selenium.WebDriverException
             Debug.WriteLine("CGX listener error: " & ex.Message)
 
         Catch ex As Exception
             Debug.WriteLine("CGX listener error: " & ex.ToString())
-
         Finally
             _browserMonitorBusy = False
         End Try
-
     End Sub
 
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -104,8 +138,13 @@ Public Class frmMain
         pnlActions.Controls.Clear()
         pnlActions.Visible = False
 
-        'txtOverAllOutput.ReadOnly = True
+        txtMemberInfo.ReadOnly = True
+        txtAuthInfo.ReadOnly = True
+        txtOutOfScope.ReadOnly = True
+        txtMarketGuide.ReadOnly = True
+        txtPAL.ReadOnly = True
         txtNextBestAction.ReadOnly = True
+        txtOverAllOutput.ReadOnly = False
     End Sub
     Private Sub frmMain_Shown(sender As Object, e As EventArgs) Handles Me.Shown
         'working
@@ -123,12 +162,7 @@ Public Class frmMain
             MessageBox.Show(ex.Message, "Browser Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
-
-    Private Async Sub btnAnalyze_Click(
-    sender As Object,
-    e As EventArgs
-) Handles btnAnalyze.Click
-
+    Private Async Sub btnAnalyze_Click(sender As Object, e As EventArgs) Handles btnAnalyze.Click
         If Not BrowserManager.IsBrowserAvailable() Then
             MessageBox.Show("Launch the CGX browser first.", "Browser Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
@@ -142,14 +176,17 @@ Public Class frmMain
             btnAnalyze.Enabled = False
             btnAnalyze.Text = "Refreshing..."
 
+            _lastProcessedUrl = String.Empty
+            _lastProcessedTitle = String.Empty
+
             Dim captured As BrowserCaptureResult =
-            Await Task.Run(
-                Function()
-                    Return BrowserManager.CaptureCurrentCgxPage()
-                End Function)
+                Await Task.Run(
+                    Function()
+                        Return BrowserManager.CaptureCurrentCgxPage()
+                    End Function)
 
             If captured Is Nothing Or captured.Context Is Nothing Then
-                MessageBox.Show("The current browser page could not be read.", "Refresh CGX", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                MessageBox.Show("Navigate to the Member Information or View Authorization page.", "Refresh CGX", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 Exit Sub
             End If
 
@@ -159,16 +196,22 @@ Public Class frmMain
                 Case CgxPageType.ViewAuthorization
                     ProcessDetectedAuthorization(captured.Context)
                 Case Else
-                    MessageBox.Show("Navigate to the CGX Member Information page or View Authorization page, then click Refresh CGX.", "Unsupported CGX Page", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                    MessageBox.Show("The current page is not a supported CGX page.", "Refresh CGX", MessageBoxButtons.OK,
+                        MessageBoxIcon.Information)
             End Select
 
+            Dim currentUrl As String = String.Empty
+            Dim currentTitle As String = String.Empty
+            If BrowserManager.GetCurrentPageLocation(currentUrl, currentTitle) Then
+                _lastProcessedUrl = currentUrl
+                _lastProcessedTitle = currentTitle
+            End If
         Catch ex As Exception
             MessageBox.Show(ex.ToString(), "Refresh CGX Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         Finally
             btnAnalyze.Enabled = True
             btnAnalyze.Text = "Refresh CGX"
         End Try
-
     End Sub
     Private Function BuildCallContextFromUI() As CallContext
         Return New CallContext With {
@@ -194,13 +237,11 @@ Public Class frmMain
         Return Nothing
     End Function
     Private Sub RunRecommendation()
-
         If _currentContext Is Nothing Then Exit Sub
         If _currentLookup Is Nothing Then Exit Sub
 
         Dim result As RecommendationResult = RecommendationEngine.Analyze(_currentContext, _currentLookup)
 
-        txtOverAllOutput.Text = result.OverallOutput
         txtNextBestAction.Text = result.NextBestAction
         If result.RequiresAgentInput Then
             ShowActionQuestion(result.QuestionId, result.QuestionText, result.QuestionOptions)
@@ -209,7 +250,7 @@ Public Class frmMain
         Else
             ClearActionsPanel()
         End If
-        RefreshOverallOutputWithDocumentation()
+        RefreshOutputs()
     End Sub
     Private Sub ShowActionQuestion(questionId As String, questionText As String, options As IEnumerable(Of String))
         ClearActionsPanel()
@@ -639,14 +680,6 @@ Public Class frmMain
         _currentContext.IsExpedited = Nothing
         _currentContext.CallerType = Nothing
     End Sub
-    Private Sub RefreshOverallOutputWithDocumentation()
-        If _currentContext Is Nothing OrElse _currentLookup Is Nothing Then
-            Exit Sub
-        End If
-        Dim currentOutput As String = BuildLookupTestOutput(_currentContext, _currentLookup)
-        Dim documentation As String = BuildDocumentation(_currentContext)
-        txtOverAllOutput.Text = currentOutput & Environment.NewLine & Environment.NewLine & documentation
-    End Sub
     Private Sub ProcessDetectedMember(detected As CallContext)
         Dim detectedMemberId As String = NormalizeIdentifier(detected.MemberId)
         If String.IsNullOrWhiteSpace(detectedMemberId) Then
@@ -724,8 +757,7 @@ Public Class frmMain
         ClearScenarioDecisionState()
         _currentLookup = CallPilotRepository.RunLookups(_currentContext)
         txtNextBestAction.Text = "Member information refreshed. Open an authorization in CGX or select a scenario when ready."
-        RefreshOverallOutputWithDocumentation()
-
+        RefreshOutputs()
     End Sub
     Private Sub ClearAuthorizationInformation()
         If _currentContext Is Nothing Then
@@ -826,7 +858,7 @@ Public Class frmMain
 
         ClearScenarioDecisionState()
         txtNextBestAction.Text = "Authorization information detected. Select a scenario and click Select."
-        RefreshOverallOutputWithDocumentation()
+        RefreshOutputs()
     End Sub
     Private Function NormalizeIdentifier(value As String) As String
         If String.IsNullOrWhiteSpace(value) Then
@@ -853,4 +885,25 @@ Public Class frmMain
         End If
         Return value.Value.ToString("MM/dd/yyyy")
     End Function
+    Private Sub RefreshOutputs()
+        If _currentContext Is Nothing Then
+            txtMemberInfo.Clear()
+            txtAuthInfo.Clear()
+            txtOverAllOutput.Clear()
+        Else
+            txtMemberInfo.Text = OutputFormatter.BuildMemberInformation(_currentContext)
+            txtAuthInfo.Text = OutputFormatter.BuildAuthorizationInformation(_currentContext)
+            txtOverAllOutput.Text = OutputFormatter.BuildDocumentation(_currentContext)
+        End If
+
+        If _currentLookup Is Nothing Then
+            txtOutOfScope.Clear()
+            txtMarketGuide.Clear()
+            txtPAL.Clear()
+        Else
+            txtOutOfScope.Text = OutputFormatter.BuildOutOfScope(_currentLookup)
+            txtMarketGuide.Text = OutputFormatter.BuildMarketGuide(_currentLookup)
+            txtPAL.Text = OutputFormatter.BuildPal(_currentContext, _currentLookup)
+        End If
+    End Sub
 End Class

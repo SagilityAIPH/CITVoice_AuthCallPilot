@@ -475,7 +475,7 @@ Public Class BrowserManager
         summary.AppendLine("Secondary Diagnoses: " & If(context.SecondaryDiagnosisCodes IsNot Nothing AndAlso context.SecondaryDiagnosisCodes.Count > 0, String.Join(", ", context.SecondaryDiagnosisCodes), "Not found"))
         summary.AppendLine("Procedure Codes: " & If(context.ProcedureCodes IsNot Nothing AndAlso context.ProcedureCodes.Count > 0, String.Join(", ", context.ProcedureCodes), "Not found"))
 
-        MessageBox.Show(summary.ToString(), "Authorization Capture Test", MessageBoxButtons.OK, MessageBoxIcon.Information)
+        'MessageBox.Show(summary.ToString(), "Authorization Capture Test", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
     End Sub
     Private Shared Function ReadElementTextSafely(wait As WebDriverWait, locator As By) As String
@@ -551,14 +551,15 @@ Public Class BrowserManager
                 .Title = currentTitle
             }
 
+
+
             If IsMemberInformationPage(currentUrl) Then
                 result.PageType = CgxPageType.MemberInformation
                 result.Context = CaptureMemberInformation()
 
-            ElseIf String.Equals(currentTitle.Trim(), "View Authorization", StringComparison.OrdinalIgnoreCase) Then
+            ElseIf String.Equals(currentTitle.Trim(), "View Authorization", StringComparison.OrdinalIgnoreCase) Or currentUrl.IndexOf("/cgx/Authorization/Authorization/ViewAuth", StringComparison.OrdinalIgnoreCase) >= 0 Then
                 result.PageType = CgxPageType.ViewAuthorization
                 result.Context = CaptureAuthorizationInformation()
-
             Else
                 result.PageType = CgxPageType.Other
             End If
@@ -592,10 +593,15 @@ Public Class BrowserManager
         Return context
     End Function
     Private Shared Function CaptureAuthorizationInformation() As CallContext
+        'MessageBox.Show("CaptureAuthorizationInformation() started", "Authorization")
         Dim wait As New WebDriverWait(_driver, TimeSpan.FromSeconds(10))
         Dim context As New CallContext()
-
         context.AuthorizationNumber = ReadElementTextSafely(wait, By.Id("AuthId"))
+
+        If String.IsNullOrWhiteSpace(context.AuthorizationNumber) Then
+            context.AuthorizationNumber = GetQueryStringValue(_driver.Url, "authId")
+        End If
+
         context.AuthorizationStatus = ReadElementTextSafely(wait, By.Id("OverallAuthStatusForBanner"))
         context.RequestingProvider = ReadElementTextSafely(wait, By.Id("requesting-provider-panel"))
         context.TreatingProvider = ReadElementTextSafely(wait, By.Id("treating-provider-panel"))
@@ -613,6 +619,76 @@ Public Class BrowserManager
 
         context.ProcedureCodes.Clear()
         context.ProcedureCodes.AddRange(ReadTableCodes(By.XPath("/html/body/div[3]/div/div[3]/div[2]/div[6]/div/div[15]/div/div[2]/div[3]/div/div[3]/div/div/table/tbody/tr")))
+
+        '    MessageBox.Show(
+        '"Authorization Number: " &
+        'If(
+        '    String.IsNullOrWhiteSpace(
+        '        context.AuthorizationNumber),
+        '    "[blank]",
+        '    context.AuthorizationNumber) &
+        'Environment.NewLine &
+        'Environment.NewLine &
+        '"Status: " &
+        'If(
+        '    String.IsNullOrWhiteSpace(
+        '        context.AuthorizationStatus),
+        '    "[blank]",
+        '    context.AuthorizationStatus) &
+        'Environment.NewLine &
+        'Environment.NewLine &
+        '"Requesting Provider: " &
+        'If(
+        '    String.IsNullOrWhiteSpace(
+        '        context.RequestingProvider),
+        '    "[blank]",
+        '    context.RequestingProvider),
+        '"Authorization Capture Result",
+        'MessageBoxButtons.OK,
+        'MessageBoxIcon.Information)
         Return context
+    End Function
+    Public Shared Function GetCurrentPageLocation(ByRef currentUrl As String, ByRef currentTitle As String) As Boolean
+        currentUrl = String.Empty
+        currentTitle = String.Empty
+        SyncLock _driverLock
+
+            If Not IsBrowserAvailable() Then
+                Return False
+            End If
+
+            Try
+                currentUrl = Convert.ToString(_driver.Url).Trim()
+                currentTitle = Convert.ToString(_driver.Title).Trim()
+                Return True
+
+            Catch ex As WebDriverException
+                Return False
+            End Try
+        End SyncLock
+    End Function
+    Private Shared Function GetQueryStringValue(url As String, parameterName As String) As String
+        If String.IsNullOrWhiteSpace(url) OrElse
+           String.IsNullOrWhiteSpace(parameterName) Then
+
+            Return String.Empty
+        End If
+
+        Try
+            Dim uri As New Uri(url)
+            Dim query As String =
+                uri.Query.TrimStart("?"c)
+            For Each pair As String In query.Split("&"c)
+                Dim parts As String() = pair.Split(New Char() {"="c}, 2)
+
+                If parts.Length = 2 And String.Equals(parts(0), parameterName, StringComparison.OrdinalIgnoreCase) Then
+                    Return Uri.UnescapeDataString(parts(1)).Trim()
+                End If
+            Next
+        Catch ex As Exception
+            Return String.Empty
+        End Try
+
+        Return String.Empty
     End Function
 End Class
