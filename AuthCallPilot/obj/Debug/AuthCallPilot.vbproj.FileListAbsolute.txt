@@ -316,10 +316,8 @@ D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\System.ValueTu
 D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.vbproj.AssemblyReference.cache
 D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.vbproj.SuggestedBindingRedirects.cache
 D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.exe.config
-D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.ucWorkflowStep.resources
 D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.frmMain.resources
 D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.Resources.resources
-D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.ucWorkflowSection.resources
 D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.vbproj.GenerateResource.cache
 D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.vbproj.CoreCompileInputs.cache
 D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCall.CD6E3C05.Up2Date
@@ -341,3 +339,8 @@ D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilo
 D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\Database\CallPilot.db
 D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\x64\SQLite.Interop.dll
 D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\x86\SQLite.Interop.dll
+D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\Database\CallPilot.db
+D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\x64\SQLite.Interop.dll
+D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\x86\SQLite.Interop.dll
+D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\System.Data.SQLite.dll
+D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\System.Data.SQLite.xml

@@ -109,7 +109,8 @@ Public Class frmMain
 
         End Try
 
-        _browserMonitorTimer.Interval = 1500
+        '_browserMonitorTimer.Interval = 1500
+        _browserMonitorTimer.Interval = 750
         _browserMonitorTimer.Start()
 
         Me.Text = "CallPilot V1.0"
@@ -741,11 +742,13 @@ Public Class frmMain
             _currentContext = New CallContext()
         End If
 
+        'Agent-entered documentation values
         _currentContext.CallerName = txtCallerName.Text.Trim()
         _currentContext.CallbackNumber = txtCallbackNum.Text.Trim()
         _currentContext.SecuredFax = txtSecuredFax.Text.Trim()
         _currentContext.CallingFrom = txtCallingFrom.Text.Trim()
         _currentContext.DateOfService = ParseOptionalDos(txtDOS.Text)
+        'Member information from CGX
         _currentContext.MemberId = detected.MemberId
         _currentContext.MemberName = detected.MemberName
         _currentContext.DateOfBirth = detected.DateOfBirth
@@ -753,11 +756,27 @@ Public Class frmMain
         _currentContext.Conso = detected.Conso
         _currentContext.IssueState = detected.IssueState
         _currentContext.GroupNumber = detected.GroupNumber
+
+        'New/refreshed member means old Auth data
+        'must not remain in memory.
         ClearAuthorizationInformation()
         ClearScenarioDecisionState()
+        'Run member-level lookups.
         _currentLookup = CallPilotRepository.RunLookups(_currentContext)
+        'Populate member information.
+        txtMemberInfo.Text = OutputFormatter.BuildMemberInformation(_currentContext)
+        'Populate member-level lookup results.
+        txtOutOfScope.Text = OutputFormatter.BuildOutOfScope(_currentLookup)
+        txtMarketGuide.Text = OutputFormatter.BuildMarketGuide(_currentLookup)
+
+        'Authorization and PAL stay completely blank.
+        txtAuthInfo.Clear()
+        txtPAL.Clear()
+
+        'Documentation only.
+        txtOverAllOutput.Text = OutputFormatter.BuildDocumentation(_currentContext)
         txtNextBestAction.Text = "Member information refreshed. Open an authorization in CGX or select a scenario when ready."
-        RefreshOutputs()
+
     End Sub
     Private Sub ClearAuthorizationInformation()
         If _currentContext Is Nothing Then

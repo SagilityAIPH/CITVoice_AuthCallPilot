@@ -430,10 +430,9 @@ Public Class BrowserManager
         context.AuthorizationEndDate = ReadElementValueSafely(wait, By.Id("LastDay"))
         context.AuthorizationStatus = ReadElementTextSafely(wait, By.Id("OverallAuthStatusForBanner"))
 
-        'Confirm this XPath. It currently matches the
-        'Primary Diagnosis XPath you supplied.
-        Const totalDaysXPath As String = "/html/body/div[3]/div/div[3]/div[2]/div[6]/div/div[13]/div[2]/div[18]/div[3]/div/div[2]"
-        context.TotalDays = ReadElementTextSafely(wait, By.XPath(totalDaysXPath))
+        'Const totalDaysXPath As String = "/html/body/div[3]/div/div[3]/div[2]/div[6]/div/div[13]/div[2]/div[18]/div[3]/div/div[2]"
+        'context.TotalDays = ReadElementTextSafely(wait, By.XPath(totalDaysXPath))
+        context.TotalDays = GetTotalDays()
 
         Const primaryDiagnosisXPath As String = "/html/body/div[3]/div/div[3]/div[2]/div[6]/div/div[15]/div/div[2]/div[1]/div/div[3]/div/div/table/tbody/tr/td[1]"
         context.PrimaryDiagnosisCode = ReadElementTextSafely(wait, By.XPath(primaryDiagnosisXPath))
@@ -443,8 +442,9 @@ Public Class BrowserManager
         context.SecondaryDiagnosisCodes.AddRange(ReadTableCodes(By.XPath(secondaryDiagnosisRowsXPath)))
         context.ProcedureCodes.Clear()
 
-        Const procedureRowsXPath As String = "/html/body/div[3]/div/div[3]/div[2]/div[6]/div/div[15]/div/div[2]/div[3]/div/div[3]/div/div/table/tbody/tr"
-        context.ProcedureCodes.AddRange(ReadTableCodes(By.XPath(procedureRowsXPath)))
+        'Const procedureRowsXPath As String = "/html/body/div[3]/div/div[3]/div[2]/div[6]/div/div[15]/div/div[2]/div[3]/div/div[3]/div/div/table/tbody/tr"
+        'context.ProcedureCodes.AddRange(ReadTableCodes(By.XPath(procedureRowsXPath)))
+        context.ProcedureCodes.AddRange(ReadProcedureCodes())
 
 
         Debug.WriteLine("Authorization Status: " & context.AuthorizationStatus)
@@ -478,6 +478,23 @@ Public Class BrowserManager
         'MessageBox.Show(summary.ToString(), "Authorization Capture Test", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
     End Sub
+    Private Shared Function GetTotalDays() As String
+        Try
+
+            Dim totalDaysValue As IWebElement = _driver.FindElement(By.XPath(
+                    "//div[contains(normalize-space(.), 'Total Days')]" &
+                    "/following-sibling::div[1]"))
+
+            Return totalDaysValue.Text.Trim()
+
+        Catch ex As NoSuchElementException
+            Return String.Empty
+
+        Catch ex As WebDriverException
+            Return String.Empty
+        End Try
+
+    End Function
     Private Shared Function ReadElementTextSafely(wait As WebDriverWait, locator As By) As String
         Try
             Dim element As IWebElement = WaitForVisibleElement(wait, locator)
@@ -594,7 +611,19 @@ Public Class BrowserManager
     End Function
     Private Shared Function CaptureAuthorizationInformation() As CallContext
         'MessageBox.Show("CaptureAuthorizationInformation() started", "Authorization")
-        Dim wait As New WebDriverWait(_driver, TimeSpan.FromSeconds(10))
+        Dim wait As New WebDriverWait(_driver, TimeSpan.FromSeconds(5))
+        wait.Until(
+        Function(driver As IWebDriver) As Boolean
+
+            Try
+                Dim elements =
+                    driver.FindElements(By.Id("OverallAuthStatusForBanner"))
+                Return elements.Count > 0
+            Catch
+                Return False
+            End Try
+
+        End Function)
         Dim context As New CallContext()
         context.AuthorizationNumber = ReadElementTextSafely(wait, By.Id("AuthId"))
 
@@ -610,7 +639,7 @@ Public Class BrowserManager
         context.AuthorizationStartDate = ReadElementValueSafely(wait, By.Id("FirstDay"))
         context.AuthorizationEndDate = ReadElementValueSafely(wait, By.Id("LastDay"))
         context.ClaimPaymentNotes = String.Empty
-        context.TotalDays = ReadElementTextSafely(wait, By.XPath("/html/body/div[3]/div/div[3]/div[2]/div[6]/div/div[13]/div[2]/div[18]/div[3]/div/div[2]"))
+        context.TotalDays = GetTotalDays()
 
         context.PrimaryDiagnosisCode = ReadElementTextSafely(wait, By.XPath("/html/body/div[3]/div/div[3]/div[2]/div[6]/div/div[15]/div/div[2]/div[1]/div/div[3]/div/div/table/tbody/tr/td[1]"))
 
@@ -618,7 +647,8 @@ Public Class BrowserManager
         context.SecondaryDiagnosisCodes.AddRange(ReadTableCodes(By.XPath("/html/body/div[3]/div/div[3]/div[2]/div[6]/div/div[15]/div/div[2]/div[2]/div/div[3]/div/div/div[2]/div/table/tbody/tr")))
 
         context.ProcedureCodes.Clear()
-        context.ProcedureCodes.AddRange(ReadTableCodes(By.XPath("/html/body/div[3]/div/div[3]/div[2]/div[6]/div/div[15]/div/div[2]/div[3]/div/div[3]/div/div/table/tbody/tr")))
+        context.ProcedureCodes.AddRange(ReadProcedureCodes())
+        'context.ProcedureCodes.AddRange(ReadTableCodes(By.XPath("/html/body/div[3]/div/div[3]/div[2]/div[6]/div/div[15]/div/div[2]/div[3]/div/div[3]/div/div/table/tbody/tr")))
 
         '    MessageBox.Show(
         '"Authorization Number: " &
@@ -647,6 +677,52 @@ Public Class BrowserManager
         'MessageBoxButtons.OK,
         'MessageBoxIcon.Information)
         Return context
+    End Function
+    Private Shared Function ReadProcedureCodes() As List(Of String)
+        Dim codes As New List(Of String)
+        Try
+            Dim gridContent As IWebElement = _driver.FindElement(By.Id("AuthDirectOpProcedureCodeGrid-gridContent"))
+
+            Dim rows As IReadOnlyCollection(Of IWebElement) =
+            gridContent.FindElements(
+                By.XPath(".//table/tbody/tr"))
+
+            For Each row As IWebElement In rows
+                Try
+                    Dim cells As IReadOnlyCollection(Of IWebElement) = row.FindElements(By.TagName("td"))
+
+                    If cells.Count = 0 Then
+                        Continue For
+                    End If
+
+                    Dim code As String = cells.First().Text.Trim()
+                    If String.IsNullOrWhiteSpace(code) Then
+                        Continue For
+                    End If
+
+                    If Not codes.Any(Function(existing)
+                                         Return String.Equals(existing, code, StringComparison.OrdinalIgnoreCase)
+                                     End Function) Then
+
+                        codes.Add(code)
+                    End If
+
+                Catch ex As StaleElementReferenceException
+                    Continue For
+                End Try
+            Next
+
+        Catch ex As NoSuchElementException
+            Debug.WriteLine("Procedure Code grid was not found.")
+
+        Catch ex As WebDriverException
+            Debug.WriteLine("Procedure Code read error: " &
+            ex.Message)
+
+        End Try
+
+        Return codes
+
     End Function
     Public Shared Function GetCurrentPageLocation(ByRef currentUrl As String, ByRef currentTitle As String) As Boolean
         currentUrl = String.Empty
@@ -690,5 +766,42 @@ Public Class BrowserManager
         End Try
 
         Return String.Empty
+    End Function
+    Private Shared Function ReadElementTextImmediate(locator As By) As String
+        Try
+            Dim elements As IReadOnlyCollection(Of IWebElement) = _driver.FindElements(locator)
+            If elements.Count = 0 Then
+                Return String.Empty
+            End If
+
+            Dim element As IWebElement = elements.First()
+            Return GetElementValue(element)
+
+        Catch ex As WebDriverException
+            Return String.Empty
+        End Try
+
+    End Function
+    Private Shared Function ReadElementValueImmediate(locator As By) As String
+        Try
+            Dim elements As IReadOnlyCollection(Of IWebElement) = _driver.FindElements(locator)
+
+            If elements.Count = 0 Then
+                Return String.Empty
+            End If
+
+            Dim element As IWebElement = elements.First()
+            Dim value As String = element.GetAttribute("value")
+
+            If Not String.IsNullOrWhiteSpace(value) Then
+                Return value.Trim()
+            End If
+
+            Return element.Text.Trim()
+
+        Catch ex As WebDriverException
+            Return String.Empty
+        End Try
+
     End Function
 End Class
