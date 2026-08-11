@@ -3,6 +3,7 @@ Imports MaterialSkin
 Imports MaterialSkin.Controls
 Imports OpenQA.Selenium
 Imports System.Threading.Tasks
+Imports System.Diagnostics
 Public Class frmMain
     Private _currentContext As CallContext
     Private _currentLookup As LookupResult
@@ -17,6 +18,22 @@ Public Class frmMain
 
     Private _lastProcessedUrl As String = String.Empty
     Private _lastProcessedTitle As String = String.Empty
+
+    Private _nextBestActionLinks As New Dictionary(Of String, String)
+
+    '========================================
+    ' CALLPILOT COLOR PALETTE
+    '========================================
+    Private ReadOnly ColorPrimaryGreen As Color = Color.FromArgb(111, 180, 44)
+    Private ReadOnly ColorDarkGreen As Color = Color.FromArgb(62, 119, 35)
+    Private ReadOnly ColorHoverGreen As Color = Color.FromArgb(91, 157, 36)
+    Private ReadOnly ColorLightGreen As Color = Color.FromArgb(238, 247, 230)
+    Private ReadOnly ColorAppBackground As Color = Color.FromArgb(245, 247, 245)
+    Private ReadOnly ColorCardBackground As Color = Color.White
+    Private ReadOnly ColorTextPrimary As Color = Color.FromArgb(45, 55, 50)
+    Private ReadOnly ColorTextSecondary As Color = Color.FromArgb(115, 125, 120)
+    Private ReadOnly ColorBorder As Color = Color.FromArgb(220, 226, 220)
+
     Private Sub frmMain_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
         _browserMonitorTimer.Stop()
         BrowserManager.Close()
@@ -27,6 +44,7 @@ Public Class frmMain
         End If
 
         If Not BrowserManager.IsBrowserAvailable() Then
+            SetCgxStatus("OFFLINE")
             Exit Sub
         End If
 
@@ -42,6 +60,7 @@ Public Class frmMain
             Exit Sub
         End If
 
+        SetCgxStatus("READING")
         _browserMonitorBusy = True
 
         Try
@@ -59,10 +78,12 @@ Public Class frmMain
 
                 Case CgxPageType.MemberInformation
                     If captured.Context Is Nothing Then
+                        SetCgxStatus("WAITING")
                         Exit Sub
                     End If
 
                     ProcessDetectedMember(captured.Context)
+                    SetCgxStatus("MEMBER")
                     _lastProcessedUrl = currentUrl
                     _lastProcessedTitle = currentTitle
 
@@ -72,24 +93,250 @@ Public Class frmMain
                     End If
 
                     ProcessDetectedAuthorization(captured.Context)
+                    SetCgxStatus("AUTH")
                     _lastProcessedUrl = currentUrl
                     _lastProcessedTitle = currentTitle
 
                 Case CgxPageType.Other
+                    SetCgxStatus("WAITING")
                     _lastProcessedUrl = currentUrl
                     _lastProcessedTitle = currentTitle
 
             End Select
         Catch ex As OpenQA.Selenium.WebDriverException
+            SetCgxStatus("ERROR")
             Debug.WriteLine("CGX listener error: " & ex.Message)
 
         Catch ex As Exception
+            SetCgxStatus("ERROR")
             Debug.WriteLine("CGX listener error: " & ex.ToString())
         Finally
             _browserMonitorBusy = False
         End Try
     End Sub
+    Private Sub ApplyModernUI()
+        '========================================
+        ' MAIN FORM
+        '========================================
+        Me.BackColor = Color.FromArgb(245, 247, 250)
+        lblCgxStatus.Font = New Font("Segoe UI Semibold", 9.0!)
+        lblCgxStatus.BackColor = Color.Transparent
+        Guna2Panel1.FillColor = Color.FromArgb(245, 247, 250)
+        Guna2Panel1.BackColor = Color.FromArgb(245, 247, 250)
 
+        '========================================
+        ' PRIMARY BUTTONS
+        '========================================
+        btnLaunchBrowser.FillColor = ColorPrimaryGreen
+        btnLaunchBrowser.ForeColor = Color.White
+        btnLaunchBrowser.BackColor = Color.FromArgb(55, 142, 60)
+        btnLaunchBrowser.BorderThickness = 0
+        btnLaunchBrowser.BorderRadius = 8
+        btnLaunchBrowser.HoverState.FillColor = ColorHoverGreen
+        btnLaunchBrowser.Height = 28
+
+        btnSelectScenario.FillColor = ColorPrimaryGreen
+        btnSelectScenario.ForeColor = Color.White
+        btnSelectScenario.BorderThickness = 0
+        btnSelectScenario.BorderRadius = 8
+        btnSelectScenario.HoverState.FillColor = ColorHoverGreen
+
+        StylePrimaryButton(btnLaunchBrowser)
+        StylePrimaryButton(btnSelectScenario)
+
+        '========================================
+        ' Secondary BUTTONS
+        '========================================
+        StyleSecondaryButton(btnRefreshCGX)
+        StyleSecondaryButton(btnCopyDocumentation)
+        StyleSecondaryButton(btnTest)
+
+        '========================================
+        ' INPUT CONTROLS
+        '========================================
+        StyleInput(txtCallerName)
+        StyleInput(txtCallbackNum)
+        StyleInput(txtSecuredFax)
+        StyleInput(txtCallingFrom)
+        StyleInput(txtDOS)
+
+        '========================================
+        ' SCENARIO COMBOBOX
+        '========================================
+        cmbScenario.BorderRadius = 8
+        cmbScenario.Font = New Font("Segoe UI", 9.0!)
+        cmbScenario.BackColor = Color.White
+        cmbScenario.FillColor = Color.White
+        cmbScenario.BorderColor = Color.FromArgb(210, 216, 225)
+        cmbScenario.ForeColor = Color.FromArgb(45, 55, 72)
+
+        '========================================
+        ' NEXT BEST ACTION
+        '========================================
+        rtbNextBestAction.BorderStyle = BorderStyle.None
+        rtbNextBestAction.BackColor = Color.White
+        rtbNextBestAction.Font = New Font("Segoe UI", 9.0!)
+        rtbNextBestAction.ForeColor = Color.FromArgb(45, 55, 72)
+
+        '========================================
+        ' INFORMATION / OUTPUT BOXES
+        '========================================
+        StyleOutputBox(txtMemberInfo)
+        StyleOutputBox(txtAuthInfo)
+        StyleOutputBox(txtOutOfScope)
+        StyleOutputBox(txtMarketGuide)
+        StyleOutputBox(txtPAL)
+
+        '========================================
+        ' DOCUMENTATION
+        '========================================
+        StyleDocumentationBox(txtOverAllOutput)
+
+        '========================================
+        ' CARDS
+        '========================================
+        StyleCard(pnlCallDetailsCard)
+        StyleCard(pnlMemberCard)
+        StyleCard(pnlAuthCard)
+        StyleCard(pnlLookupCard)
+        StyleCard(pnlScenarioCard)
+        StyleCard(pnlNextBestActionCard)
+        StyleCard(pnlDocumentationCard)
+
+        '========================================
+        ' CARD HEADERS
+        '========================================
+        StyleCardHeader(lblCallDetailsHeader)
+        StyleCardHeader(lblScenarioHeader)
+        StyleCardHeader(lblMemberHeader)
+        StyleCardHeader(lblAuthHeader)
+        StyleCardHeader(lblDocumentation)
+        StyleCardHeader(lblNextBestAction)
+
+        StyleLookupHeader(lblLookupOOS)
+        StyleLookupHeader(lblLookupMarketGuide)
+        StyleLookupHeader(lblLookupPAL)
+
+        lblCallDetailsHeader.Text = "CALL DETAILS"
+        lblScenarioHeader.Text = "CALL SCENARIO"
+        lblMemberHeader.Text = "MEMBER INFORMATION"
+        lblAuthHeader.Text = "AUTHORIZATION"
+        lblDocumentation.Text = "DOCUMENTATION"
+        lblNextBestAction.Text = "NEXT BEST ACTION"
+
+        lblLookupOOS.Text = "OUT OF SCOPE"
+        lblLookupMarketGuide.Text = "MARKET GUIDE"
+        lblLookupPAL.Text = "PAL"
+
+        '========================================
+        ' DYNAMIC ACTION PANEL
+        '========================================
+        pnlActions.BackColor = Color.White
+        pnlActions.FillColor = Color.White
+        pnlActions.BorderThickness = 0
+        pnlActions.AutoScroll = True
+
+    End Sub
+    Private Sub StylePrimaryButton(button As Guna.UI2.WinForms.Guna2Button)
+        button.BorderRadius = 8
+        button.FillColor = ColorPrimaryGreen
+        button.ForeColor = Color.White
+        button.Font = New Font("Segoe UI Semibold", 9.0!, FontStyle.Bold)
+        button.Cursor = Cursors.Hand
+    End Sub
+    Private Sub StyleInput(txt As Guna.UI2.WinForms.Guna2TextBox)
+        txt.BorderRadius = 8
+        txt.BorderThickness = 1
+        txt.BorderColor = ColorPrimaryGreen
+        txt.FillColor = Color.White
+        txt.Font = New Font("Segoe UI", 9.5!)
+        txt.FocusedState.BorderColor = Color.FromArgb(76, 129, 255)
+    End Sub
+    Private Sub StyleWaitingOutput(txt As Guna.UI2.WinForms.Guna2TextBox)
+        txt.ForeColor = Color.FromArgb(150, 158, 170)
+    End Sub
+    Private Sub StyleOutputBox(txt As Guna.UI2.WinForms.Guna2TextBox)
+        txt.BorderRadius = 0
+        txt.BorderThickness = 0
+        txt.FillColor = Color.White
+        txt.ForeColor = Color.FromArgb(55, 65, 81)
+        txt.Font = New Font("Segoe UI", 9.0!)
+        txt.ReadOnly = True
+        txt.BorderColor = ColorPrimaryGreen
+        txt.Cursor = Cursors.Default
+    End Sub
+    Private Sub StyleDocumentationBox(txt As Guna.UI2.WinForms.Guna2TextBox)
+        txt.BorderRadius = 0
+        txt.BorderThickness = 0
+        txt.FillColor = Color.White
+        txt.ForeColor = Color.FromArgb(45, 55, 72)
+        txt.Font = New Font("Segoe UI", 9.0!)
+    End Sub
+    Private Sub StyleCard(card As Guna.UI2.WinForms.Guna2Panel)
+        card.BackColor = Color.White
+        card.FillColor = Color.White
+        card.BorderRadius = 12
+        card.BorderThickness = 1
+        card.BorderColor = Color.FromArgb(230, 233, 239)
+        card.ShadowDecoration.Enabled = True
+        card.ShadowDecoration.Depth = 2
+        card.ShadowDecoration.Shadow = New Padding(1)
+    End Sub
+    Private Sub StyleCardHeader(lbl As Label)
+        lbl.Font = New Font("Segoe UI Semibold", 9.5!, FontStyle.Bold)
+        lbl.ForeColor = Color.FromArgb(45, 55, 72)
+        lbl.BackColor = Color.Transparent
+    End Sub
+    Private Sub StyleSecondaryButton(button As Guna.UI2.WinForms.Guna2Button)
+        button.BorderRadius = 8
+        button.BorderThickness = 1
+        button.BorderColor = ColorPrimaryGreen
+        button.FillColor = Color.White
+        button.ForeColor = ColorDarkGreen
+        button.Font = New Font("Segoe UI Semibold", 9.0!)
+        button.Cursor = Cursors.Hand
+    End Sub
+    Private Sub StyleLookupHeader(lbl As Label)
+        lbl.Font = New Font("Segoe UI Semibold", 8.5!, FontStyle.Bold)
+        lbl.ForeColor = Color.FromArgb(90, 100, 115)
+        lbl.BackColor = Color.Transparent
+    End Sub
+    Private Sub SetOutputWaiting(txt As Guna.UI2.WinForms.Guna2TextBox, message As String)
+        txt.Text = message
+        txt.ForeColor = Color.FromArgb(150, 158, 170)
+    End Sub
+    Private Sub SetOutputValue(txt As Guna.UI2.WinForms.Guna2TextBox, value As String)
+        txt.Text = value
+        txt.ForeColor = Color.FromArgb(55, 65, 81)
+    End Sub
+    Private Sub SetCgxStatus(status As String)
+        Select Case status.ToUpperInvariant()
+            Case "WAITING"
+                lblCgxStatus.Text = "● CGX Waiting"
+                lblCgxStatus.ForeColor = Color.FromArgb(220, 225, 220)
+
+            Case "READING"
+                lblCgxStatus.Text = "● Reading CGX..."
+                lblCgxStatus.ForeColor = Color.FromArgb(255, 193, 7)
+
+            Case "MEMBER"
+                lblCgxStatus.Text = "● Member Detected"
+                lblCgxStatus.ForeColor = Color.FromArgb(76, 175, 80)
+
+            Case "AUTH"
+                lblCgxStatus.Text = "● Authorization Detected"
+                lblCgxStatus.ForeColor = Color.FromArgb(76, 175, 80)
+
+            Case "ERROR"
+                lblCgxStatus.Text = "● CGX Error"
+                lblCgxStatus.ForeColor = Color.FromArgb(220, 70, 70)
+
+            Case "OFFLINE"
+                lblCgxStatus.Text = "● Browser Not Connected"
+                lblCgxStatus.ForeColor = Color.FromArgb(160, 165, 170)
+        End Select
+
+    End Sub
     Private Sub frmMain_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Try
             DatabaseManager.VerifyDatabase()
@@ -113,19 +360,22 @@ Public Class frmMain
         _browserMonitorTimer.Interval = 750
         _browserMonitorTimer.Start()
 
-        Me.Text = "CallPilot V1.0"
 
         Dim skinManager As MaterialSkinManager = MaterialSkinManager.Instance
         skinManager.AddFormToManage(Me)
 
         skinManager.Theme = MaterialSkinManager.Themes.LIGHT
         skinManager.ColorScheme = New ColorScheme(
-            Primary.BlueGrey800,
-            Primary.BlueGrey900,
-            Primary.BlueGrey500,
-            Accent.LightBlue200,
+            Primary.Green700,
+            Primary.Green800,
+            Primary.Green500,
+            Accent.LightGreen400,
             TextShade.WHITE
         )
+
+        Me.Text = "CallPilot V1.0"
+        ApplyModernUI()
+        SetCgxStatus("OFFLINE")
 
         cmbScenario.Items.Clear()
         cmbScenario.Items.Add("NEW AUTHORIZATION")
@@ -134,7 +384,13 @@ Public Class frmMain
         cmbScenario.SelectedIndex = -1
 
         txtOverAllOutput.Clear()
-        txtNextBestAction.Clear()
+        rtbNextBestAction.Clear()
+        'SetWaitingOutputStates()
+        SetOutputWaiting(txtMemberInfo, "Waiting for member information...")
+        SetOutputWaiting(txtAuthInfo, "Waiting for authorization information...")
+        SetOutputWaiting(txtOutOfScope, "Waiting for member lookup...")
+        SetOutputWaiting(txtMarketGuide, "Waiting for member lookup...")
+        SetOutputWaiting(txtPAL, "Waiting for authorization...")
 
         pnlActions.Controls.Clear()
         pnlActions.Visible = False
@@ -144,8 +400,18 @@ Public Class frmMain
         txtOutOfScope.ReadOnly = True
         txtMarketGuide.ReadOnly = True
         txtPAL.ReadOnly = True
-        txtNextBestAction.ReadOnly = True
+        rtbNextBestAction.ReadOnly = True
         txtOverAllOutput.ReadOnly = False
+
+        lblCgxStatus.BackColor =
+            Color.Transparent
+    End Sub
+    Private Sub SetWaitingOutputStates()
+        txtMemberInfo.Text = "Waiting for member information..."
+        txtAuthInfo.Text = "Waiting for authorization information..."
+        txtOutOfScope.Text = "Waiting for member lookup..."
+        txtMarketGuide.Text = "Waiting for member lookup..."
+        txtPAL.Text = "Waiting for authorization..."
     End Sub
     Private Sub frmMain_Shown(sender As Object, e As EventArgs) Handles Me.Shown
         'working
@@ -158,13 +424,16 @@ Public Class frmMain
 
     Private Sub btnLaunchBrowser_Click(sender As Object, e As EventArgs) Handles btnLaunchBrowser.Click
         Try
+            SetCgxStatus("READING")
             BrowserManager.Launch()
+            SetCgxStatus("WAITING")
         Catch ex As Exception
             MessageBox.Show(ex.Message, "Browser Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
-    Private Async Sub btnAnalyze_Click(sender As Object, e As EventArgs) Handles btnAnalyze.Click
+    Private Async Sub btnAnalyze_Click(sender As Object, e As EventArgs) Handles btnRefreshCGX.Click
         If Not BrowserManager.IsBrowserAvailable() Then
+            SetCgxStatus("OFFLINE")
             MessageBox.Show("Launch the CGX browser first.", "Browser Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
@@ -174,9 +443,9 @@ Public Class frmMain
         End If
 
         Try
-            btnAnalyze.Enabled = False
-            btnAnalyze.Text = "Refreshing..."
-
+            btnRefreshCGX.Enabled = False
+            btnRefreshCGX.Text = "Refreshing..."
+            SetCgxStatus("READING")
             _lastProcessedUrl = String.Empty
             _lastProcessedTitle = String.Empty
 
@@ -187,6 +456,7 @@ Public Class frmMain
                     End Function)
 
             If captured Is Nothing Or captured.Context Is Nothing Then
+                SetCgxStatus("WAITING")
                 MessageBox.Show("Navigate to the Member Information or View Authorization page.", "Refresh CGX", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 Exit Sub
             End If
@@ -194,9 +464,12 @@ Public Class frmMain
             Select Case captured.PageType
                 Case CgxPageType.MemberInformation
                     ProcessDetectedMember(captured.Context)
+                    SetCgxStatus("MEMBER")
                 Case CgxPageType.ViewAuthorization
                     ProcessDetectedAuthorization(captured.Context)
+                    SetCgxStatus("AUTH")
                 Case Else
+                    SetCgxStatus("WAITING")
                     MessageBox.Show("The current page is not a supported CGX page.", "Refresh CGX", MessageBoxButtons.OK,
                         MessageBoxIcon.Information)
             End Select
@@ -208,10 +481,11 @@ Public Class frmMain
                 _lastProcessedTitle = currentTitle
             End If
         Catch ex As Exception
+            SetCgxStatus("ERROR")
             MessageBox.Show(ex.ToString(), "Refresh CGX Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         Finally
-            btnAnalyze.Enabled = True
-            btnAnalyze.Text = "Refresh CGX"
+            btnRefreshCGX.Enabled = True
+            btnRefreshCGX.Text = "Refresh CGX"
         End Try
     End Sub
     Private Function BuildCallContextFromUI() As CallContext
@@ -242,8 +516,7 @@ Public Class frmMain
         If _currentLookup Is Nothing Then Exit Sub
 
         Dim result As RecommendationResult = RecommendationEngine.Analyze(_currentContext, _currentLookup)
-
-        txtNextBestAction.Text = result.NextBestAction
+        RenderNextBestAction(result.NextBestAction)
         If result.RequiresAgentInput Then
             ShowActionQuestion(result.QuestionId, result.QuestionText, result.QuestionOptions)
         ElseIf _questionHistory.Count > 0 Then
@@ -268,8 +541,8 @@ Public Class frmMain
             "Segoe UI",
             10.0!,
             FontStyle.Bold),
-        .ForeColor = Color.FromArgb(45, 45, 45),
-        .BackColor = Color.Transparent,
+        .ForeColor = Color.FromArgb(45, 55, 72),
+        .BackColor = Color.White,
         .Left = 12,
         .Top = 10,
         .Width = Math.Max(150, panelWidth - 24),
@@ -290,17 +563,22 @@ Public Class frmMain
             .Top = y,
             .Width = Math.Max(150, panelWidth - 32),
             .Height = 32, .Font = New Font("Segoe UI", 9.5!, FontStyle.Regular),
-            .ForeColor = Color.FromArgb(55, 55, 55),
+            .ForeColor = Color.FromArgb(55, 65, 81),
+            .BackColor = Color.White,
             .Cursor = Cursors.Hand
         }
+            'Green radio button styling
+            radio.CheckedState.BorderColor = ColorPrimaryGreen
+            radio.CheckedState.FillColor = ColorPrimaryGreen
+            radio.CheckedState.InnerColor = Color.White
+            radio.UncheckedState.BorderColor = Color.FromArgb(130, 145, 155)
+            radio.UncheckedState.FillColor = Color.White
 
             AddHandler radio.CheckedChanged,
             AddressOf DynamicAction_CheckedChanged
 
             pnlActions.Controls.Add(radio)
-
             y += radio.Height + 6
-
         Next
 
         If _questionHistory.Count > 0 Then
@@ -313,9 +591,7 @@ Public Class frmMain
 
         pnlActions.Height = y + 10
         pnlActions.Visible = True
-
         pnlActions.ResumeLayout(True)
-
     End Sub
     Private Function CreateBackButton() As Guna.UI2.WinForms.Guna2Button
 
@@ -360,11 +636,13 @@ Public Class frmMain
                 _currentContext.CareSetting = Nothing
                 _currentContext.IsExpedited = Nothing
                 _currentContext.CallerType = Nothing
+                _currentContext.ClinicalReviewNeeded = Nothing
 
             Case "CARE_SETTING"
                 _currentContext.CareSetting = selectedValue
                 _currentContext.IsExpedited = Nothing
                 _currentContext.CallerType = Nothing
+                _currentContext.ClinicalReviewNeeded = Nothing
 
             Case "EXPEDITED_REQUEST"
                 _currentContext.IsExpedited = String.Equals(selectedValue, "YES", StringComparison.OrdinalIgnoreCase)
@@ -372,6 +650,46 @@ Public Class frmMain
 
             Case "CALLER_TYPE"
                 _currentContext.CallerType = selectedValue
+
+            Case "CLINICAL_REVIEW"
+                _currentContext.ClinicalReviewNeeded = String.Equals(selectedValue, "YES", StringComparison.OrdinalIgnoreCase)
+
+                _currentContext.IsExpedited = Nothing
+                _currentContext.CallerType = Nothing
+
+            Case "REQUEST_APPROVED_AUTH_COPY"
+                _currentContext.ProviderRequestingApprovedAuthCopy = String.Equals(selectedValue, "YES", StringComparison.OrdinalIgnoreCase)
+                _currentContext.ProviderRequestingLoaCopy = Nothing
+
+            Case "PENDING_CLINICAL_REVIEW"
+                _currentContext.PendingClinicalReview = String.Equals(selectedValue, "YES", StringComparison.OrdinalIgnoreCase)
+
+            Case "REQUEST_LOA_COPY"
+                _currentContext.ProviderRequestingLoaCopy = String.Equals(selectedValue, "YES", StringComparison.OrdinalIgnoreCase)
+
+            Case "NEEDS_CLINICAL_ADVISOR"
+                _currentContext.NeedsClinicalAdvisor = String.Equals(selectedValue, "YES", StringComparison.OrdinalIgnoreCase)
+                _currentContext.ClinicalAttached = Nothing
+
+            Case "CLINICAL_ATTACHED"
+                _currentContext.ClinicalAttached = String.Equals(selectedValue, "YES", StringComparison.OrdinalIgnoreCase)
+
+            Case "REQUEST_DENIAL_LETTER"
+                _currentContext.RequestingDenialLetter = String.Equals(selectedValue, "YES", StringComparison.OrdinalIgnoreCase)
+            Case "AUTH_REQUEST_FOUND"
+
+                _currentContext.AuthRequestFound = String.Equals(selectedValue, "YES", StringComparison.OrdinalIgnoreCase)
+                'Clear all downstream Check Status answers
+                _currentContext.ProviderRequestingApprovedAuthCopy = Nothing
+                _currentContext.ProviderRequestingLoaCopy = Nothing
+                _currentContext.PendingClinicalReview = Nothing
+                _currentContext.NeedsClinicalAdvisor = Nothing
+                _currentContext.ClinicalAttached = Nothing
+                _currentContext.RequestingDenialLetter = Nothing
+                _currentContext.WantsToInitiateNewAuth = Nothing
+
+            Case "INITIATE_NEW_AUTH"
+                _currentContext.WantsToInitiateNewAuth = String.Equals(selectedValue, "YES", StringComparison.OrdinalIgnoreCase)
         End Select
     End Sub
     Private Sub DynamicBackButton_Click(sender As Object, e As EventArgs)
@@ -392,15 +710,48 @@ Public Class frmMain
                 _currentContext.CareSetting = Nothing
                 _currentContext.IsExpedited = Nothing
                 _currentContext.CallerType = Nothing
+                _currentContext.ClinicalReviewNeeded = Nothing
             Case "CARE_SETTING"
                 _currentContext.CareSetting = Nothing
                 _currentContext.IsExpedited = Nothing
                 _currentContext.CallerType = Nothing
+                _currentContext.ClinicalReviewNeeded = Nothing
             Case "EXPEDITED_REQUEST"
                 _currentContext.IsExpedited = Nothing
                 _currentContext.CallerType = Nothing
             Case "CALLER_TYPE"
                 _currentContext.CallerType = Nothing
+            Case "CLINICAL_REVIEW"
+                _currentContext.ClinicalReviewNeeded = Nothing
+                _currentContext.IsExpedited = Nothing
+                _currentContext.CallerType = Nothing
+            Case "REQUEST_APPROVED_AUTH_COPY"
+                _currentContext.ProviderRequestingApprovedAuthCopy = Nothing
+                _currentContext.ProviderRequestingLoaCopy = Nothing
+            Case "PENDING_CLINICAL_REVIEW"
+                _currentContext.PendingClinicalReview = Nothing
+            Case "REQUEST_LOA_COPY"
+                _currentContext.ProviderRequestingLoaCopy = Nothing
+            Case "NEEDS_CLINICAL_ADVISOR"
+                _currentContext.NeedsClinicalAdvisor = Nothing
+                _currentContext.ClinicalAttached = Nothing
+            Case "CLINICAL_ATTACHED"
+                _currentContext.ClinicalAttached = Nothing
+            Case "REQUEST_DENIAL_LETTER"
+                _currentContext.RequestingDenialLetter = Nothing
+            Case "AUTH_REQUEST_FOUND"
+                _currentContext.AuthRequestFound = Nothing
+                _currentContext.ProviderRequestingApprovedAuthCopy = Nothing
+                _currentContext.ProviderRequestingLoaCopy = Nothing
+                _currentContext.PendingClinicalReview = Nothing
+                _currentContext.NeedsClinicalAdvisor = Nothing
+                _currentContext.ClinicalAttached = Nothing
+                _currentContext.RequestingDenialLetter = Nothing
+                _currentContext.WantsToInitiateNewAuth = Nothing
+
+            Case "INITIATE_NEW_AUTH"
+
+                _currentContext.WantsToInitiateNewAuth = Nothing
         End Select
     End Sub
     Private Sub ShowBackOnly()
@@ -674,12 +1025,24 @@ Public Class frmMain
         _questionHistory.Clear()
         _currentQuestionId = Nothing
         _currentQuestionText = Nothing
+
         ClearActionsPanel()
         If _currentContext Is Nothing Then Exit Sub
         _currentContext.HealthType = Nothing
         _currentContext.CareSetting = Nothing
         _currentContext.IsExpedited = Nothing
         _currentContext.CallerType = Nothing
+        _currentContext.ClinicalReviewNeeded = Nothing
+
+        'Checking Status decisions
+        _currentContext.ProviderRequestingApprovedAuthCopy = Nothing
+        _currentContext.PendingClinicalReview = Nothing
+        _currentContext.ProviderRequestingLoaCopy = Nothing
+        _currentContext.NeedsClinicalAdvisor = Nothing
+        _currentContext.ClinicalAttached = Nothing
+        _currentContext.RequestingDenialLetter = Nothing
+        _currentContext.AuthRequestFound = Nothing
+        _currentContext.WantsToInitiateNewAuth = Nothing
     End Sub
     Private Sub ProcessDetectedMember(detected As CallContext)
         Dim detectedMemberId As String = NormalizeIdentifier(detected.MemberId)
@@ -764,10 +1127,10 @@ Public Class frmMain
         'Run member-level lookups.
         _currentLookup = CallPilotRepository.RunLookups(_currentContext)
         'Populate member information.
-        txtMemberInfo.Text = OutputFormatter.BuildMemberInformation(_currentContext)
+        SetOutputValue(txtMemberInfo, OutputFormatter.BuildMemberInformation(_currentContext))
         'Populate member-level lookup results.
-        txtOutOfScope.Text = OutputFormatter.BuildOutOfScope(_currentLookup)
-        txtMarketGuide.Text = OutputFormatter.BuildMarketGuide(_currentLookup)
+        SetOutputValue(txtOutOfScope, OutputFormatter.BuildOutOfScope(_currentLookup))
+        SetOutputValue(txtMarketGuide, OutputFormatter.BuildMarketGuide(_currentLookup))
 
         'Authorization and PAL stay completely blank.
         txtAuthInfo.Clear()
@@ -775,7 +1138,7 @@ Public Class frmMain
 
         'Documentation only.
         txtOverAllOutput.Text = OutputFormatter.BuildDocumentation(_currentContext)
-        txtNextBestAction.Text = "Member information refreshed. Open an authorization in CGX or select a scenario when ready."
+        RenderNextBestAction("Member information refreshed. Open an authorization in CGX or select a scenario when ready.")
 
     End Sub
     Private Sub ClearAuthorizationInformation()
@@ -876,7 +1239,7 @@ Public Class frmMain
         _currentLookup = CallPilotRepository.RunLookups(_currentContext)
 
         ClearScenarioDecisionState()
-        txtNextBestAction.Text = "Authorization information detected. Select a scenario and click Select."
+        RenderNextBestAction("Authorization information detected. Select a scenario and click Select.")
         RefreshOutputs()
     End Sub
     Private Function NormalizeIdentifier(value As String) As String
@@ -910,19 +1273,308 @@ Public Class frmMain
             txtAuthInfo.Clear()
             txtOverAllOutput.Clear()
         Else
-            txtMemberInfo.Text = OutputFormatter.BuildMemberInformation(_currentContext)
-            txtAuthInfo.Text = OutputFormatter.BuildAuthorizationInformation(_currentContext)
+            SetOutputValue(txtMemberInfo, OutputFormatter.BuildMemberInformation(_currentContext))
+            '========================================
+            ' AUTH INFORMATION
+            '========================================
+            If ShouldHideAuthorizationOutput() Then
+                txtAuthInfo.Clear()
+            Else
+                SetOutputValue(txtAuthInfo, OutputFormatter.BuildAuthorizationInformation(_currentContext))
+            End If
             txtOverAllOutput.Text = OutputFormatter.BuildDocumentation(_currentContext)
-        End If
 
+        End If
+        '========================================
+        ' LOOKUPS
+        '========================================
         If _currentLookup Is Nothing Then
             txtOutOfScope.Clear()
             txtMarketGuide.Clear()
             txtPAL.Clear()
         Else
-            txtOutOfScope.Text = OutputFormatter.BuildOutOfScope(_currentLookup)
-            txtMarketGuide.Text = OutputFormatter.BuildMarketGuide(_currentLookup)
-            txtPAL.Text = OutputFormatter.BuildPal(_currentContext, _currentLookup)
+            SetOutputValue(txtOutOfScope, OutputFormatter.BuildOutOfScope(_currentLookup))
+            SetOutputValue(txtMarketGuide, OutputFormatter.BuildMarketGuide(_currentLookup))
+
+            'PAL is authorization-specific.
+            If ShouldHideAuthorizationOutput() Then
+                txtPAL.Clear()
+            Else
+                SetOutputValue(txtPAL, OutputFormatter.BuildPal(_currentContext, _currentLookup))
+            End If
         End If
+    End Sub
+    Private Function ShouldHideAuthorizationOutput() As Boolean
+        If _currentContext Is Nothing Then
+            Return True
+        End If
+
+        If Not String.Equals(_currentContext.Scenario, "CHECKING STATUS OF THE AUTHORIZATION", StringComparison.OrdinalIgnoreCase) Then
+            Return False
+        End If
+        'Only hide after the agent explicitly answered NO.
+        Return _currentContext.AuthRequestFound.HasValue And Not _currentContext.AuthRequestFound.Value
+
+    End Function
+    Private Sub btnTest_Click(sender As Object, e As EventArgs) Handles btnTest.Click
+        TestUpdatingAuthorizationOffline()
+    End Sub
+    Private Sub TestUpdatingAuthorizationOffline()
+
+        Try
+
+            Dim testContext As New CallContext With {
+            .CallerName = "TEST CALLER",
+            .CallbackNumber = "5551234567",
+            .SecuredFax = "5559876543",
+            .CallingFrom = "TEST PROVIDER",
+            .MemberId = "TEST123",
+            .MemberName = "TEST MEMBER",
+            .DateOfBirth = "01/01/1980",
+            .Product = "Medicare HMO",
+            .Conso = "TEST MARKET",
+            .IssueState = "FL",
+            .GroupNumber = "TESTGROUP",
+            .Scenario = "UPDATING AUTHORIZATION",
+            .HealthType = "PHYSICAL HEALTH",
+            .CareSetting = "OUTPATIENT",
+            .AuthorizationNumber = "TESTAUTH123",
+            .AuthorizationStatus = "APPROVED",
+            .AuthorizationStartDate = "08/01/2026",
+            .AuthorizationEndDate =
+                "10/4/2026" &
+                Environment.NewLine &
+                "8/10/2026",
+            .TotalDays = "30",
+            .RequestingProvider = "TEST REQUESTING PROVIDER",
+            .TreatingProvider = "TEST TREATING PROVIDER",
+            .FacilityProvider = "TEST FACILITY",
+            .PrimaryDiagnosisCode = "Z00.00",
+            .ClaimPaymentNotes = "TEST NOTES"
+        }
+
+            testContext.SecondaryDiagnosisCodes.Add("Z01.89")
+            testContext.SecondaryDiagnosisCodes.Add("Z02.9")
+
+            testContext.ProcedureCodes.Add("99213")
+            testContext.ProcedureCodes.Add("99214")
+
+            Dim testLookup As New LookupResult With
+                {
+            .IsOutOfScope = False,
+            .OutOfScopeMessage = "Test member is in scope.",
+            .MarketGuideFound = True,
+            .MarketGuideMessage = "TEST MARKET GUIDE",
+            .PalFound = True
+                }
+
+            testLookup.PalResults.Add(
+            "TEST PAL RESULT")
+            Dim result As RecommendationResult = RecommendationEngine.Analyze(testContext, testLookup)
+
+            MessageBox.Show(
+                "TEST COMPLETED SUCCESSFULLY" &
+                Environment.NewLine &
+                Environment.NewLine &
+                "Next Best Action:" &
+                Environment.NewLine &
+                result.NextBestAction,
+                "Offline Recommendation Test",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Information)
+
+        Catch ex As Exception
+
+            MessageBox.Show(
+                ex.ToString(),
+                "Offline Test Error",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error)
+
+        End Try
+
+    End Sub
+    Private Sub rtbNextBestAction_LinkClicked(sender As Object, e As LinkClickedEventArgs) Handles rtbNextBestAction.LinkClicked
+        Try
+            Process.Start(New ProcessStartInfo With {.FileName = e.LinkText, .UseShellExecute = True})
+        Catch ex As Exception
+            MessageBox.Show(
+                "Unable to open the link." &
+                Environment.NewLine &
+                Environment.NewLine &
+                ex.Message,
+                "Open Link",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning)
+        End Try
+    End Sub
+    Private Sub RenderNextBestAction(rawText As String)
+        rtbNextBestAction.Clear()
+        _nextBestActionLinks.Clear()
+
+        If String.IsNullOrWhiteSpace(rawText) Then
+            Exit Sub
+        End If
+
+        Dim lines As String() = rawText.Replace(vbCrLf, vbLf).Replace(vbCr, vbLf).Split(ControlChars.Lf)
+        For Each line As String In lines
+
+            Dim cleanLine As String = line.Trim()
+            If String.IsNullOrWhiteSpace(cleanLine) Then
+                rtbNextBestAction.AppendText(Environment.NewLine)
+                Continue For
+            End If
+
+            'Guide link
+            If cleanLine.StartsWith("[LINK]", StringComparison.OrdinalIgnoreCase) Then
+                RenderGuideLink(cleanLine)
+                Continue For
+            End If
+
+            'End of process
+            If cleanLine.IndexOf("END OF THE PROCESS", StringComparison.OrdinalIgnoreCase) >= 0 Then
+                RenderEndOfProcess()
+                Continue For
+            End If
+
+            'Header
+            If String.Equals(cleanLine, "NEXT BEST ACTION", StringComparison.OrdinalIgnoreCase) Then
+                RenderNextBestActionHeader()
+                Continue For
+            End If
+
+            'Skip old separator lines
+            If cleanLine.All(
+            Function(c)
+                Return c = "-"c
+            End Function) Then
+                Continue For
+            End If
+
+            'Numbered action
+            If Char.IsDigit(cleanLine(0)) And cleanLine.Contains(".") Then
+                RenderActionStep(cleanLine)
+                Continue For
+            End If
+            'Normal text
+            AppendNormalActionText(cleanLine)
+        Next
+        rtbNextBestAction.SelectionStart = 0
+        rtbNextBestAction.ScrollToCaret()
+    End Sub
+    Private Sub RenderNextBestActionHeader()
+        Dim startPosition As Integer = rtbNextBestAction.TextLength
+        'rtbNextBestAction.AppendText("NEXT BEST ACTION" & Environment.NewLine & Environment.NewLine)
+        'rtbNextBestAction.Select(startPosition, "NEXT BEST ACTION".Length)
+        rtbNextBestAction.SelectionFont = New Font("Segoe UI Semibold", 11.0!, FontStyle.Bold)
+        rtbNextBestAction.SelectionColor = ColorDarkGreen
+        ResetNextBestActionFormatting()
+    End Sub
+    Private Sub RenderActionStep(actionText As String)
+        Dim separatorIndex As Integer = actionText.IndexOf("."c)
+
+        If separatorIndex <= 0 Then
+            AppendNormalActionText(actionText)
+            Exit Sub
+        End If
+
+        Dim stepNumber As String = actionText.Substring(0, separatorIndex + 1)
+        Dim description As String = actionText.Substring(separatorIndex + 1).Trim()
+        Dim numberStart As Integer = rtbNextBestAction.TextLength
+        rtbNextBestAction.AppendText(stepNumber & " ")
+        rtbNextBestAction.Select(numberStart, stepNumber.Length)
+        rtbNextBestAction.SelectionFont = New Font("Segoe UI Semibold", 10.0!, FontStyle.Bold)
+        rtbNextBestAction.SelectionColor = ColorPrimaryGreen
+        ResetNextBestActionFormatting()
+        rtbNextBestAction.AppendText(description & Environment.NewLine & Environment.NewLine)
+    End Sub
+    Private Sub AppendNormalActionText(text As String)
+        rtbNextBestAction.SelectionFont = New Font("Segoe UI", 9.5!, FontStyle.Regular)
+        rtbNextBestAction.SelectionColor = ColorDarkGreen
+        rtbNextBestAction.AppendText(text & Environment.NewLine & Environment.NewLine)
+    End Sub
+    Private Sub RenderEndOfProcess()
+        Dim startPosition As Integer = rtbNextBestAction.TextLength
+        Dim endText As String = "✓ END OF THE PROCESS"
+        rtbNextBestAction.AppendText(endText & Environment.NewLine)
+        rtbNextBestAction.Select(startPosition, endText.Length)
+        rtbNextBestAction.SelectionFont = New Font("Segoe UI Semibold", 10.0!, FontStyle.Bold)
+        rtbNextBestAction.SelectionColor = ColorDarkGreen
+        ResetNextBestActionFormatting()
+    End Sub
+    Private Sub ResetNextBestActionFormatting()
+        rtbNextBestAction.Select(rtbNextBestAction.TextLength, 0)
+        rtbNextBestAction.SelectionFont = New Font("Segoe UI", 9.5!, FontStyle.Regular)
+        rtbNextBestAction.SelectionColor = ColorDarkGreen
+    End Sub
+    Private Sub RenderGuideLink(linkLine As String)
+        Dim content As String = linkLine.Substring(6)
+        Dim separatorIndex As Integer = content.IndexOf("|"c)
+
+        If separatorIndex < 0 Then
+            Return
+        End If
+
+        Dim displayText As String = content.Substring(0, separatorIndex).Trim()
+        Dim url As String = content.Substring(separatorIndex + 1).Trim()
+
+        If String.IsNullOrWhiteSpace(displayText) Or String.IsNullOrWhiteSpace(url) Then
+            Return
+        End If
+
+        Dim startPosition As Integer = rtbNextBestAction.TextLength
+        rtbNextBestAction.AppendText("↗ " & displayText)
+        Dim visibleLength As Integer = ("↗ " & displayText).Length
+        rtbNextBestAction.Select(startPosition, visibleLength)
+        rtbNextBestAction.SelectionColor = ColorDarkGreen
+        rtbNextBestAction.SelectionFont = New Font("Segoe UI Semibold", 9.5!, FontStyle.Underline)
+        Dim key As String = startPosition.ToString() & ":" & visibleLength.ToString()
+        _nextBestActionLinks(key) = url
+        ResetNextBestActionFormatting()
+        rtbNextBestAction.AppendText(Environment.NewLine & Environment.NewLine)
+    End Sub
+    Private Sub rtbNextBestAction_MouseUp(sender As Object, e As MouseEventArgs) Handles rtbNextBestAction.MouseUp
+        Dim characterIndex As Integer = rtbNextBestAction.GetCharIndexFromPosition(e.Location)
+
+        For Each pair In _nextBestActionLinks
+            Dim parts As String() = pair.Key.Split(":"c)
+            If parts.Length <> 2 Then
+                Continue For
+            End If
+
+            Dim startPosition As Integer = Integer.Parse(parts(0))
+            Dim length As Integer = Integer.Parse(parts(1))
+            If characterIndex >= startPosition And characterIndex < startPosition + length Then
+                OpenGuideLink(pair.Value)
+                Exit For
+            End If
+        Next
+    End Sub
+    Private Sub OpenGuideLink(url As String)
+        Try
+
+            Process.Start(
+                New ProcessStartInfo With {
+                    .FileName = url,
+                    .UseShellExecute = True
+                })
+
+        Catch ex As Exception
+            MessageBox.Show(
+                "Unable to open the guide." &
+                Environment.NewLine &
+                Environment.NewLine &
+                ex.Message,
+                "Open Guide",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning)
+        End Try
+    End Sub
+
+    Private Sub btnCopyDocumentation_Click(sender As Object, e As EventArgs) Handles btnCopyDocumentation.Click
+        If String.IsNullOrWhiteSpace(txtOverAllOutput.Text) Then
+            Exit Sub
+        End If
+        Clipboard.SetText(txtOverAllOutput.Text)
     End Sub
 End Class

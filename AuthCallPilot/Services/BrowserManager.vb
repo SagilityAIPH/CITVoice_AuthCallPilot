@@ -103,7 +103,8 @@ Public Class BrowserManager
         ExpandMemberInformationIfNeeded(wait)
 
         'Read and normalize CGX values.
-        Dim rawProduct As String = ReadCgxFieldValue(wait, "Product/MTV or CAS")
+        'Dim rawProduct As String = ReadCgxFieldValue(wait, "Product/MTV or CAS")
+        Dim rawProduct As String = ReadCgxFieldValue(wait, "ProductDesc")
         Dim rawConso As String = ReadCgxFieldValue(wait, "Consolidated Selling Market")
         Dim rawGroup As String = ReadCgxFieldValue(wait, "Group Name/ID")
         Dim rawIssueState As String = ReadCgxFieldValue(wait, "State of Issue")

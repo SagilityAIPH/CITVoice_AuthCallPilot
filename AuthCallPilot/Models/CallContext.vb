@@ -41,4 +41,20 @@
     Public Property CareSetting As String
     Public Property IsExpedited As Boolean?
     Public Property CallerType As String
+    Public Property ClinicalReviewNeeded As Boolean?
+
+    'Checking Authorization Status
+    Public Property ProviderRequestingApprovedAuthCopy As Boolean?
+    Public Property ProviderRequestingLoaCopy As Boolean?
+
+    Public Property NeedsClinicalAdvisor As Boolean?
+    Public Property ClinicalAttached As Boolean?
+
+    Public Property RequestingDenialLetter As Boolean?
+    Public Property PendingClinicalReview As Boolean?
+
+    'Checking Status of Authorization
+    Public Property AuthRequestFound As Boolean?
+    Public Property WantsToInitiateNewAuth As Boolean?
+
 End Class
