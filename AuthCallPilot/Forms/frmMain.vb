@@ -1312,8 +1312,8 @@ Public Class frmMain
         If Not String.Equals(_currentContext.Scenario, "CHECKING STATUS OF THE AUTHORIZATION", StringComparison.OrdinalIgnoreCase) Then
             Return False
         End If
-        'Only hide after the agent explicitly answered NO.
-        Return _currentContext.AuthRequestFound.HasValue And Not _currentContext.AuthRequestFound.Value
+
+        Return _currentContext.AuthRequestFound.GetValueOrDefault(False) = False And _currentContext.AuthRequestFound.HasValue
 
     End Function
     Private Sub btnTest_Click(sender As Object, e As EventArgs) Handles btnTest.Click
@@ -1576,5 +1576,9 @@ Public Class frmMain
             Exit Sub
         End If
         Clipboard.SetText(txtOverAllOutput.Text)
+    End Sub
+
+    Private Sub Guna2Panel1_Paint(sender As Object, e As PaintEventArgs) Handles Guna2Panel1.Paint
+
     End Sub
 End Class
