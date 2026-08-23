@@ -1526,8 +1526,13 @@ Public Class frmMain
         If Not String.Equals(_currentContext.Scenario, "CHECKING STATUS OF THE AUTHORIZATION", StringComparison.OrdinalIgnoreCase) Then
             Return False
         End If
+<<<<<<< HEAD
         'Only hide after the agent explicitly answered NO.
         Return _currentContext.AuthRequestFound.HasValue AndAlso Not _currentContext.AuthRequestFound.Value
+=======
+
+        Return _currentContext.AuthRequestFound.GetValueOrDefault(False) = False And _currentContext.AuthRequestFound.HasValue
+>>>>>>> cccac355efdd9da62eb945e55519053db6fcf7d2
 
     End Function
     Private Sub btnTest_Click(sender As Object, e As EventArgs) Handles btnTest.Click
@@ -2000,6 +2005,7 @@ Public Class frmMain
         Clipboard.SetText(txtOverAllOutput.Text)
     End Sub
 
+<<<<<<< HEAD
     Private Sub chkGenesysVerified_CheckedChanged(sender As Object, e As EventArgs)
         If _currentContext Is Nothing Then
             Exit Sub
@@ -2247,4 +2253,9 @@ Public Class frmMain
         End If
         ValidateTenDigitField(textBox)
     End Sub
+=======
+    Private Sub Guna2Panel1_Paint(sender As Object, e As PaintEventArgs) Handles Guna2Panel1.Paint
+
+    End Sub
+>>>>>>> cccac355efdd9da62eb945e55519053db6fcf7d2
 End Class

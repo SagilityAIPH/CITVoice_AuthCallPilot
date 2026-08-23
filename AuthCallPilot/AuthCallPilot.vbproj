@@ -28,7 +28,11 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
+<<<<<<< HEAD
     <ApplicationRevision>34</ApplicationRevision>
+=======
+    <ApplicationRevision>27</ApplicationRevision>
+>>>>>>> cccac355efdd9da62eb945e55519053db6fcf7d2
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
