@@ -33,10 +33,86 @@ Public Class frmMain
     Private ReadOnly ColorTextPrimary As Color = Color.FromArgb(45, 55, 50)
     Private ReadOnly ColorTextSecondary As Color = Color.FromArgb(115, 125, 120)
     Private ReadOnly ColorBorder As Color = Color.FromArgb(220, 226, 220)
+    'General tool-generated outcome
+    Private ReadOnly ColorOutcomeBackground As Color = Color.FromArgb(248, 246, 226)   'Soft pastel yellow
+    Private ReadOnly ColorOutcomeBorder As Color = Color.FromArgb(226, 215, 150)
+    'Positive / Out of Scope = NO
+    Private ReadOnly ColorSuccessBackground As Color = Color.FromArgb(235, 247, 232)
+    Private ReadOnly ColorSuccessBorder As Color = Color.FromArgb(125, 186, 105)
+    Private ReadOnly ColorSuccessText As Color = Color.FromArgb(48, 112, 45)
+    'Negative / Out of Scope = YES
+    Private ReadOnly ColorDangerBackground As Color = Color.FromArgb(252, 235, 235)
+    Private ReadOnly ColorDangerBorder As Color = Color.FromArgb(220, 125, 125)
+    Private ReadOnly ColorDangerText As Color = Color.FromArgb(170, 55, 55)
+    Private ReadOnly ColorAgentActionBackground As Color = Color.FromArgb(245, 250, 240)
+    Private ReadOnly ColorAgentActionBorder As Color = Color.FromArgb(190, 215, 170)
 
+    Private ReadOnly ColorAutoPopulatedBackground As Color = Color.FromArgb(255, 245, 230) 'soft orange
+    Private ReadOnly ColorAutoPopulatedBorder As Color = Color.FromArgb(235, 170, 90)
+    Private ReadOnly ColorAutoPopulatedText As Color = Color.FromArgb(120, 75, 20)
+    Private ReadOnly _oosLinks As New Dictionary(Of String, String)
+
+    '#URLS
+    Private Const DelegatedGrouperSearchUrl As String =
+    "https://app.powerbi.com/groups/me/reports/1d9cdc40-1454-455e-98d4-399ede4a15e7/ReportSectioneaef45f0db640833762b?experience=power-bi"
+    Private Const PcodsotUrl As String =
+    "https://apps.powerapps.com/play/e/default-56c62bbe-8598-4b85-9e51-1ca753fa50f2/a/8c7fa451-51fc-4840-930c-9f832a1cdba0?tenantId=56c62bbe-8598-4b85-9e51-1ca753fa50f2&hint=a7eca138-56c6-4316-919d-fb8cad463df2&sourcetime=1706564912682"
+    Private Sub RenderOutOfScope()
+        rtbOutOfScope.Clear()
+        If _currentLookup Is Nothing Then
+            Return
+        End If
+
+        '========================================
+        ' NORMAL OOS OUTPUT
+        '========================================
+        Dim oosText As String =
+        OutputFormatter.BuildOutOfScope(_currentLookup)
+        rtbOutOfScope.AppendText(oosText)
+        rtbOutOfScope.AppendText(Environment.NewLine)
+        rtbOutOfScope.AppendText("Validate Grouper on the Following Links:" & Environment.NewLine)
+
+        '========================================
+        ' DELEGATED GROUPER SEARCH
+        '========================================
+        AppendHyperlink(rtbOutOfScope, "Open Delegated Grouper Search", DelegatedGrouperSearchUrl)
+        rtbOutOfScope.AppendText(Environment.NewLine)
+
+        '========================================
+        ' PCODSOT
+        '========================================
+        AppendHyperlink(rtbOutOfScope, "Open PCODSOT", PcodsotUrl)
+    End Sub
+    Private Sub AppendHyperlink(box As RichTextBox, displayText As String, url As String)
+        Dim start As Integer = box.TextLength
+        box.AppendText(displayText)
+        box.Select(start, displayText.Length)
+        box.SelectionColor = Color.FromArgb(0, 102, 204)
+        box.SelectionFont = New Font(box.Font, FontStyle.Underline)
+        box.Select(box.TextLength, 0)
+        _oosLinks(displayText) = url
+    End Sub
     Private Sub frmMain_FormClosing(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
         _browserMonitorTimer.Stop()
         BrowserManager.Close()
+    End Sub
+    Private Sub SetAuthorizationWaitingState()
+        pnlAuthCard.FillColor = Color.White
+        pnlAuthCard.BackColor = Color.White
+        pnlAuthCard.BorderColor = ColorBorder
+
+        txtAuthInfo.FillColor = Color.White
+        txtAuthInfo.ForeColor = ColorTextSecondary
+
+    End Sub
+    Private Sub SetAuthorizationPopulatedState()
+        pnlAuthCard.FillColor = ColorAutoPopulatedBackground
+        pnlAuthCard.BackColor = ColorAutoPopulatedBackground
+        pnlAuthCard.BorderColor = ColorAutoPopulatedBorder
+
+        txtAuthInfo.FillColor = ColorAutoPopulatedBackground
+        txtAuthInfo.ForeColor = ColorAutoPopulatedText
+
     End Sub
     Private Async Sub BrowserMonitorTimer_Tick(sender As Object, e As EventArgs) Handles _browserMonitorTimer.Tick
         If _browserMonitorBusy Then
@@ -83,6 +159,7 @@ Public Class frmMain
                     End If
 
                     ProcessDetectedMember(captured.Context)
+                    ShowMemberInformationPanel()
                     SetCgxStatus("MEMBER")
                     _lastProcessedUrl = currentUrl
                     _lastProcessedTitle = currentTitle
@@ -93,6 +170,7 @@ Public Class frmMain
                     End If
 
                     ProcessDetectedAuthorization(captured.Context)
+                    ShowAuthorizationInformationPanel()
                     SetCgxStatus("AUTH")
                     _lastProcessedUrl = currentUrl
                     _lastProcessedTitle = currentTitle
@@ -135,15 +213,7 @@ Public Class frmMain
         btnLaunchBrowser.HoverState.FillColor = ColorHoverGreen
         btnLaunchBrowser.Height = 28
 
-        btnSelectScenario.FillColor = ColorPrimaryGreen
-        btnSelectScenario.ForeColor = Color.White
-        btnSelectScenario.BorderThickness = 0
-        btnSelectScenario.BorderRadius = 8
-        btnSelectScenario.HoverState.FillColor = ColorHoverGreen
-
         StylePrimaryButton(btnLaunchBrowser)
-        StylePrimaryButton(btnSelectScenario)
-
         '========================================
         ' Secondary BUTTONS
         '========================================
@@ -174,7 +244,7 @@ Public Class frmMain
         ' NEXT BEST ACTION
         '========================================
         rtbNextBestAction.BorderStyle = BorderStyle.None
-        rtbNextBestAction.BackColor = Color.White
+        rtbNextBestAction.BackColor = ColorOutcomeBackground
         rtbNextBestAction.Font = New Font("Segoe UI", 9.0!)
         rtbNextBestAction.ForeColor = Color.FromArgb(45, 55, 72)
 
@@ -183,9 +253,6 @@ Public Class frmMain
         '========================================
         StyleOutputBox(txtMemberInfo)
         StyleOutputBox(txtAuthInfo)
-        StyleOutputBox(txtOutOfScope)
-        StyleOutputBox(txtMarketGuide)
-        StyleOutputBox(txtPAL)
 
         '========================================
         ' DOCUMENTATION
@@ -196,12 +263,23 @@ Public Class frmMain
         ' CARDS
         '========================================
         StyleCard(pnlCallDetailsCard)
+        pnlCallDetailsCard.FillColor = ColorAgentActionBackground
+        pnlCallDetailsCard.BackColor = ColorAgentActionBackground
+        pnlCallDetailsCard.BorderColor = ColorPrimaryGreen
+        pnlCallDetailsCard.BorderThickness = 1
         StyleCard(pnlMemberCard)
         StyleCard(pnlAuthCard)
         StyleCard(pnlLookupCard)
         StyleCard(pnlScenarioCard)
+        pnlScenarioCard.FillColor = ColorAgentActionBackground
+        pnlScenarioCard.BackColor = ColorAgentActionBackground
+        pnlScenarioCard.BorderColor = ColorPrimaryGreen
+        pnlScenarioCard.BorderThickness = 1
         StyleCard(pnlNextBestActionCard)
         StyleCard(pnlDocumentationCard)
+        pnlNextBestActionCard.FillColor = ColorOutcomeBackground
+        pnlNextBestActionCard.BackColor = ColorOutcomeBackground
+        pnlNextBestActionCard.BorderColor = ColorOutcomeBorder
 
         '========================================
         ' CARD HEADERS
@@ -236,6 +314,145 @@ Public Class frmMain
         pnlActions.BorderThickness = 0
         pnlActions.AutoScroll = True
 
+        '========================================
+        ' OUTPUT RICH TEXT BOXES
+        '========================================
+        StyleLookupRichTextBox(rtbOutOfScope)
+        StyleLookupRichTextBox(rtbMarketGuide)
+        StyleLookupRichTextBox(rtbPAL)
+
+        '========================================
+        ' OUT OF SCOPE SECTION
+        '========================================
+        pnlOutOfScopeSection.BorderRadius = 8
+        pnlOutOfScopeSection.BorderThickness = 1
+
+        '========================================
+        ' LOOKUP / OUTCOME SECTIONS
+        '========================================
+        StyleOutcomeSection(pnlOutOfScopeSection)
+        StyleOutcomeSection(pnlMarketGuideSection)
+        StyleOutcomeSection(pnlPALSection)
+
+        SetOutOfScopeWaitingState()
+        SetMarketGuideWaitingState()
+        SetPALWaitingState()
+
+        StyleCard(pnlVerificationCard)
+        pnlVerificationCard.FillColor = ColorAgentActionBackground
+        pnlVerificationCard.BackColor = ColorAgentActionBackground
+        pnlVerificationCard.BorderColor = ColorPrimaryGreen
+        pnlVerificationCard.BorderThickness = 1
+        StyleCardHeader(lblVerificationHeader)
+
+        '========================================
+        ' VERIFICATION CHECKBOXES
+        '========================================
+        lblVerificationHeader.Text = "VERIFICATION"
+        StyleVerificationCheckBox(chkGenesysVerified)
+        StyleVerificationCheckBox(chkProviderAuthenticated)
+        StyleVerificationCheckBox(chkMailingAddressVerified)
+    End Sub
+    Private Sub StyleVerificationCheckBox(chk As Guna.UI2.WinForms.Guna2CheckBox)
+        chk.Font = New Font("Segoe UI", 9.0!, FontStyle.Regular)
+        chk.ForeColor = ColorTextPrimary
+        chk.BackColor = Color.Transparent
+
+        chk.CheckedState.BorderColor = ColorPrimaryGreen
+        chk.CheckedState.BorderRadius = 2
+        chk.CheckedState.BorderThickness = 0
+        chk.CheckedState.FillColor = ColorPrimaryGreen
+
+        chk.UncheckedState.BorderColor = ColorPrimaryGreen
+        chk.UncheckedState.BorderRadius = 2
+        chk.UncheckedState.BorderThickness = 1
+        chk.UncheckedState.FillColor = Color.White
+        chk.Cursor = Cursors.Hand
+    End Sub
+    Private Sub SetMarketGuideWaitingState()
+        pnlMarketGuideSection.FillColor = ColorOutcomeBackground
+        pnlMarketGuideSection.BackColor = ColorOutcomeBackground
+        pnlMarketGuideSection.BorderColor = ColorOutcomeBorder
+
+        rtbMarketGuide.BackColor = ColorOutcomeBackground
+        rtbMarketGuide.ForeColor = ColorTextPrimary
+
+        lblLookupMarketGuide.BackColor = Color.Transparent
+        lblLookupMarketGuide.ForeColor = ColorTextPrimary
+    End Sub
+    Private Sub SetPALWaitingState()
+        pnlPALSection.FillColor = ColorOutcomeBackground
+        pnlPALSection.BackColor = ColorOutcomeBackground
+        pnlPALSection.BorderColor = ColorOutcomeBorder
+
+        rtbPAL.BackColor = ColorOutcomeBackground
+        rtbPAL.ForeColor = ColorTextPrimary
+
+        lblLookupPAL.BackColor = Color.Transparent
+        lblLookupPAL.ForeColor = ColorTextPrimary
+    End Sub
+    Private Sub StyleOutcomeSection(panel As Guna.UI2.WinForms.Guna2Panel)
+        panel.BorderRadius = 8
+        panel.BorderThickness = 1
+        panel.FillColor = ColorOutcomeBackground
+        panel.BackColor = ColorOutcomeBackground
+        panel.BorderColor = ColorOutcomeBorder
+    End Sub
+    Private Sub SetOutOfScopeWaitingState()
+        pnlOutOfScopeSection.FillColor = ColorOutcomeBackground
+        pnlOutOfScopeSection.BackColor = ColorOutcomeBackground
+        pnlOutOfScopeSection.BorderColor = ColorOutcomeBorder
+        rtbOutOfScope.BackColor = ColorOutcomeBackground
+        rtbOutOfScope.ForeColor = ColorTextPrimary
+        lblLookupOOS.BackColor = Color.Transparent
+        lblLookupOOS.ForeColor = ColorTextPrimary
+    End Sub
+    Private Sub ApplyOutOfScopeVisualState()
+        'No lookup yet
+        If _currentLookup Is Nothing Then
+            SetOutOfScopeWaitingState()
+            Return
+        End If
+
+        'Result could not be determined
+        If Not _currentLookup.IsOutOfScope.HasValue Then
+            SetOutOfScopeWaitingState()
+            Return
+        End If
+
+        '========================================
+        ' OUT OF SCOPE = YES
+        ' RED
+        '========================================
+        If _currentLookup.IsOutOfScope.Value Then
+            pnlOutOfScopeSection.FillColor = ColorDangerBackground
+            pnlOutOfScopeSection.BackColor = ColorDangerBackground
+            pnlOutOfScopeSection.BorderColor = ColorDangerBorder
+            rtbOutOfScope.BackColor = ColorDangerBackground
+            rtbOutOfScope.ForeColor = ColorDangerText
+            lblLookupOOS.ForeColor = ColorDangerText
+            Return
+        End If
+
+        '========================================
+        ' OUT OF SCOPE = NO
+        ' GREEN
+        '========================================
+        pnlOutOfScopeSection.FillColor = ColorSuccessBackground
+        pnlOutOfScopeSection.BackColor = ColorSuccessBackground
+        pnlOutOfScopeSection.BorderColor = ColorSuccessBorder
+        rtbOutOfScope.BackColor = ColorSuccessBackground
+        rtbOutOfScope.ForeColor = ColorSuccessText
+        lblLookupOOS.ForeColor = ColorSuccessText
+    End Sub
+    Private Sub StyleLookupRichTextBox(box As RichTextBox)
+        box.BorderStyle = BorderStyle.None
+        box.BackColor = Color.White
+        box.ForeColor = Color.FromArgb(55, 65, 81)
+
+        box.Font = New Font("Segoe UI", 9.0!)
+        box.ReadOnly = True
+        box.DetectUrls = True
     End Sub
     Private Sub StylePrimaryButton(button As Guna.UI2.WinForms.Guna2Button)
         button.BorderRadius = 8
@@ -302,6 +519,10 @@ Public Class frmMain
         lbl.BackColor = Color.Transparent
     End Sub
     Private Sub SetOutputWaiting(txt As Guna.UI2.WinForms.Guna2TextBox, message As String)
+        txt.Text = message
+        txt.ForeColor = Color.FromArgb(150, 158, 170)
+    End Sub
+    Private Sub SetOutputWaiting(txt As RichTextBox, message As String)
         txt.Text = message
         txt.ForeColor = Color.FromArgb(150, 158, 170)
     End Sub
@@ -388,30 +609,31 @@ Public Class frmMain
         'SetWaitingOutputStates()
         SetOutputWaiting(txtMemberInfo, "Waiting for member information...")
         SetOutputWaiting(txtAuthInfo, "Waiting for authorization information...")
-        SetOutputWaiting(txtOutOfScope, "Waiting for member lookup...")
-        SetOutputWaiting(txtMarketGuide, "Waiting for member lookup...")
-        SetOutputWaiting(txtPAL, "Waiting for authorization...")
+        SetOutputWaiting(rtbOutOfScope, "Waiting for member lookup...")
+        SetOutputWaiting(rtbMarketGuide, "Waiting for member lookup...")
+        SetOutputWaiting(rtbPAL, "Waiting for authorization...")
 
         pnlActions.Controls.Clear()
         pnlActions.Visible = False
 
         txtMemberInfo.ReadOnly = True
         txtAuthInfo.ReadOnly = True
-        txtOutOfScope.ReadOnly = True
-        txtMarketGuide.ReadOnly = True
-        txtPAL.ReadOnly = True
+        rtbOutOfScope.ReadOnly = True
+        rtbMarketGuide.ReadOnly = True
+        rtbPAL.ReadOnly = True
         rtbNextBestAction.ReadOnly = True
         txtOverAllOutput.ReadOnly = False
 
-        lblCgxStatus.BackColor =
-            Color.Transparent
+        lblCgxStatus.BackColor = Color.Transparent
+        SetAuthorizationWaitingState()
+        ShowMemberInformationPanel()
     End Sub
     Private Sub SetWaitingOutputStates()
         txtMemberInfo.Text = "Waiting for member information..."
         txtAuthInfo.Text = "Waiting for authorization information..."
-        txtOutOfScope.Text = "Waiting for member lookup..."
-        txtMarketGuide.Text = "Waiting for member lookup..."
-        txtPAL.Text = "Waiting for authorization..."
+        rtbOutOfScope.Text = "Waiting for member lookup..."
+        rtbMarketGuide.Text = "Waiting for member lookup..."
+        rtbPAL.Text = "Waiting for authorization..."
     End Sub
     Private Sub frmMain_Shown(sender As Object, e As EventArgs) Handles Me.Shown
         'working
@@ -464,9 +686,11 @@ Public Class frmMain
             Select Case captured.PageType
                 Case CgxPageType.MemberInformation
                     ProcessDetectedMember(captured.Context)
+                    ShowMemberInformationPanel()
                     SetCgxStatus("MEMBER")
                 Case CgxPageType.ViewAuthorization
                     ProcessDetectedAuthorization(captured.Context)
+                    ShowAuthorizationInformationPanel()
                     SetCgxStatus("AUTH")
                 Case Else
                     SetCgxStatus("WAITING")
@@ -907,9 +1131,9 @@ Public Class frmMain
         output.AppendLine("Member ID: " & DisplayDocumentationValue(context.MemberId))
         output.AppendLine("Date of Birth: " & DisplayDocumentationValue(context.DateOfBirth))
         output.AppendLine()
-        output.AppendLine("Genesys Verification: Yes/No")
-        output.AppendLine("Provider/Member Authenticated: Yes/No")
-        output.AppendLine("Mailing Address Verified: Yes/No")
+        output.AppendLine("Genesys Verification: " & If(context.GenesysVerified, "Yes", "No"))
+        output.AppendLine("Provider/Member Authenticated: " & If(context.ProviderMemberAuthenticated, "Yes", "No"))
+        output.AppendLine("Mailing Address Verified: " & If(context.MailingAddressVerified, "Yes", "No"))
         output.AppendLine()
         output.AppendLine("Concern: " & DisplayDocumentationValue(context.Scenario))
         output.AppendLine("Date of Service: " & FormatDocumentationDate(context.DateOfService))
@@ -994,33 +1218,6 @@ Public Class frmMain
 
         Return If(value.Value, trueText, falseText)
     End Function
-    Private Sub btnSelectScenario_Click(sender As Object, e As EventArgs) Handles btnSelectScenario.Click
-        If Not ValidateCgxSearchInput() Then
-            Exit Sub
-        End If
-        Try
-            If cmbScenario.SelectedIndex < 0 Then
-                MessageBox.Show("Select a scenario first.", "Scenario Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                Exit Sub
-            End If
-
-            If _currentContext Is Nothing Or String.IsNullOrWhiteSpace(_currentContext.MemberId) Then
-                MessageBox.Show("Navigate to the CGX Member Information page first.", "Member Information Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
-                Exit Sub
-            End If
-
-            _currentContext.CallerName = txtCallerName.Text.Trim()
-            _currentContext.CallbackNumber = txtCallbackNum.Text.Trim()
-            _currentContext.SecuredFax = txtSecuredFax.Text.Trim()
-            _currentContext.CallingFrom = txtCallingFrom.Text.Trim()
-            _currentContext.DateOfService = ParseOptionalDos(txtDOS.Text)
-            ClearScenarioDecisionState()
-            _currentContext.Scenario = Convert.ToString(cmbScenario.SelectedItem)
-            RunRecommendation()
-        Catch ex As Exception
-            MessageBox.Show(ex.ToString(), "Scenario Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
-        End Try
-    End Sub
     Private Sub ClearScenarioDecisionState()
         _questionHistory.Clear()
         _currentQuestionId = Nothing
@@ -1028,8 +1225,8 @@ Public Class frmMain
 
         ClearActionsPanel()
         If _currentContext Is Nothing Then Exit Sub
-        _currentContext.HealthType = Nothing
-        _currentContext.CareSetting = Nothing
+        '_currentContext.HealthType = Nothing
+        '_currentContext.CareSetting = Nothing
         _currentContext.IsExpedited = Nothing
         _currentContext.CallerType = Nothing
         _currentContext.ClinicalReviewNeeded = Nothing
@@ -1111,11 +1308,12 @@ Public Class frmMain
         _currentContext.SecuredFax = txtSecuredFax.Text.Trim()
         _currentContext.CallingFrom = txtCallingFrom.Text.Trim()
         _currentContext.DateOfService = ParseOptionalDos(txtDOS.Text)
+        _currentContext.Extension = txtExtension.Text.Trim()
         'Member information from CGX
         _currentContext.MemberId = detected.MemberId
         _currentContext.MemberName = detected.MemberName
         _currentContext.DateOfBirth = detected.DateOfBirth
-        _currentContext.Product = detected.Product
+        _currentContext.Product = NormalizeProductForLookup(detected.Product)
         _currentContext.Conso = detected.Conso
         _currentContext.IssueState = detected.IssueState
         _currentContext.GroupNumber = detected.GroupNumber
@@ -1124,22 +1322,18 @@ Public Class frmMain
         'must not remain in memory.
         ClearAuthorizationInformation()
         ClearScenarioDecisionState()
+
         'Run member-level lookups.
         _currentLookup = CallPilotRepository.RunLookups(_currentContext)
         'Populate member information.
         SetOutputValue(txtMemberInfo, OutputFormatter.BuildMemberInformation(_currentContext))
-        'Populate member-level lookup results.
-        SetOutputValue(txtOutOfScope, OutputFormatter.BuildOutOfScope(_currentLookup))
-        SetOutputValue(txtMarketGuide, OutputFormatter.BuildMarketGuide(_currentLookup))
-
-        'Authorization and PAL stay completely blank.
+        ShowMemberInformationPanel()
         txtAuthInfo.Clear()
-        txtPAL.Clear()
-
+        rtbPAL.Clear()
         'Documentation only.
         txtOverAllOutput.Text = OutputFormatter.BuildDocumentation(_currentContext)
         RenderNextBestAction("Member information refreshed. Open an authorization in CGX or select a scenario when ready.")
-
+        RefreshOutputs()
     End Sub
     Private Sub ClearAuthorizationInformation()
         If _currentContext Is Nothing Then
@@ -1159,6 +1353,10 @@ Public Class frmMain
 
         _currentContext.PrimaryDiagnosisCode = Nothing
         _currentContext.ClaimPaymentNotes = Nothing
+
+        _currentContext.AuthType = Nothing
+        _currentContext.HealthType = Nothing
+        _currentContext.CareSetting = Nothing
 
         _currentContext.SecondaryDiagnosisCodes.Clear()
         _currentContext.ProcedureCodes.Clear()
@@ -1216,6 +1414,9 @@ Public Class frmMain
 
         _currentContext.AuthorizationNumber = detected.AuthorizationNumber
         _currentContext.AuthorizationStatus = detected.AuthorizationStatus
+        _currentContext.AuthType = detected.AuthType
+        _currentContext.HealthType = detected.HealthType
+        _currentContext.CareSetting = detected.CareSetting
         _currentContext.RequestingProvider = detected.RequestingProvider
         _currentContext.TreatingProvider = detected.TreatingProvider
         _currentContext.FacilityProvider = detected.FacilityProvider
@@ -1225,6 +1426,8 @@ Public Class frmMain
         _currentContext.PrimaryDiagnosisCode = detected.PrimaryDiagnosisCode
         _currentContext.ClaimPaymentNotes = detected.ClaimPaymentNotes
         _currentContext.SecondaryDiagnosisCodes.Clear()
+        _currentContext.AdmissionDate = detected.AdmissionDate
+        _currentContext.DischargeDate = detected.DischargeDate
 
         If detected.SecondaryDiagnosisCodes IsNot Nothing Then
             _currentContext.SecondaryDiagnosisCodes.AddRange(detected.SecondaryDiagnosisCodes)
@@ -1239,7 +1442,9 @@ Public Class frmMain
         _currentLookup = CallPilotRepository.RunLookups(_currentContext)
 
         ClearScenarioDecisionState()
+        SetAuthorizationPopulatedState()
         RenderNextBestAction("Authorization information detected. Select a scenario and click Select.")
+        ShowAuthorizationInformationPanel()
         RefreshOutputs()
     End Sub
     Private Function NormalizeIdentifier(value As String) As String
@@ -1269,6 +1474,11 @@ Public Class frmMain
     End Function
     Private Sub RefreshOutputs()
         If _currentContext Is Nothing Then
+            Return
+        End If
+        SyncVerificationToContext()
+
+        If _currentContext Is Nothing Then
             txtMemberInfo.Clear()
             txtAuthInfo.Clear()
             txtOverAllOutput.Clear()
@@ -1289,19 +1499,23 @@ Public Class frmMain
         ' LOOKUPS
         '========================================
         If _currentLookup Is Nothing Then
-            txtOutOfScope.Clear()
-            txtMarketGuide.Clear()
-            txtPAL.Clear()
+            rtbOutOfScope.Clear()
+            rtbMarketGuide.Clear()
+            rtbPAL.Clear()
         Else
-            SetOutputValue(txtOutOfScope, OutputFormatter.BuildOutOfScope(_currentLookup))
-            SetOutputValue(txtMarketGuide, OutputFormatter.BuildMarketGuide(_currentLookup))
-
-            'PAL is authorization-specific.
+            'rtbOutOfScope.Text = OutputFormatter.BuildOutOfScope(_currentLookup)
+            RenderOutOfScope()
+            rtbMarketGuide.Text = OutputFormatter.BuildMarketGuide(_currentLookup)
             If ShouldHideAuthorizationOutput() Then
-                txtPAL.Clear()
+                rtbPAL.Clear()
+                SetPALWaitingState()
             Else
-                SetOutputValue(txtPAL, OutputFormatter.BuildPal(_currentContext, _currentLookup))
+                rtbPAL.Text = OutputFormatter.BuildPal(_currentContext, _currentLookup)
+                ApplyPALVisualState()
             End If
+            'IMPORTANT - do this after assigning the text
+            ApplyOutOfScopeVisualState()
+            ApplyMarketGuideVisualState()
         End If
     End Sub
     Private Function ShouldHideAuthorizationOutput() As Boolean
@@ -1313,11 +1527,219 @@ Public Class frmMain
             Return False
         End If
         'Only hide after the agent explicitly answered NO.
-        Return _currentContext.AuthRequestFound.HasValue And Not _currentContext.AuthRequestFound.Value
+        Return _currentContext.AuthRequestFound.HasValue AndAlso Not _currentContext.AuthRequestFound.Value
 
     End Function
     Private Sub btnTest_Click(sender As Object, e As EventArgs) Handles btnTest.Click
-        TestUpdatingAuthorizationOffline()
+        'TestUpdatingAuthorizationOffline()
+        TestCurrentMarketGuideLookup()
+    End Sub
+    Private Sub TestLouisianaMarketGuide()
+
+        Try
+
+            '========================================
+            ' TEST CGX MEMBER DATA
+            '========================================
+            Dim testContext As New CallContext With {
+            .CallerName = "TEST CALLER",
+            .MemberId = "TEST123",
+            .MemberName = "TEST MEMBER",
+            .DateOfBirth = "01/01/1980",
+            .Product = "Medicare HMO",
+            .Conso = "CONSOL - LOUISIANA",
+            .IssueState = "LA",
+            .GroupNumber = ""
+        }
+
+
+            '========================================
+            ' RUN THE REAL DATABASE LOOKUP
+            '========================================
+            Dim testLookup As LookupResult =
+            CallPilotRepository.RunLookups(testContext)
+
+
+            If testLookup Is Nothing Then
+
+                MessageBox.Show(
+                "RunLookups returned Nothing.",
+                "Market Guide Test",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning)
+
+                Return
+
+            End If
+
+
+            '========================================
+            ' SHOW RAW LOOKUP RESULT
+            '========================================
+            Dim output As New Text.StringBuilder()
+
+            output.AppendLine("MARKET GUIDE DATABASE TEST")
+            output.AppendLine(New String("-"c, 45))
+            output.AppendLine()
+
+            output.AppendLine(
+            "Product: " &
+            testContext.Product)
+
+            output.AppendLine(
+            "CSM: " &
+            testContext.Conso)
+
+            output.AppendLine(
+            "State: " &
+            testContext.IssueState)
+
+            output.AppendLine()
+
+            output.AppendLine(
+            "Market Guide Found: " &
+            If(testLookup.MarketGuideFound,
+               "YES",
+               "NO"))
+
+            output.AppendLine()
+
+            output.AppendLine(
+            "Reference:")
+
+            output.AppendLine(
+            If(String.IsNullOrWhiteSpace(
+                   testLookup.MarketGuideReference),
+               "[blank]",
+               testLookup.MarketGuideReference))
+
+            output.AppendLine()
+
+            output.AppendLine(
+            "Database Details:")
+
+            output.AppendLine(
+            If(String.IsNullOrWhiteSpace(
+                   testLookup.MarketGuideMessage),
+               "[blank]",
+               testLookup.MarketGuideMessage))
+
+
+            MessageBox.Show(
+            output.ToString(),
+            "Louisiana Market Guide Test",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information)
+
+
+            '========================================
+            ' ALSO SHOW RESULT IN MARKET GUIDE UI
+            '========================================
+            rtbMarketGuide.Text =
+            OutputFormatter.BuildMarketGuide(
+                testLookup)
+
+            pnlMarketGuideSection.Visible = True
+
+        Catch ex As Exception
+
+            MessageBox.Show(
+            ex.ToString(),
+            "Market Guide Test Error",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Error)
+
+        End Try
+
+    End Sub
+    Private Sub TestCurrentMarketGuideLookup()
+
+        Try
+
+            If _currentContext Is Nothing Then
+
+                MessageBox.Show(
+                "No live member context is loaded.",
+                "Market Guide Test",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning)
+
+                Return
+
+            End If
+
+
+            Dim lookup As LookupResult =
+            CallPilotRepository.RunLookups(_currentContext)
+
+
+            Dim output As New Text.StringBuilder()
+
+            output.AppendLine("LIVE MARKET GUIDE TEST")
+            output.AppendLine(New String("-"c, 45))
+            output.AppendLine()
+
+            output.AppendLine(
+            "Product: [" &
+            _currentContext.Product &
+            "]")
+
+            output.AppendLine(
+            "CSM: [" &
+            _currentContext.Conso &
+            "]")
+
+            output.AppendLine(
+            "State: [" &
+            _currentContext.IssueState &
+            "]")
+
+            output.AppendLine(
+            "Group: [" &
+            _currentContext.GroupNumber &
+            "]")
+
+            output.AppendLine()
+
+            output.AppendLine(
+            "Market Guide Found: " &
+            If(lookup.MarketGuideFound, "YES", "NO"))
+
+            output.AppendLine()
+
+            output.AppendLine(
+            "Reference: " &
+            If(String.IsNullOrWhiteSpace(
+                   lookup.MarketGuideReference),
+               "[blank]",
+               lookup.MarketGuideReference))
+
+            output.AppendLine()
+
+            output.AppendLine(
+            "Details: " &
+            If(String.IsNullOrWhiteSpace(
+                   lookup.MarketGuideMessage),
+               "[blank]",
+               lookup.MarketGuideMessage))
+
+
+            MessageBox.Show(
+            output.ToString(),
+            "Live Market Guide Lookup",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Information)
+
+        Catch ex As Exception
+
+            MessageBox.Show(
+            ex.ToString(),
+            "Market Guide Test Error",
+            MessageBoxButtons.OK,
+            MessageBoxIcon.Error)
+
+        End Try
+
     End Sub
     Private Sub TestUpdatingAuthorizationOffline()
 
@@ -1576,5 +1998,253 @@ Public Class frmMain
             Exit Sub
         End If
         Clipboard.SetText(txtOverAllOutput.Text)
+    End Sub
+
+    Private Sub chkGenesysVerified_CheckedChanged(sender As Object, e As EventArgs)
+        If _currentContext Is Nothing Then
+            Exit Sub
+        End If
+
+        _currentContext.GenesysVerified = chkGenesysVerified.Checked
+        RefreshOutputs()
+    End Sub
+    Private Sub chkProviderMemberAuthenticated_CheckedChanged(sender As Object, e As EventArgs)
+        If _currentContext Is Nothing Then
+            Exit Sub
+        End If
+        _currentContext.ProviderMemberAuthenticated = chkProviderAuthenticated.Checked
+        RefreshOutputs()
+    End Sub
+    Private Sub chkMailingAddressVerified_CheckedChanged(sender As Object, e As EventArgs)
+        If _currentContext Is Nothing Then
+            Exit Sub
+        End If
+        _currentContext.MailingAddressVerified = chkMailingAddressVerified.Checked
+        RefreshOutputs()
+    End Sub
+    Private Sub UpdateScenarioVisibility()
+        Dim scenario As String = If(cmbScenario.SelectedItem Is Nothing, String.Empty, cmbScenario.SelectedItem.ToString().Trim().ToUpperInvariant())
+
+        Select Case scenario
+            Case "UPDATING AUTHORIZATION"
+                pnlOutOfScopeSection.Visible = True
+                pnlMarketGuideSection.Visible = True
+                pnlPALSection.Visible = True
+
+            Case "CHECKING STATUS OF THE AUTHORIZATION"
+                pnlOutOfScopeSection.Visible = True
+                pnlMarketGuideSection.Visible = True
+                pnlPALSection.Visible = True
+
+            Case "NEW AUTHORIZATION"
+                pnlOutOfScopeSection.Visible = False
+                pnlMarketGuideSection.Visible = False
+                pnlPALSection.Visible = False
+
+            Case Else
+                pnlOutOfScopeSection.Visible = False
+                pnlMarketGuideSection.Visible = False
+                pnlPALSection.Visible = False
+        End Select
+
+    End Sub
+    Private Sub cmbScenario_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbScenario.SelectedIndexChanged
+        If cmbScenario.SelectedIndex < 0 Then
+            Exit Sub
+        End If
+
+        UpdateScenarioVisibility()
+        If _currentContext Is Nothing Or String.IsNullOrWhiteSpace(_currentContext.MemberId) Then
+            Return
+        End If
+
+        Try
+            _currentContext.CallerName = txtCallerName.Text.Trim()
+            _currentContext.CallbackNumber = txtCallbackNum.Text.Trim()
+            _currentContext.SecuredFax = txtSecuredFax.Text.Trim()
+            _currentContext.CallingFrom = txtCallingFrom.Text.Trim()
+            _currentContext.DateOfService = ParseOptionalDos(txtDOS.Text)
+            _currentContext.Extension = txtExtension.Text.Trim()
+            ClearScenarioDecisionState()
+            _currentContext.Scenario = Convert.ToString(cmbScenario.SelectedItem)
+            RunRecommendation()
+        Catch ex As Exception
+            MessageBox.Show(ex.ToString(), "Scenario Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+
+        End Try
+    End Sub
+    Private Sub ApplyMarketGuideVisualState()
+
+        If _currentLookup Is Nothing Then
+            SetMarketGuideWaitingState()
+            Return
+        End If
+
+        If _currentLookup.MarketGuideFound Then
+            'FOUND = GREEN
+            pnlMarketGuideSection.FillColor = ColorSuccessBackground
+            pnlMarketGuideSection.BackColor = ColorSuccessBackground
+            pnlMarketGuideSection.BorderColor = ColorSuccessBorder
+
+            rtbMarketGuide.BackColor = ColorSuccessBackground
+            rtbMarketGuide.ForeColor = ColorSuccessText
+
+            lblLookupMarketGuide.ForeColor = ColorSuccessText
+
+        Else
+            'NOT FOUND = RED
+            pnlMarketGuideSection.FillColor = ColorDangerBackground
+            pnlMarketGuideSection.BackColor = ColorDangerBackground
+            pnlMarketGuideSection.BorderColor = ColorDangerBorder
+
+            rtbMarketGuide.BackColor = ColorDangerBackground
+            rtbMarketGuide.ForeColor = ColorDangerText
+
+            lblLookupMarketGuide.ForeColor = ColorDangerText
+
+        End If
+
+    End Sub
+    Private Sub ApplyPALVisualState()
+
+        If _currentLookup Is Nothing Then
+            SetPALWaitingState()
+            Return
+        End If
+
+        If _currentLookup.PalFound Then
+            'PAL FOUND = RED / ATTENTION
+            pnlPALSection.FillColor = ColorDangerBackground
+            pnlPALSection.BackColor = ColorDangerBackground
+            pnlPALSection.BorderColor = ColorDangerBorder
+
+            rtbPAL.BackColor = ColorDangerBackground
+            rtbPAL.ForeColor = ColorDangerText
+
+            lblLookupPAL.ForeColor = ColorDangerText
+
+        Else
+            'NO PAL = GREEN
+            pnlPALSection.FillColor = ColorSuccessBackground
+            pnlPALSection.BackColor = ColorSuccessBackground
+            pnlPALSection.BorderColor = ColorSuccessBorder
+
+            rtbPAL.BackColor = ColorSuccessBackground
+            rtbPAL.ForeColor = ColorSuccessText
+
+            lblLookupPAL.ForeColor = ColorSuccessText
+
+        End If
+    End Sub
+    Private Function NormalizeProductForLookup(product As String) As String
+        If String.IsNullOrWhiteSpace(product) Then
+            Return String.Empty
+        End If
+
+        Dim value As String = product.Trim().ToUpperInvariant()
+        Select Case value
+            Case "MER"
+                Return "Medicare HMO"
+
+            Case Else
+                Return product.Trim()
+
+        End Select
+    End Function
+    Private Sub ShowMemberInformationPanel()
+        pnlMemberCard.Visible = True
+        pnlAuthCard.Visible = False
+        pnlMemberCard.BringToFront()
+    End Sub
+    Private Sub ShowAuthorizationInformationPanel()
+        pnlMemberCard.Visible = False
+        pnlAuthCard.Visible = True
+        pnlAuthCard.BringToFront()
+    End Sub
+    Private Sub Verification_CheckedChanged(sender As Object, e As EventArgs) Handles chkGenesysVerified.CheckedChanged, chkProviderAuthenticated.CheckedChanged, chkMailingAddressVerified.CheckedChanged
+        If _currentContext Is Nothing Then
+            Return
+        End If
+        SyncVerificationToContext()
+        'Update context from the current checkbox states
+        _currentContext.GenesysVerified = chkGenesysVerified.Checked
+        _currentContext.ProviderMemberAuthenticated = chkProviderAuthenticated.Checked
+        _currentContext.MailingAddressVerified = chkMailingAddressVerified.Checked
+        'Immediately refresh documentation
+        txtOverAllOutput.Text = OutputFormatter.BuildDocumentation(_currentContext)
+    End Sub
+    Private Sub SyncVerificationToContext()
+        If _currentContext Is Nothing Then
+            Return
+        End If
+        _currentContext.GenesysVerified = chkGenesysVerified.Checked
+        _currentContext.ProviderMemberAuthenticated = chkProviderAuthenticated.Checked
+        _currentContext.MailingAddressVerified = chkMailingAddressVerified.Checked
+    End Sub
+
+    Private Sub rtbOutOfScope_MouseUp(sender As Object, e As MouseEventArgs) Handles rtbOutOfScope.MouseUp
+        Dim charIndex As Integer = rtbOutOfScope.GetCharIndexFromPosition(e.Location)
+        For Each link In _oosLinks
+            Dim startIndex As Integer = rtbOutOfScope.Text.IndexOf(link.Key, StringComparison.Ordinal)
+            If startIndex < 0 Then
+                Continue For
+            End If
+
+            Dim endIndex As Integer = startIndex + link.Key.Length
+            If charIndex >= startIndex And charIndex <= endIndex Then
+                OpenExternalLink(link.Value)
+                Exit Sub
+            End If
+        Next
+    End Sub
+    Private Sub OpenExternalLink(url As String)
+        Try
+            Process.Start(New ProcessStartInfo With {.FileName = url, .UseShellExecute = True})
+        Catch ex As Exception
+            MessageBox.Show(
+                "Unable to open the link." &
+                Environment.NewLine &
+                Environment.NewLine &
+                ex.Message,
+                "Open Link",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Warning)
+        End Try
+
+    End Sub
+    Private Function GetDigitCount(value As String) As Integer
+        If String.IsNullOrWhiteSpace(value) Then
+            Return 0
+        End If
+
+        Return value.Count(Function(c) Char.IsDigit(c))
+    End Function
+    Private Sub ValidatePhoneAndFax()
+        ValidateTenDigitField(txtCallbackNum)
+        ValidateTenDigitField(txtSecuredFax)
+    End Sub
+    Private Sub ValidateTenDigitField(textBox As Guna.UI2.WinForms.Guna2TextBox)
+        Dim digitCount As Integer = GetDigitCount(textBox.Text)
+        'Blank is allowed.
+        If digitCount = 0 Then
+            textBox.BorderColor = ColorPrimaryGreen
+            textBox.FocusedState.BorderColor = ColorPrimaryGreen
+            Return
+        End If
+        'Entered but less than 10 digits = invalid.
+        If digitCount < 10 Then
+            textBox.BorderColor = Color.FromArgb(220, 53, 69)
+            textBox.FocusedState.BorderColor = Color.FromArgb(220, 53, 69)
+        Else
+            textBox.BorderColor = ColorPrimaryGreen
+            textBox.FocusedState.BorderColor = ColorPrimaryGreen
+        End If
+    End Sub
+    Private Sub PhoneFax_TextChanged(sender As Object, e As EventArgs) Handles txtCallbackNum.TextChanged, txtSecuredFax.TextChanged
+        Dim textBox = TryCast(sender, Guna.UI2.WinForms.Guna2TextBox)
+        If textBox Is Nothing Then
+            Return
+        End If
+        ValidateTenDigitField(textBox)
     End Sub
 End Class

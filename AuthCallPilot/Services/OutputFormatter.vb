@@ -32,8 +32,13 @@ Public NotInheritable Class OutputFormatter
         output.AppendLine("Authorization ID: " & DisplayValue(context.AuthorizationNumber))
         output.AppendLine("Authorization Status: " & DisplayValue(context.AuthorizationStatus))
         output.AppendLine()
-        output.AppendLine("Start Date: " & DisplayValue(context.AuthorizationStartDate))
-        output.AppendLine("End Date: " & DisplayValue(context.AuthorizationEndDate))
+        If String.Equals(context.CareSetting, "INPATIENT", StringComparison.OrdinalIgnoreCase) Then
+            output.AppendLine("Admission Date: " & DisplayValue(context.AdmissionDate))
+            output.AppendLine("Discharge Date: " & DisplayValue(context.DischargeDate))
+        Else
+            output.AppendLine("Start Date: " & DisplayValue(context.AuthorizationStartDate))
+            output.AppendLine("End Date: " & DisplayValue(context.AuthorizationEndDate))
+        End If
         output.AppendLine("Total Days: " & DisplayValue(context.TotalDays))
         output.AppendLine()
         output.AppendLine("Requesting Provider:")
@@ -70,26 +75,46 @@ Public NotInheritable Class OutputFormatter
         End If
         Return output.ToString().TrimEnd()
     End Function
-
     Public Shared Function BuildMarketGuide(lookup As LookupResult) As String
         If lookup Is Nothing Then
             Return String.Empty
         End If
 
-        Dim output As New StringBuilder()
+        Dim output As New Text.StringBuilder()
         output.AppendLine("Found: " & If(lookup.MarketGuideFound, "YES", "NO"))
-        If Not String.IsNullOrWhiteSpace(lookup.MarketGuideReference) Then
-            output.AppendLine()
-            output.AppendLine("Reference: " & lookup.MarketGuideReference.Trim())
+        If Not lookup.MarketGuideFound Then
+            If Not String.IsNullOrWhiteSpace(lookup.MarketGuideMessage) Then
+                output.AppendLine()
+                output.AppendLine(
+                lookup.MarketGuideMessage.Trim())
+            End If
+            Return output.ToString().TrimEnd()
         End If
 
-        If Not String.IsNullOrWhiteSpace(lookup.MarketGuideMessage) Then
+
+        Dim reference As String = If(lookup.MarketGuideReference, String.Empty).Trim()
+        Dim message As String = If(lookup.MarketGuideMessage, String.Empty).Trim()
+
+        'Show reference
+        If Not String.IsNullOrWhiteSpace(reference) Then
             output.AppendLine()
-            output.AppendLine(lookup.MarketGuideMessage.Trim())
+            output.AppendLine(reference)
+        End If
+
+        'Only show message if it contains different information
+        If Not String.IsNullOrWhiteSpace(message) And Not String.Equals(NormalizeMarketGuideText(reference), NormalizeMarketGuideText(message), StringComparison.OrdinalIgnoreCase) Then
+            output.AppendLine()
+            output.AppendLine(message)
         End If
         Return output.ToString().TrimEnd()
     End Function
+    Private Shared Function NormalizeMarketGuideText(value As String) As String
+        If String.IsNullOrWhiteSpace(value) Then
+            Return String.Empty
+        End If
 
+        Return String.Join(" ", value.Replace(vbCr, " ").Replace(vbLf, " ").Split(New Char() {" "c}, StringSplitOptions.RemoveEmptyEntries)).Trim().ToUpperInvariant()
+    End Function
     Public Shared Function BuildPal(context As CallContext, lookup As LookupResult) As String
         If lookup Is Nothing Then
             Return String.Empty
@@ -126,14 +151,22 @@ Public NotInheritable Class OutputFormatter
         output.AppendLine("Name: " & DocumentationValue(context.CallerName))
         output.AppendLine("Direct #: " & DocumentationValue(context.CallbackNumber))
         output.AppendLine("Secured Fax: " & DocumentationValue(context.SecuredFax))
+
+        Dim callbackDisplay As String = If(context.CallbackNumber, String.Empty).Trim()
+        Dim extension As String = If(context.Extension, String.Empty).Trim()
+        If Not String.IsNullOrWhiteSpace(extension) Then
+            callbackDisplay &= " Ext. " & extension
+        End If
+        output.AppendLine("Direct #: " & callbackDisplay)
+
         output.AppendLine("Calling From: " & DocumentationValue(context.CallingFrom))
         output.AppendLine()
         output.AppendLine("Member ID: " & DocumentationValue(context.MemberId))
         output.AppendLine("Date of Birth: " & DocumentationValue(context.DateOfBirth))
         output.AppendLine()
-        output.AppendLine("Genesys Verification: Yes/No")
-        output.AppendLine("Provider/Member Authenticated: Yes/No")
-        output.AppendLine("Mailing Address Verified: Yes/No")
+        output.AppendLine("Genesys Verification: " & If(context.GenesysVerified, "Yes", "No"))
+        output.AppendLine("Provider/Member Authenticated: " & If(context.ProviderMemberAuthenticated, "Yes", "No"))
+        output.AppendLine("Mailing Address Verified: " & If(context.MailingAddressVerified, "Yes", "No"))
         output.AppendLine()
         output.AppendLine("Concern: " & DocumentationValue(context.Scenario))
         output.AppendLine("Date of Service: " & FormatDate(context.DateOfService))

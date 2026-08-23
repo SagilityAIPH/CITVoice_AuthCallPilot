@@ -20,6 +20,7 @@
     'Authorization information scraped from CGX.
     Public Property AuthorizationNumber As String
     Public Property AuthorizationStatus As String
+    Public Property AuthType As String
 
     Public Property RequestingProvider As String
     Public Property TreatingProvider As String
@@ -56,5 +57,13 @@
     'Checking Status of Authorization
     Public Property AuthRequestFound As Boolean?
     Public Property WantsToInitiateNewAuth As Boolean?
+
+    'Agent verification
+    Public Property GenesysVerified As Boolean
+    Public Property ProviderMemberAuthenticated As Boolean
+    Public Property MailingAddressVerified As Boolean
+    Public Property Extension As String
+    Public Property AdmissionDate As String
+    Public Property DischargeDate As String
 
 End Class

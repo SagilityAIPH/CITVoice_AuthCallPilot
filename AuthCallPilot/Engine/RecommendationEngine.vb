@@ -193,6 +193,7 @@ Public NotInheritable Class RecommendationEngine
         Next
         Return False
     End Function
+
     Private Shared Function AnalyzeUpdatingAuthorization(context As CallContext, lookup As LookupResult, result As RecommendationResult) As RecommendationResult
         'Health Type is not currently scraped from CGX.
         If String.IsNullOrWhiteSpace(context.HealthType) Then
@@ -219,9 +220,15 @@ Public NotInheritable Class RecommendationEngine
             Return result
         End If
 
+        Dim dateToEvaluate As String
+        If careSetting = "INPATIENT" Then
+            dateToEvaluate = context.AdmissionDate
+        Else
+            dateToEvaluate = context.AuthorizationEndDate
+        End If
 
         Dim expirationDate As DateTime
-        If Not TryGetAuthorizationEndDate(context.AuthorizationEndDate, expirationDate) Then
+        If Not TryGetAuthorizationEndDate(dateToEvaluate, expirationDate) Then
             result.NextBestAction = "Unable to determine the authorization end date."
             Return result
 
@@ -231,31 +238,6 @@ Public NotInheritable Class RecommendationEngine
         Dim todayDate As DateTime = Date.Today
         Dim isExpired As Boolean = todayDate >= expirationDate
         Dim isWithinExpirationWindow As Boolean = todayDate <= expirationWindowEnd
-
-        '    MessageBox.Show(
-        '"Raw End Date:" &
-        'Environment.NewLine &
-        'context.AuthorizationEndDate &
-        'Environment.NewLine &
-        'Environment.NewLine &
-        '"Parsed End Date: " &
-        'expirationDate.ToString("MM/dd/yyyy") &
-        'Environment.NewLine &
-        '"Today: " &
-        'todayDate.ToString("MM/dd/yyyy") &
-        'Environment.NewLine &
-        '"Window End: " &
-        'expirationWindowEnd.ToString("MM/dd/yyyy") &
-        'Environment.NewLine &
-        'Environment.NewLine &
-        '"Expired: " &
-        'isExpired.ToString() &
-        'Environment.NewLine &
-        '"Within Window: " &
-        'isWithinExpirationWindow.ToString(),
-        '"Expiration Test",
-        'MessageBoxButtons.OK,
-        'MessageBoxIcon.Information)
 
         If isExpired And isWithinExpirationWindow Then
             result.NextBestAction = BuildExpiredAuthorizationAction()

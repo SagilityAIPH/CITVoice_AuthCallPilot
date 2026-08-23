@@ -420,6 +420,37 @@ Public Class BrowserManager
                 End Try
             End Function)
     End Sub
+    Private Shared Sub ApplyAuthTypeClassification(context As CallContext, authType As String)
+        If context Is Nothing Then
+            Exit Sub
+        End If
+
+        If String.IsNullOrWhiteSpace(authType) Then
+            Exit Sub
+        End If
+
+        Dim normalized As String = authType.Trim().ToUpper()
+
+        '========================================
+        ' HEALTH TYPE
+        '========================================
+        If normalized.StartsWith("BH") Then
+            context.HealthType = "BEHAVIORAL HEALTH"
+        Else
+            context.HealthType = "PHYSICAL HEALTH"
+        End If
+
+        '========================================
+        ' CARE SETTING
+        '========================================
+        If normalized.Contains("INPATIENT") Then
+            context.CareSetting = "INPATIENT"
+        ElseIf normalized.Contains("OUTPATIENT") Then
+            context.CareSetting = "OUTPATIENT"
+        Else
+            context.CareSetting = Nothing
+        End If
+    End Sub
     Private Shared Sub PopulateAuthorizationDetails(wait As WebDriverWait, context As CallContext)
 
         Debug.WriteLine("Reading authorization details...")
@@ -427,6 +458,9 @@ Public Class BrowserManager
         context.RequestingProvider = ReadElementTextSafely(wait, By.Id("requesting-provider-panel"))
         context.TreatingProvider = ReadElementTextSafely(wait, By.Id("treating-provider-panel"))
         context.FacilityProvider = ReadElementTextSafely(wait, By.Id("facility-provider-panel"))
+        Dim authType As String = ReadElementTextSafely(wait, By.Id("AuthType"))
+        context.AuthType = authType
+        ApplyAuthTypeClassification(context, authType)
         context.AuthorizationStartDate = ReadElementValueSafely(wait, By.Id("FirstDay"))
         context.AuthorizationEndDate = ReadElementValueSafely(wait, By.Id("LastDay"))
         context.AuthorizationStatus = ReadElementTextSafely(wait, By.Id("OverallAuthStatusForBanner"))
@@ -443,9 +477,17 @@ Public Class BrowserManager
         context.SecondaryDiagnosisCodes.AddRange(ReadTableCodes(By.XPath(secondaryDiagnosisRowsXPath)))
         context.ProcedureCodes.Clear()
 
+
         'Const procedureRowsXPath As String = "/html/body/div[3]/div/div[3]/div[2]/div[6]/div/div[15]/div/div[2]/div[3]/div/div[3]/div/div/table/tbody/tr"
         'context.ProcedureCodes.AddRange(ReadTableCodes(By.XPath(procedureRowsXPath)))
-        context.ProcedureCodes.AddRange(ReadProcedureCodes())
+        If String.Equals(context.CareSetting, "INPATIENT", StringComparison.OrdinalIgnoreCase) Then
+            context.ProcedureCodes.Clear()
+            context.ProcedureCodes.AddRange(ReadInpatientProcedureCodes())
+        Else
+            context.ProcedureCodes.Clear()
+            context.ProcedureCodes.AddRange(ReadProcedureCodes())
+        End If
+        'context.ProcedureCodes.AddRange(ReadProcedureCodes())
 
 
         Debug.WriteLine("Authorization Status: " & context.AuthorizationStatus)
@@ -479,6 +521,29 @@ Public Class BrowserManager
         'MessageBox.Show(summary.ToString(), "Authorization Capture Test", MessageBoxButtons.OK, MessageBoxIcon.Information)
 
     End Sub
+    Private Shared Function ReadInpatientProcedureCodes() As List(Of String)
+        Dim results As New List(Of String)
+        Try
+            Dim grid As IWebElement = _driver.FindElement(By.Id("AuthDirectProcedureCodeGrid-gridContent"))
+            Dim rows = grid.FindElements(By.XPath(".//tr"))
+            For Each row As IWebElement In rows
+                Dim cells = row.FindElements(By.XPath(".//td"))
+                For Each cell As IWebElement In cells
+                    Dim value As String = cell.Text.Trim()
+                    If String.IsNullOrWhiteSpace(value) Then
+                        Continue For
+                    End If
+
+                    If Not results.Contains(value, StringComparer.OrdinalIgnoreCase) Then
+                        results.Add(value)
+                    End If
+                Next
+            Next
+        Catch ex As NoSuchElementException
+        Catch ex As WebDriverException
+        End Try
+        Return results
+    End Function
     Private Shared Function GetTotalDays() As String
         Try
 
@@ -636,6 +701,10 @@ Public Class BrowserManager
         context.RequestingProvider = ReadElementTextSafely(wait, By.Id("requesting-provider-panel"))
         context.TreatingProvider = ReadElementTextSafely(wait, By.Id("treating-provider-panel"))
         context.FacilityProvider = ReadElementTextSafely(wait, By.Id("facility-provider-panel"))
+
+        Dim authType As String = ReadElementTextSafely(wait, By.Id("AuthType"))
+        context.AuthType = authType
+        ApplyAuthTypeClassification(context, authType)
 
         context.AuthorizationStartDate = ReadElementValueSafely(wait, By.Id("FirstDay"))
         context.AuthorizationEndDate = ReadElementValueSafely(wait, By.Id("LastDay"))
