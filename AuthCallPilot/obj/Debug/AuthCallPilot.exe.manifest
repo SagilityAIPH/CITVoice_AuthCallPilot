@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <asmv1:assembly xsi:schemaLocation="urn:schemas-microsoft-com:asm.v1 assembly.adaptive.xsd" manifestVersion="1.0" xmlns:asmv1="urn:schemas-microsoft-com:asm.v1" xmlns="urn:schemas-microsoft-com:asm.v2" xmlns:asmv2="urn:schemas-microsoft-com:asm.v2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:co.v1="urn:schemas-microsoft-com:clickonce.v1" xmlns:asmv3="urn:schemas-microsoft-com:asm.v3" xmlns:dsig="http://www.w3.org/2000/09/xmldsig#" xmlns:co.v2="urn:schemas-microsoft-com:clickonce.v2">
-<<<<<<< HEAD
-  <asmv1:assemblyIdentity name="AuthCallPilot.exe" version="1.0.0.34" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
-=======
-  <asmv1:assemblyIdentity name="AuthCallPilot.exe" version="1.0.0.27" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
->>>>>>> cccac355efdd9da62eb945e55519053db6fcf7d2
+  <asmv1:assemblyIdentity name="AuthCallPilot.exe" version="1.0.0.40" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
   <application />
   <entryPoint>
     <assemblyIdentity name="AuthCallPilot" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
@@ -46,22 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-<<<<<<< HEAD
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="AuthCallPilot.exe" size="141312">
-=======
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="AuthCallPilot.exe" size="125952">
->>>>>>> cccac355efdd9da62eb945e55519053db6fcf7d2
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="AuthCallPilot.exe" size="160768">
       <assemblyIdentity name="AuthCallPilot" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-<<<<<<< HEAD
-        <dsig:DigestValue>K4Z+7iWWebYOQfPldBAu406vAINN76eTHQTVJDobiz0=</dsig:DigestValue>
-=======
-        <dsig:DigestValue>GdYn/oPDmK51nW3CNUwo1feb0CUjOrtktckxinekszU=</dsig:DigestValue>
->>>>>>> cccac355efdd9da62eb945e55519053db6fcf7d2
+        <dsig:DigestValue>HiWz09vvoIFpYC0+aoMe3LIZ8UWGnmzHWH8TU4eGoZw=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
@@ -1406,13 +1394,13 @@
       <dsig:DigestValue>nW2I7uD+mh5RxFNiR0HjiByZgDQnR5BUXNgzbpQ13UA=</dsig:DigestValue>
     </hash>
   </file>
-  <file name="Database\CallPilot.db" size="3379200">
+  <file name="Database\CallPilot.db" size="3465216">
     <hash>
       <dsig:Transforms>
         <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
       </dsig:Transforms>
       <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-      <dsig:DigestValue>GpawYAOGzvsXNuq9t97Yb6zVLpjO/l3ADPbWDQN4kCY=</dsig:DigestValue>
+      <dsig:DigestValue>ryHyLNxuMLS1EDSXKKCFbEyDK5gUKQWDp5huqraOmQk=</dsig:DigestValue>
     </hash>
   </file>
   <file name="runtimes\linux\native\selenium-manager" size="5316448">

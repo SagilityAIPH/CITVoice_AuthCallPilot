@@ -1,5 +1,7 @@
-﻿Imports System.Text
-Imports System.Linq
+﻿Imports System.Linq
+Imports System.Text
+Imports OpenQA.Selenium
+Imports OpenQA.Selenium.Support.UI
 Public NotInheritable Class RecommendationEngine
 
     Private Sub New()
@@ -263,6 +265,37 @@ Public NotInheritable Class RecommendationEngine
 
         result.NextBestAction = "Unable to determine the Updating Authorization process for status: " & DisplayValue(context.AuthorizationStatus)
         Return result
+    End Function
+    Private Shared Function ReadElementValueById(wait As WebDriverWait, elementId As String) As String
+        Try
+            Dim element As IWebElement = wait.Until(
+                Function(d)
+                    Try
+                        Return d.FindElement(
+                            By.Id(elementId))
+                    Catch
+                        Return Nothing
+                    End Try
+                End Function)
+
+            If element Is Nothing Then
+                Return String.Empty
+            End If
+
+            Dim value As String = element.GetAttribute("value")
+            If Not String.IsNullOrWhiteSpace(value) Then
+                Return value.Trim()
+            End If
+
+            If Not String.IsNullOrWhiteSpace(element.Text) Then
+                Return element.Text.Trim()
+            End If
+
+            Return String.Empty
+        Catch
+            Return String.Empty
+        End Try
+
     End Function
     Private Shared Function AnalyzeActiveAuthorizationUpdate(context As CallContext, result As RecommendationResult, healthType As String, careSetting As String) As RecommendationResult
 

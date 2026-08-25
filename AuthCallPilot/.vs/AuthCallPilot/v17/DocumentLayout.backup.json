@@ -3,63 +3,70 @@
   "WorkspaceRootPath": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Services\\OutputFormatter.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:Services\\OutputFormatter.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Forms\\frmMain.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:Forms\\frmMain.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Data\\CallPilotRepository.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:Data\\CallPilotRepository.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Models\\LookupResult.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:Models\\LookupResult.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|d:\\office works\\vs\\cit voice - authcallpilot\\citvoice_authcallpilot\\authcallpilot\\services\\browsermanager.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
       "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:services\\browsermanager.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\services\\outputformatter.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
-      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:services\\outputformatter.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Engine\\RecommendationEngine.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:Engine\\RecommendationEngine.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\forms\\frmmain.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
-      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:forms\\frmmain.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Models\\CallContext.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:Models\\CallContext.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\engine\\recommendationengine.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
-      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:engine\\recommendationengine.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|d:\\office works\\vs\\cit voice - authcallpilot\\citvoice_authcallpilot\\authcallpilot\\models\\delegatedgrouperresult.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:models\\delegatedgrouperresult.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\models\\callcontext.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
-      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:models\\callcontext.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Forms\\frmMain.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form",
+      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:Forms\\frmMain.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\forms\\frmmain.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form",
-      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:forms\\frmmain.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}|Form"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\forms\\frmmain.designer.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
-      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:forms\\frmmain.designer.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\data\\callpilotrepository.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
-      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:data\\callpilotrepository.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\models\\browsercaptureresult.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
-      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:models\\browsercaptureresult.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\models\\recommendationresult.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
-      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:models\\recommendationresult.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\models\\questionstate.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
-      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:models\\questionstate.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\models\\lookupresult.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
-      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:models\\lookupresult.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Forms\\frmMain.Designer.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:Forms\\frmMain.Designer.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{00000000-0000-0000-0000-000000000000}|\u003CSolution\u003E|AuthCallPilot||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\data\\databasemanager.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
-      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:data\\databasemanager.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Models\\RecommendationResult.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:Models\\RecommendationResult.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\services\\cgxmonitor.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
-      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:services\\cgxmonitor.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Models\\BrowserCaptureResult.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:Models\\BrowserCaptureResult.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Models\\QuestionState.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:Models\\QuestionState.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Data\\DatabaseManager.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:Data\\DatabaseManager.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Services\\CgxMonitor.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}",
+      "RelativeMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|solutionrelative:Services\\CgxMonitor.vb||{2C015C70-C72C-11D0-88C3-00A0C9110049}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F324851E-1E5D-4549-A82F-307D179F5CFD}|AuthCallPilot.vbproj|d:\\office works\\vs\\cit voice - authcallpilot\\citvoice_authcallpilot\\authcallpilot\\||{B270807C-D8C6-49EB-8EBE-8E8D566637A1}|cc4014f5-b18d-439c-9352-f99d984cca85"
     }
   ],
   "DocumentGroupContainers": [
@@ -69,160 +76,200 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "frmMain.vb",
               "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Forms\\frmMain.vb",
               "RelativeDocumentMoniker": "Forms\\frmMain.vb",
-              "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Forms\\frmMain.vb",
-              "RelativeToolTip": "Forms\\frmMain.vb",
-              "ViewState": "AgIAAG4IAAAAAAAAAAA8wH0IAABCAAAAAAAAAA==",
+              "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Forms\\frmMain.vb*",
+              "RelativeToolTip": "Forms\\frmMain.vb*",
+              "ViewState": "AgIAAAEGAAAAAAAAAAAAwBEGAAA2AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
               "WhenOpened": "2026-07-16T13:22:28.489Z",
-              "IsPinned": true
+              "IsPinned": true,
+              "EditorCaption": ""
             },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
             },
             {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "frmMain.Designer.vb",
-              "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Forms\\frmMain.Designer.vb",
-              "RelativeDocumentMoniker": "Forms\\frmMain.Designer.vb",
-              "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Forms\\frmMain.Designer.vb",
-              "RelativeToolTip": "Forms\\frmMain.Designer.vb",
-              "ViewState": "AgIAAC4CAAAAAAAAAAAAwDgCAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2026-08-13T13:35:13.369Z"
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 4,
               "Title": "BrowserManager.vb",
               "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Services\\BrowserManager.vb",
               "RelativeDocumentMoniker": "Services\\BrowserManager.vb",
               "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Services\\BrowserManager.vb",
               "RelativeToolTip": "Services\\BrowserManager.vb",
-              "ViewState": "AgIAAPEBAAAAAAAAAAAlwAMCAAAcAAAAAAAAAA==",
+              "ViewState": "AgIAADADAAAAAAAAAAAAwEcDAAALAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
               "WhenOpened": "2026-08-04T12:11:18.506Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "frmMain.vb [Design]",
-              "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Forms\\frmMain.vb",
-              "RelativeDocumentMoniker": "Forms\\frmMain.vb",
-              "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Forms\\frmMain.vb [Design]",
-              "RelativeToolTip": "Forms\\frmMain.vb [Design]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2026-07-16T12:51:47.406Z"
-            },
-            {
-              "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "RecommendationEngine.vb",
-              "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Engine\\RecommendationEngine.vb",
-              "RelativeDocumentMoniker": "Engine\\RecommendationEngine.vb",
-              "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Engine\\RecommendationEngine.vb",
-              "RelativeToolTip": "Engine\\RecommendationEngine.vb",
-              "ViewState": "AgIAANUAAAAAAAAAAAAAwN4AAAAIAAAAAAAAAA==",
+              "Title": "LookupResult.vb",
+              "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Models\\LookupResult.vb",
+              "RelativeDocumentMoniker": "Models\\LookupResult.vb",
+              "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Models\\LookupResult.vb*",
+              "RelativeToolTip": "Models\\LookupResult.vb*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAA1AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2026-07-30T14:45:39.079Z"
+              "WhenOpened": "2026-07-30T14:45:18.354Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
+              "Title": "CallPilotRepository.vb",
+              "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Data\\CallPilotRepository.vb",
+              "RelativeDocumentMoniker": "Data\\CallPilotRepository.vb",
+              "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Data\\CallPilotRepository.vb*",
+              "RelativeToolTip": "Data\\CallPilotRepository.vb*",
+              "ViewState": "AgIAALUAAAAAAAAAAAAAwMgAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-07-30T14:44:55.694Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
               "Title": "OutputFormatter.vb",
               "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Services\\OutputFormatter.vb",
               "RelativeDocumentMoniker": "Services\\OutputFormatter.vb",
               "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Services\\OutputFormatter.vb",
               "RelativeToolTip": "Services\\OutputFormatter.vb",
-              "ViewState": "AgIAABsAAAAAAAAAAAAQwCgAAAAOAAAAAAAAAA==",
+              "ViewState": "AgIAAHcAAAAAAAAAAAAAAIkAAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2026-08-06T17:36:48.54Z"
+              "WhenOpened": "2026-08-06T17:36:48.54Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 6,
               "Title": "CallContext.vb",
               "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Models\\CallContext.vb",
               "RelativeDocumentMoniker": "Models\\CallContext.vb",
               "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Models\\CallContext.vb",
               "RelativeToolTip": "Models\\CallContext.vb",
-              "ViewState": "AgIAADUAAAAAAAAAAAAxwEEAAAArAAAAAAAAAA==",
+              "ViewState": "AgIAADUAAAAAAAAAAAAxwEEAAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2026-07-30T14:45:10.663Z"
+              "WhenOpened": "2026-07-30T14:45:10.663Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "RecommendationEngine.vb",
+              "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Engine\\RecommendationEngine.vb",
+              "RelativeDocumentMoniker": "Engine\\RecommendationEngine.vb",
+              "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Engine\\RecommendationEngine.vb",
+              "RelativeToolTip": "Engine\\RecommendationEngine.vb",
+              "ViewState": "AgIAAMwAAAAAAAAAAAAAwOIAAAAyAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-07-30T14:45:39.079Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 7,
-              "Title": "CallPilotRepository.vb",
-              "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Data\\CallPilotRepository.vb",
-              "RelativeDocumentMoniker": "Data\\CallPilotRepository.vb",
-              "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Data\\CallPilotRepository.vb",
-              "RelativeToolTip": "Data\\CallPilotRepository.vb",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAbAAAAAAAAAA==",
+              "Title": "DelegatedGrouperResult.vb",
+              "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Models\\DelegatedGrouperResult.vb",
+              "RelativeDocumentMoniker": "Models\\DelegatedGrouperResult.vb",
+              "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Models\\DelegatedGrouperResult.vb",
+              "RelativeToolTip": "Models\\DelegatedGrouperResult.vb",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2026-07-30T14:44:55.694Z"
+              "WhenOpened": "2026-08-25T13:22:47.782Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "frmMain.vb [Design]",
+              "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Forms\\frmMain.vb",
+              "RelativeDocumentMoniker": "Forms\\frmMain.vb",
+              "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Forms\\frmMain.vb [Design]*",
+              "RelativeToolTip": "Forms\\frmMain.vb [Design]*",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-07-16T12:51:47.406Z",
+              "EditorCaption": " [Design]"
             },
             {
               "$type": "Document",
               "DocumentIndex": 9,
+              "Title": "frmMain.Designer.vb",
+              "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Forms\\frmMain.Designer.vb",
+              "RelativeDocumentMoniker": "Forms\\frmMain.Designer.vb",
+              "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Forms\\frmMain.Designer.vb",
+              "RelativeToolTip": "Forms\\frmMain.Designer.vb",
+              "ViewState": "AgIAAMACAAAAAAAAAAAQwNQCAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
+              "WhenOpened": "2026-08-13T13:35:13.369Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "AuthCallPilot",
+              "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\AuthCallPilot.vbproj",
+              "RelativeDocumentMoniker": "AuthCallPilot.vbproj",
+              "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\AuthCallPilot.vbproj*",
+              "RelativeToolTip": "AuthCallPilot.vbproj*",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-08-04T13:34:10.948Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
               "Title": "RecommendationResult.vb",
               "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Models\\RecommendationResult.vb",
               "RelativeDocumentMoniker": "Models\\RecommendationResult.vb",
               "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Models\\RecommendationResult.vb",
               "RelativeToolTip": "Models\\RecommendationResult.vb",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAsAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2026-07-30T14:45:26.926Z"
+              "WhenOpened": "2026-07-30T14:45:26.926Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 12,
               "Title": "BrowserCaptureResult.vb",
               "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Models\\BrowserCaptureResult.vb",
               "RelativeDocumentMoniker": "Models\\BrowserCaptureResult.vb",
               "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Models\\BrowserCaptureResult.vb",
               "RelativeToolTip": "Models\\BrowserCaptureResult.vb",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAhAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAYAAAAhAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2026-08-06T14:16:19.665Z"
+              "WhenOpened": "2026-08-06T14:16:19.665Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 13,
               "Title": "QuestionState.vb",
               "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Models\\QuestionState.vb",
               "RelativeDocumentMoniker": "Models\\QuestionState.vb",
               "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Models\\QuestionState.vb",
               "RelativeToolTip": "Models\\QuestionState.vb",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAQAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2026-08-04T12:07:27.179Z"
+              "WhenOpened": "2026-08-04T12:07:27.179Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
-              "Title": "LookupResult.vb",
-              "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Models\\LookupResult.vb",
-              "RelativeDocumentMoniker": "Models\\LookupResult.vb",
-              "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Models\\LookupResult.vb",
-              "RelativeToolTip": "Models\\LookupResult.vb",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAqwA8AAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2026-07-30T14:45:18.354Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 14,
               "Title": "DatabaseManager.vb",
               "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Data\\DatabaseManager.vb",
               "RelativeDocumentMoniker": "Data\\DatabaseManager.vb",
@@ -230,30 +277,21 @@
               "RelativeToolTip": "Data\\DatabaseManager.vb",
               "ViewState": "AgIAADcAAAAAAAAAAAAqwEYAAABJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2026-07-30T14:44:37.899Z"
+              "WhenOpened": "2026-07-30T14:44:37.899Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
-              "Title": "AuthCallPilot",
-              "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\AuthCallPilot.vbproj",
-              "RelativeDocumentMoniker": "AuthCallPilot.vbproj",
-              "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\AuthCallPilot.vbproj",
-              "RelativeToolTip": "AuthCallPilot.vbproj",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2026-08-04T13:34:10.948Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 15,
               "Title": "CgxMonitor.vb",
               "DocumentMoniker": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Services\\CgxMonitor.vb",
               "RelativeDocumentMoniker": "Services\\CgxMonitor.vb",
               "ToolTip": "D:\\Office Works\\VS\\CIT Voice - AuthCallPilot\\CITVoice_AuthCallPilot\\AuthCallPilot\\Services\\CgxMonitor.vb",
               "RelativeToolTip": "Services\\CgxMonitor.vb",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAA6wAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003361|",
-              "WhenOpened": "2026-07-30T14:45:52.084Z"
+              "WhenOpened": "2026-07-30T14:45:52.084Z",
+              "EditorCaption": ""
             }
           ]
         }

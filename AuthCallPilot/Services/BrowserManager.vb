@@ -4,7 +4,101 @@ Imports OpenQA.Selenium.Support.UI
 Public Class BrowserManager
     Private Shared _driver As EdgeDriver
     Private Shared ReadOnly _driverLock As New Object()
+    Private Const DelegatedGrouperSearchUrl As String = "https://app.powerbi.com/groups/me/reports/1d9cdc40-1454-455e-98d4-399ede4a15e7/ReportSectioneaef45f0db640833762b?experience=power-bi"
+    Private Const GrouperSearchXPath As String = "/html/body/div[1]/root/mat-sidenav-container/mat-sidenav-content/tri-shell-panel-outlet/tri-item-renderer-panel/tri-extension-panel-outlet/mat-sidenav-container/mat-sidenav-content/div/div/div[2]/tri-shell/tri-item-renderer/tri-extension-page-outlet/div[2]/report/exploration-container/div/div/docking-container/div/div/div/div/exploration-host/div/div/exploration/div/explore-canvas/div/div[2]/div/div[2]/div[2]/visual-container-repeat/visual-container[7]/transform/div/div[3]/div/div/visual-modern/div/div/div[2]/div/div[1]/input"
 
+    Private Const UmInpatientXPath As String = "/html/body/div[1]/root/mat-sidenav-container/mat-sidenav-content/tri-shell-panel-outlet/tri-item-renderer-panel/tri-extension-panel-outlet/mat-sidenav-container/mat-sidenav-content/div/div/div[2]/tri-shell/tri-item-renderer/tri-extension-page-outlet/div[2]/report/exploration-container/div/div/docking-container/div/div/div/div/exploration-host/div/div/exploration/div/explore-canvas/div/div[2]/div/div[2]/div[2]/visual-container-repeat/visual-container[18]/transform/div/div[3]/div/div/visual-modern/div/div/div[2]/div[1]/div[2]/div/div/div/div/div[4]"
+
+    Private Const UmOutpatientXPath As String = "/html/body/div[1]/root/mat-sidenav-container/mat-sidenav-content/tri-shell-panel-outlet/tri-item-renderer-panel/tri-extension-panel-outlet/mat-sidenav-container/mat-sidenav-content/div/div/div[2]/tri-shell/tri-item-renderer/tri-extension-page-outlet/div[2]/report/exploration-container/div/div/docking-container/div/div/div/div/exploration-host/div/div/exploration/div/explore-canvas/div/div[2]/div/div[2]/div[2]/visual-container-repeat/visual-container[18]/transform/div/div[3]/div/div/visual-modern/div/div/div[2]/div[1]/div[2]/div/div/div/div/div[5]"
+
+    Private Const UmBehavioralXPath As String = "/html/body/div[1]/root/mat-sidenav-container/mat-sidenav-content/tri-shell-panel-outlet/tri-item-renderer-panel/tri-extension-panel-outlet/mat-sidenav-container/mat-sidenav-content/div/div/div[2]/tri-shell/tri-item-renderer/tri-extension-page-outlet/div[2]/report/exploration-container/div/div/docking-container/div/div/div/div/exploration-host/div/div/exploration/div/explore-canvas/div/div[2]/div/div[2]/div[2]/visual-container-repeat/visual-container[18]/transform/div/div[3]/div/div/visual-modern/div/div/div[2]/div[1]/div[2]/div/div/div/div/div[6]"
+
+    Private Const UmTransplantXPath As String = "/html/body/div[1]/root/mat-sidenav-container/mat-sidenav-content/tri-shell-panel-outlet/tri-item-renderer-panel/tri-extension-panel-outlet/mat-sidenav-container/mat-sidenav-content/div/div/div[2]/tri-shell/tri-item-renderer/tri-extension-page-outlet/div[2]/report/exploration-container/div/div/docking-container/div/div/div/div/exploration-host/div/div/exploration/div/explore-canvas/div/div[2]/div/div[2]/div[2]/visual-container-repeat/visual-container[18]/transform/div/div[3]/div/div/visual-modern/div/div/div[2]/div[1]/div[2]/div/div/div/div/div[7]"
+
+    Private Const UmOutOfAreaXPath As String = "/html/body/div[1]/root/mat-sidenav-container/mat-sidenav-content/tri-shell-panel-outlet/tri-item-renderer-panel/tri-extension-panel-outlet/mat-sidenav-container/mat-sidenav-content/div/div/div[2]/tri-shell/tri-item-renderer/tri-extension-page-outlet/div[2]/report/exploration-container/div/div/docking-container/div/div/div/div/exploration-host/div/div/exploration/div/explore-canvas/div/div[2]/div/div[2]/div[2]/visual-container-repeat/visual-container[18]/transform/div/div[3]/div/div/visual-modern/div/div/div[2]/div[1]/div[2]/div/div/div/div/div[8]"
+    Public Shared Function LookupDelegatedGrouper(grouperId As String) As DelegatedGrouperResult
+        Dim result As New DelegatedGrouperResult()
+        If String.IsNullOrWhiteSpace(grouperId) Then
+            Return result
+        End If
+
+        If Not IsBrowserAvailable() Then
+            Return result
+        End If
+
+        Dim originalHandle As String = _driver.CurrentWindowHandle
+        Try
+            _driver.SwitchTo().NewWindow(WindowType.Tab)
+            _driver.Navigate().GoToUrl(DelegatedGrouperSearchUrl)
+            Dim wait As New WebDriverWait(_driver, TimeSpan.FromSeconds(60))
+
+            Dim searchBox As IWebElement = wait.Until(
+                Function(driver As IWebDriver)
+                    Try
+                        Dim element As IWebElement = driver.FindElement(By.XPath(GrouperSearchXPath))
+                        If element.Displayed AndAlso element.Enabled Then
+                            Return element
+                        End If
+                    Catch ex As WebDriverException
+                    End Try
+                    Return Nothing
+                End Function)
+            searchBox.Click()
+            searchBox.SendKeys(Keys.Control & "a")
+            searchBox.SendKeys(Keys.Backspace)
+            searchBox.SendKeys(grouperId.Trim())
+
+            wait.Until(
+            Function(driver As IWebDriver)
+                Try
+                    Dim value As String = driver.FindElement(By.XPath(UmInpatientXPath)).Text
+                    Return Not String.IsNullOrWhiteSpace(value)
+                Catch
+                    Return False
+                End Try
+            End Function)
+
+            result.UmInpatient = ReadPowerBiValue(UmInpatientXPath)
+            result.UmOutpatient = ReadPowerBiValue(UmOutpatientXPath)
+            result.UmBehavioral = ReadPowerBiValue(UmBehavioralXPath)
+            result.UmTransplant = ReadPowerBiValue(UmTransplantXPath)
+            result.UmOutOfArea = ReadPowerBiValue(UmOutOfAreaXPath)
+
+            result.Found = Not String.IsNullOrWhiteSpace(result.UmInpatient) OrElse Not String.IsNullOrWhiteSpace(result.UmOutpatient) OrElse Not String.IsNullOrWhiteSpace(result.UmBehavioral) OrElse Not String.IsNullOrWhiteSpace(result.UmTransplant) OrElse Not String.IsNullOrWhiteSpace(result.UmOutOfArea)
+
+        Catch ex As Exception
+            Debug.WriteLine("Delegated Grouper lookup failed: " & ex.ToString())
+        Finally
+            Try
+                If _driver.WindowHandles.Count > 1 Then
+                    _driver.Close()
+                End If
+                _driver.SwitchTo().Window(originalHandle)
+            Catch
+            End Try
+        End Try
+        Return result
+    End Function
+    Public Shared Sub OpenDelegatedGrouperSearch()
+        If Not IsBrowserAvailable() Then
+            Exit Sub
+        End If
+
+        Try
+            _driver.SwitchTo().NewWindow(WindowType.Tab)
+            _driver.Navigate().GoToUrl(DelegatedGrouperSearchUrl)
+        Catch ex As Exception
+            Debug.WriteLine("Unable to open Delegated Grouper Search: " & ex.Message)
+        End Try
+    End Sub
+    Private Shared Function ReadPowerBiValue(xpath As String) As String
+        Try
+            Dim element As IWebElement = _driver.FindElement(By.XPath(xpath))
+            Return element.Text.Trim()
+        Catch
+            Return String.Empty
+        End Try
+    End Function
     Public Shared ReadOnly Property Driver As EdgeDriver
         Get
             Return _driver
@@ -461,13 +555,24 @@ Public Class BrowserManager
         Dim authType As String = ReadElementTextSafely(wait, By.Id("AuthType"))
         context.AuthType = authType
         ApplyAuthTypeClassification(context, authType)
+        '========================================
+        ' OUTPATIENT DATES
+        '========================================
         context.AuthorizationStartDate = ReadElementValueSafely(wait, By.Id("FirstDay"))
         context.AuthorizationEndDate = ReadElementValueSafely(wait, By.Id("LastDay"))
+        '========================================
+        ' INPATIENT DATES
+        '========================================
+        context.AdmissionDate = ReadElementValueSafely(wait, By.Id("AdmissionDate"))
+        context.DischargeDate = ReadElementValueSafely(wait, By.Id("DischargeDate"))
+
         context.AuthorizationStatus = ReadElementTextSafely(wait, By.Id("OverallAuthStatusForBanner"))
 
         'Const totalDaysXPath As String = "/html/body/div[3]/div/div[3]/div[2]/div[6]/div/div[13]/div[2]/div[18]/div[3]/div/div[2]"
         'context.TotalDays = ReadElementTextSafely(wait, By.XPath(totalDaysXPath))
         context.TotalDays = GetTotalDays()
+
+        context.ClaimPaymentNotes = String.Empty
 
         Const primaryDiagnosisXPath As String = "/html/body/div[3]/div/div[3]/div[2]/div[6]/div/div[15]/div/div[2]/div[1]/div/div[3]/div/div/table/tbody/tr/td[1]"
         context.PrimaryDiagnosisCode = ReadElementTextSafely(wait, By.XPath(primaryDiagnosisXPath))
@@ -475,19 +580,16 @@ Public Class BrowserManager
 
         Const secondaryDiagnosisRowsXPath As String = "/html/body/div[3]/div/div[3]/div[2]/div[6]/div/div[15]/div/div[2]/div[2]/div/div[3]/div/div/div[2]/div/table/tbody/tr"
         context.SecondaryDiagnosisCodes.AddRange(ReadTableCodes(By.XPath(secondaryDiagnosisRowsXPath)))
+
+        '========================================
+        ' PROCEDURE CODES
+        '========================================
         context.ProcedureCodes.Clear()
-
-
-        'Const procedureRowsXPath As String = "/html/body/div[3]/div/div[3]/div[2]/div[6]/div/div[15]/div/div[2]/div[3]/div/div[3]/div/div/table/tbody/tr"
-        'context.ProcedureCodes.AddRange(ReadTableCodes(By.XPath(procedureRowsXPath)))
         If String.Equals(context.CareSetting, "INPATIENT", StringComparison.OrdinalIgnoreCase) Then
-            context.ProcedureCodes.Clear()
             context.ProcedureCodes.AddRange(ReadInpatientProcedureCodes())
         Else
-            context.ProcedureCodes.Clear()
             context.ProcedureCodes.AddRange(ReadProcedureCodes())
         End If
-        'context.ProcedureCodes.AddRange(ReadProcedureCodes())
 
 
         Debug.WriteLine("Authorization Status: " & context.AuthorizationStatus)
@@ -522,25 +624,25 @@ Public Class BrowserManager
 
     End Sub
     Private Shared Function ReadInpatientProcedureCodes() As List(Of String)
-        Dim results As New List(Of String)
+        Dim results As New List(Of String)()
         Try
             Dim grid As IWebElement = _driver.FindElement(By.Id("AuthDirectProcedureCodeGrid-gridContent"))
-            Dim rows = grid.FindElements(By.XPath(".//tr"))
+            Dim rows = grid.FindElements(By.CssSelector("tbody tr"))
             For Each row As IWebElement In rows
-                Dim cells = row.FindElements(By.XPath(".//td"))
-                For Each cell As IWebElement In cells
-                    Dim value As String = cell.Text.Trim()
-                    If String.IsNullOrWhiteSpace(value) Then
-                        Continue For
-                    End If
+                Try
+                    Dim cells = row.FindElements(By.CssSelector("td"))
 
-                    If Not results.Contains(value, StringComparer.OrdinalIgnoreCase) Then
-                        results.Add(value)
+                    If cells.Count > 0 Then
+                        Dim code As String = cells(0).Text.Trim()
+                        If Not String.IsNullOrWhiteSpace(code) AndAlso Not results.Contains(code) Then
+                            results.Add(code)
+                        End If
                     End If
-                Next
+                Catch
+                End Try
             Next
-        Catch ex As NoSuchElementException
-        Catch ex As WebDriverException
+        Catch ex As Exception
+            Debug.WriteLine("Unable to read inpatient procedure codes: " & ex.Message)
         End Try
         Return results
     End Function
@@ -668,9 +770,13 @@ Public Class BrowserManager
         Dim rawProduct As String = ReadCgxFieldValue(wait, "Product/MTV or CAS")
         Dim rawConso As String = ReadCgxFieldValue(wait, "Consolidated Selling Market")
         Dim rawGroup As String = ReadCgxFieldValue(wait, "Group Name/ID")
+        Dim rawGrouper As String = ReadCgxFieldValue(wait, "Grouper Name/ID")
+
+
         context.Product = GetTextBeforeSlash(rawProduct)
         context.Conso = GetTextAfterSlash(rawConso)
         context.GroupNumber = GetTextAfterSlash(rawGroup)
+        context.GrouperId = GetTextAfterSlash(rawGrouper)
         context.IssueState = ReadCgxFieldValue(wait, "State of Issue")
 
         Return context
@@ -708,6 +814,10 @@ Public Class BrowserManager
 
         context.AuthorizationStartDate = ReadElementValueSafely(wait, By.Id("FirstDay"))
         context.AuthorizationEndDate = ReadElementValueSafely(wait, By.Id("LastDay"))
+        'Inpatient-specific dates
+        context.AdmissionDate = ReadElementValueSafely(wait, By.Id("AdmissionDate"))
+        context.DischargeDate = ReadElementValueSafely(wait, By.Id("DischargeDate"))
+
         context.ClaimPaymentNotes = String.Empty
         context.TotalDays = GetTotalDays()
 
@@ -717,35 +827,12 @@ Public Class BrowserManager
         context.SecondaryDiagnosisCodes.AddRange(ReadTableCodes(By.XPath("/html/body/div[3]/div/div[3]/div[2]/div[6]/div/div[15]/div/div[2]/div[2]/div/div[3]/div/div/div[2]/div/table/tbody/tr")))
 
         context.ProcedureCodes.Clear()
-        context.ProcedureCodes.AddRange(ReadProcedureCodes())
-        'context.ProcedureCodes.AddRange(ReadTableCodes(By.XPath("/html/body/div[3]/div/div[3]/div[2]/div[6]/div/div[15]/div/div[2]/div[3]/div/div[3]/div/div/table/tbody/tr")))
+        If String.Equals(context.CareSetting, "INPATIENT", StringComparison.OrdinalIgnoreCase) Then
+            context.ProcedureCodes.AddRange(ReadInpatientProcedureCodes())
+        Else
+            context.ProcedureCodes.AddRange(ReadProcedureCodes())
+        End If
 
-        '    MessageBox.Show(
-        '"Authorization Number: " &
-        'If(
-        '    String.IsNullOrWhiteSpace(
-        '        context.AuthorizationNumber),
-        '    "[blank]",
-        '    context.AuthorizationNumber) &
-        'Environment.NewLine &
-        'Environment.NewLine &
-        '"Status: " &
-        'If(
-        '    String.IsNullOrWhiteSpace(
-        '        context.AuthorizationStatus),
-        '    "[blank]",
-        '    context.AuthorizationStatus) &
-        'Environment.NewLine &
-        'Environment.NewLine &
-        '"Requesting Provider: " &
-        'If(
-        '    String.IsNullOrWhiteSpace(
-        '        context.RequestingProvider),
-        '    "[blank]",
-        '    context.RequestingProvider),
-        '"Authorization Capture Result",
-        'MessageBoxButtons.OK,
-        'MessageBoxIcon.Information)
         Return context
     End Function
     Private Shared Function ReadProcedureCodes() As List(Of String)

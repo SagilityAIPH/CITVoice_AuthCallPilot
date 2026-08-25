@@ -19,6 +19,7 @@ Public NotInheritable Class OutputFormatter
         output.AppendLine("Product: " & DisplayValue(context.Product))
         output.AppendLine("Consolidated Selling Market: " & DisplayValue(context.Conso))
         output.AppendLine("Group Number: " & DisplayValue(context.GroupNumber))
+        output.AppendLine("Grouper ID: " & DisplayValue(context.GrouperId))
         output.AppendLine("State of Issue: " & DisplayValue(context.IssueState))
         Return output.ToString().TrimEnd()
     End Function
@@ -53,6 +54,9 @@ Public NotInheritable Class OutputFormatter
         output.AppendLine("Primary Diagnosis: " & DisplayValue(context.PrimaryDiagnosisCode))
         output.AppendLine("Secondary Diagnoses: " & JoinValues(context.SecondaryDiagnosisCodes))
         output.AppendLine("Procedure Codes: " & JoinValues(context.ProcedureCodes))
+
+
+
         Return output.ToString().TrimEnd()
     End Function
 
@@ -122,26 +126,37 @@ Public NotInheritable Class OutputFormatter
 
         Dim output As New StringBuilder()
         output.AppendLine("Found: " & If(lookup.PalFound, "YES", "NO"))
-        If context IsNot Nothing Then
-            output.AppendLine()
-            output.AppendLine("Procedure Codes: " & JoinValues(context.ProcedureCodes))
+        '========================================
+        ' ALL PX CODES FROM CGX
+        '========================================
+        If context Is Nothing OrElse context.ProcedureCodes Is Nothing OrElse context.ProcedureCodes.Count = 0 Then
+            output.AppendLine("Procedure Codes: Not yet extracted from CGX")
+        Else
+            output.AppendLine("Procedure Codes: " & String.Join(", ", context.ProcedureCodes))
         End If
-
-        If lookup.PalResults IsNot Nothing And lookup.PalResults.Count > 0 Then
-            output.AppendLine()
+        '========================================
+        ' PX CODES THAT HAVE PAL
+        '========================================
+        If lookup.PalMatchedProcedureCodes Is Nothing OrElse lookup.PalMatchedProcedureCodes.Count = 0 Then
+            output.AppendLine("Found PX: None")
+        Else
+            output.AppendLine("Found PX: " & String.Join(", ", lookup.PalMatchedProcedureCodes))
+        End If
+        '========================================
+        ' PAL RESULTS
+        '========================================
+        output.AppendLine()
+        If lookup.PalResults Is Nothing OrElse lookup.PalResults.Count = 0 Then
+            output.AppendLine("No matching PAL result found.")
+        Else
             For Each palResult As String In lookup.PalResults
                 If Not String.IsNullOrWhiteSpace(palResult) Then
                     output.AppendLine("• " & palResult.Trim())
                 End If
             Next
-        Else
-            output.AppendLine()
-            output.AppendLine("No matching PAL result found.")
-
         End If
         Return output.ToString().TrimEnd()
     End Function
-
     Public Shared Function BuildDocumentation(context As CallContext) As String
         If context Is Nothing Then
             Return String.Empty

@@ -21,6 +21,8 @@ Public Class frmMain
 
     Private _nextBestActionLinks As New Dictionary(Of String, String)
 
+
+
     '========================================
     ' CALLPILOT COLOR PALETTE
     '========================================
@@ -66,18 +68,38 @@ Public Class frmMain
         '========================================
         ' NORMAL OOS OUTPUT
         '========================================
-        Dim oosText As String =
-        OutputFormatter.BuildOutOfScope(_currentLookup)
+        Dim oosText As String = OutputFormatter.BuildOutOfScope(_currentLookup)
         rtbOutOfScope.AppendText(oosText)
-        rtbOutOfScope.AppendText(Environment.NewLine)
-        rtbOutOfScope.AppendText("Validate Grouper on the Following Links:" & Environment.NewLine)
+        '========================================
+        ' IPA / PCODSOT DATABASE RESULT
+        '========================================
+        If _currentLookup.IpaFound Then
+            rtbOutOfScope.AppendText(Environment.NewLine & Environment.NewLine)
+            rtbOutOfScope.AppendText("PCODSOT Grouper Match:" & Environment.NewLine)
+            rtbOutOfScope.AppendText("Grouper ID: " & _currentLookup.IpaGrouperId & Environment.NewLine)
+            rtbOutOfScope.AppendText("Contracted Entity: " & _currentLookup.IpaContractedEntityName)
+        End If
+        '========================================
+        ' DELEGATED GROUPER SEARCH RESULT
+        '========================================
+        If _currentLookup.DelegatedGrouper IsNot Nothing AndAlso _currentLookup.DelegatedGrouper.Found Then
+            Dim dg = _currentLookup.DelegatedGrouper
+            rtbOutOfScope.AppendText(Environment.NewLine & Environment.NewLine)
+            rtbOutOfScope.AppendText("Delegated Grouper Search:" & Environment.NewLine)
+            rtbOutOfScope.AppendText("UM Inpatient: " & dg.UmInpatient & Environment.NewLine)
+            rtbOutOfScope.AppendText("UM Outpatient: " & dg.UmOutpatient & Environment.NewLine)
+            rtbOutOfScope.AppendText("UM Behavioral: " & dg.UmBehavioral & Environment.NewLine)
+            rtbOutOfScope.AppendText("UM Transplant: " & dg.UmTransplant & Environment.NewLine)
+            rtbOutOfScope.AppendText("UM Out of Area: " & dg.UmOutOfArea)
+        End If
 
+        rtbOutOfScope.AppendText(Environment.NewLine & Environment.NewLine)
+        rtbOutOfScope.AppendText("Validate Grouper on the Following Links:" & Environment.NewLine)
         '========================================
         ' DELEGATED GROUPER SEARCH
         '========================================
         AppendHyperlink(rtbOutOfScope, "Open Delegated Grouper Search", DelegatedGrouperSearchUrl)
         rtbOutOfScope.AppendText(Environment.NewLine)
-
         '========================================
         ' PCODSOT
         '========================================
@@ -1317,6 +1339,7 @@ Public Class frmMain
         _currentContext.Conso = detected.Conso
         _currentContext.IssueState = detected.IssueState
         _currentContext.GroupNumber = detected.GroupNumber
+        _currentContext.GrouperId = detected.GrouperId
 
         'New/refreshed member means old Auth data
         'must not remain in memory.
@@ -1325,6 +1348,17 @@ Public Class frmMain
 
         'Run member-level lookups.
         _currentLookup = CallPilotRepository.RunLookups(_currentContext)
+
+        'MessageBox.Show(
+        '"Grouper ID: [" & _currentContext.GrouperId & "]" & Environment.NewLine & Environment.NewLine & "IPA Found: " & _currentLookup.IpaFound.ToString() & Environment.NewLine & Environment.NewLine & "IPA Grouper: [" & _currentLookup.IpaGrouperId & "]" & Environment.NewLine & Environment.NewLine & "Contracted Entity: [" & _currentLookup.IpaContractedEntityName & "]", "IPA Lookup Test")
+
+        '========================================
+        ' DELEGATED GROUPER SEARCH
+        '========================================
+        If Not String.IsNullOrWhiteSpace(_currentContext.GrouperId) Then
+            _currentLookup.DelegatedGrouper = BrowserManager.LookupDelegatedGrouper(_currentContext.GrouperId)
+        End If
+
         'Populate member information.
         SetOutputValue(txtMemberInfo, OutputFormatter.BuildMemberInformation(_currentContext))
         ShowMemberInformationPanel()
@@ -1439,7 +1473,14 @@ Public Class frmMain
         End If
 
         'Run again because PAL now has procedure codes.
+        Dim existingDelegatedGrouper As DelegatedGrouperResult = Nothing
+        If _currentLookup IsNot Nothing Then
+            existingDelegatedGrouper = _currentLookup.DelegatedGrouper
+        End If
         _currentLookup = CallPilotRepository.RunLookups(_currentContext)
+        If existingDelegatedGrouper IsNot Nothing Then
+            _currentLookup.DelegatedGrouper = existingDelegatedGrouper
+        End If
 
         ClearScenarioDecisionState()
         SetAuthorizationPopulatedState()
@@ -1526,14 +1567,7 @@ Public Class frmMain
         If Not String.Equals(_currentContext.Scenario, "CHECKING STATUS OF THE AUTHORIZATION", StringComparison.OrdinalIgnoreCase) Then
             Return False
         End If
-<<<<<<< HEAD
-        'Only hide after the agent explicitly answered NO.
-        Return _currentContext.AuthRequestFound.HasValue AndAlso Not _currentContext.AuthRequestFound.Value
-=======
-
         Return _currentContext.AuthRequestFound.GetValueOrDefault(False) = False And _currentContext.AuthRequestFound.HasValue
->>>>>>> cccac355efdd9da62eb945e55519053db6fcf7d2
-
     End Function
     Private Sub btnTest_Click(sender As Object, e As EventArgs) Handles btnTest.Click
         'TestUpdatingAuthorizationOffline()
@@ -2004,8 +2038,6 @@ Public Class frmMain
         End If
         Clipboard.SetText(txtOverAllOutput.Text)
     End Sub
-
-<<<<<<< HEAD
     Private Sub chkGenesysVerified_CheckedChanged(sender As Object, e As EventArgs)
         If _currentContext Is Nothing Then
             Exit Sub
@@ -2253,9 +2285,4 @@ Public Class frmMain
         End If
         ValidateTenDigitField(textBox)
     End Sub
-=======
-    Private Sub Guna2Panel1_Paint(sender As Object, e As PaintEventArgs) Handles Guna2Panel1.Paint
-
-    End Sub
->>>>>>> cccac355efdd9da62eb945e55519053db6fcf7d2
 End Class

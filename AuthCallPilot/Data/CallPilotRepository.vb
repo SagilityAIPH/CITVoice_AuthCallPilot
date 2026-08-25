@@ -6,7 +6,6 @@ Public NotInheritable Class CallPilotRepository
     End Sub
 
     Public Shared Function RunLookups(context As CallContext) As LookupResult
-
         If context Is Nothing Then
             Throw New ArgumentNullException(NameOf(context))
         End If
@@ -16,10 +15,11 @@ Public NotInheritable Class CallPilotRepository
             connection.Open()
             CheckOutOfScope(connection, context, result)
             CheckMarketGuide(connection, context, result)
+            'NEW - GROUPER / IPA LOOKUP
+            CheckIPA(connection, context, result)
             CheckPal(connection, context, result)
         End Using
         Return result
-
     End Function
 
     Private Shared Sub CheckOutOfScope(connection As SQLiteConnection, context As CallContext, result As LookupResult)
@@ -123,6 +123,46 @@ Public NotInheritable Class CallPilotRepository
         End Using
 
     End Sub
+    Private Shared Sub CheckIPA(connection As SQLiteConnection, context As CallContext, result As LookupResult)
+        '========================================
+        ' DEFAULT STATE
+        '========================================
+        result.IpaFound = False
+        result.IpaGrouperId = String.Empty
+        result.IpaContractedEntityName = String.Empty
+        '========================================
+        ' GROUPER ID REQUIRED
+        '========================================
+        If context Is Nothing Then
+            Return
+        End If
+
+        If String.IsNullOrWhiteSpace(context.GrouperId) Then
+            Return
+        End If
+        '========================================
+        ' LOOKUP tblIPA
+        '========================================
+        Const sql As String =
+        "SELECT Grouper, Contracted_Entity_Name " &
+        "FROM tblIPA " &
+        "WHERE TRIM(Grouper) = @grouper " &
+        "LIMIT 1;"
+
+        Using command As New SQLiteCommand(sql, connection)
+            command.Parameters.AddWithValue("@grouper", context.GrouperId.Trim())
+            Using reader As SQLiteDataReader = command.ExecuteReader()
+
+                If Not reader.Read() Then
+                    Return
+                End If
+
+                result.IpaFound = True
+                result.IpaGrouperId = SafeGet(reader, "Grouper")
+                result.IpaContractedEntityName = SafeGet(reader, "Contracted_Entity_Name")
+            End Using
+        End Using
+    End Sub
     Private Shared Sub CheckPal(connection As SQLiteConnection, context As CallContext, result As LookupResult)
         If context.ProcedureCodes Is Nothing OrElse context.ProcedureCodes.Count = 0 Then
 
@@ -149,7 +189,11 @@ Public NotInheritable Class CallPilotRepository
                     While reader.Read()
                         Dim palText As String = GetPalTextByProduct(reader, context.Product)
                         Dim responseCode As String = SafeGet(reader, "PALResponseCode")
+                        Dim beforeCount As Integer = result.PalResults.Count
                         AddPalClassification(result, palText, responseCode)
+                        If result.PalResults.Count > beforeCount Then
+                            AddUnique(result.PalMatchedProcedureCodes, procedureCode.Trim())
+                        End If
                     End While
                 End Using
             End Using

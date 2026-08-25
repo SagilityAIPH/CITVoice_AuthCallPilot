@@ -66,4 +66,6 @@
     Public Property AdmissionDate As String
     Public Property DischargeDate As String
 
+    Public Property GrouperId As String
+
 End Class
