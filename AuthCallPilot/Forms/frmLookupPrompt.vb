@@ -40,6 +40,8 @@
         txtMessage.ScrollBars =
             ScrollBars.Vertical
 
+        txtMessage.Text = message
+
         btnClose.Text = "Close"
         btnClose.Width = 90
         btnClose.Height = 30
