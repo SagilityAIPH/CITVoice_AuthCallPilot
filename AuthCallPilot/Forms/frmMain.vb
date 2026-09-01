@@ -251,6 +251,7 @@ Public Class frmMain
         StyleInput(txtSecuredFax)
         StyleInput(txtCallingFrom)
         StyleInput(txtDOS)
+        StyleInput(txtExtension)
 
         '========================================
         ' SCENARIO COMBOBOX
@@ -1359,6 +1360,9 @@ Public Class frmMain
             _currentLookup.DelegatedGrouper = BrowserManager.LookupDelegatedGrouper(_currentContext.GrouperId)
         End If
 
+        ' PROMPT MEMBER LOOKUP RESULTS
+        ShowLookupSummaryPrompt()
+
         'Populate member information.
         SetOutputValue(txtMemberInfo, OutputFormatter.BuildMemberInformation(_currentContext))
         ShowMemberInformationPanel()
@@ -1481,6 +1485,7 @@ Public Class frmMain
         If existingDelegatedGrouper IsNot Nothing Then
             _currentLookup.DelegatedGrouper = existingDelegatedGrouper
         End If
+        ShowLookupSummaryPrompt()
 
         ClearScenarioDecisionState()
         SetAuthorizationPopulatedState()
@@ -2284,5 +2289,45 @@ Public Class frmMain
             Return
         End If
         ValidateTenDigitField(textBox)
+    End Sub
+    Private Sub ShowLookupPrompt(title As String, message As String)
+        If String.IsNullOrWhiteSpace(message) Then
+            Exit Sub
+        End If
+
+        Dim prompt As New frmLookupPrompt(title, message)
+        prompt.Show(Me)
+    End Sub
+    Private Sub ShowLookupSummaryPrompt()
+        If _currentLookup Is Nothing Then
+            Exit Sub
+        End If
+
+        Dim output As New Text.StringBuilder()
+
+        output.AppendLine("OUT OF SCOPE")
+        output.AppendLine(
+            OutputFormatter.BuildOutOfScope(_currentLookup))
+        output.AppendLine()
+        output.AppendLine("-----------------------------")
+        output.AppendLine()
+
+        output.AppendLine("MARKET GUIDE")
+        output.AppendLine(OutputFormatter.BuildMarketGuide(_currentLookup))
+
+        If _currentContext IsNot Nothing AndAlso
+           _currentContext.ProcedureCodes IsNot Nothing AndAlso
+           _currentContext.ProcedureCodes.Count > 0 Then
+
+            output.AppendLine()
+            output.AppendLine("-----------------------------")
+            output.AppendLine()
+
+            output.AppendLine("PAL")
+            output.AppendLine(
+                OutputFormatter.BuildPal(_currentContext, _currentLookup))
+        End If
+
+        ShowLookupPrompt("CallPilot Lookup Results", output.ToString())
     End Sub
 End Class

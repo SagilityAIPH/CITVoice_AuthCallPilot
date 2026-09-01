@@ -205,6 +205,12 @@
     <Compile Include="Data\CallPilotRepository.vb" />
     <Compile Include="Data\DatabaseManager.vb" />
     <Compile Include="Engine\RecommendationEngine.vb" />
+    <Compile Include="Forms\frmLookupPrompt.Designer.vb">
+      <DependentUpon>frmLookupPrompt.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmLookupPrompt.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\frmMain.vb">
       <SubType>Form</SubType>
     </Compile>
