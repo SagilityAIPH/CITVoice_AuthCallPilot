@@ -21,7 +21,9 @@ Public Class frmMain
 
     Private _nextBestActionLinks As New Dictionary(Of String, String)
 
-
+    Private WithEvents _newAuthChecklistTimer As New Timer()
+    Private _newAuthPrompt As frmNewAuthChecklist
+    Private _newAuthChecklistBusy As Boolean = False
 
     '========================================
     ' CALLPILOT COLOR PALETTE
@@ -650,6 +652,8 @@ Public Class frmMain
         lblCgxStatus.BackColor = Color.Transparent
         SetAuthorizationWaitingState()
         ShowMemberInformationPanel()
+
+        _newAuthChecklistTimer.Interval = 750
     End Sub
     Private Sub SetWaitingOutputStates()
         txtMemberInfo.Text = "Waiting for member information..."
@@ -2091,15 +2095,13 @@ Public Class frmMain
         End Select
 
     End Sub
-    Private Sub cmbScenario_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbScenario.SelectedIndexChanged
-        If cmbScenario.SelectedIndex < 0 Then
-            Exit Sub
-        End If
+    Private Async Sub cmbScenario_SelectedIndexChanged(sender As Object, e As EventArgs) Handles cmbScenario.SelectedIndexChanged
+
+        If cmbScenario.SelectedIndex < 0 Then Exit Sub
 
         UpdateScenarioVisibility()
-        If _currentContext Is Nothing Or String.IsNullOrWhiteSpace(_currentContext.MemberId) Then
-            Return
-        End If
+
+        If _currentContext Is Nothing OrElse String.IsNullOrWhiteSpace(_currentContext.MemberId) Then Return
 
         Try
             _currentContext.CallerName = txtCallerName.Text.Trim()
@@ -2108,13 +2110,29 @@ Public Class frmMain
             _currentContext.CallingFrom = txtCallingFrom.Text.Trim()
             _currentContext.DateOfService = ParseOptionalDos(txtDOS.Text)
             _currentContext.Extension = txtExtension.Text.Trim()
+
             ClearScenarioDecisionState()
             _currentContext.Scenario = Convert.ToString(cmbScenario.SelectedItem)
-            RunRecommendation()
-        Catch ex As Exception
-            MessageBox.Show(ex.ToString(), "Scenario Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
 
+            If String.Equals(_currentContext.Scenario, "NEW AUTHORIZATION", StringComparison.OrdinalIgnoreCase) Then
+                If Not BrowserManager.IsBrowserAvailable() Then
+                    MessageBox.Show("Launch the CGX browser first.", "Browser Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    Return
+                End If
+
+                SetCgxStatus("READING")
+                Await Task.Run(Sub() BrowserManager.OpenNewAuthorization())
+                StartNewAuthChecklist()
+                SetCgxStatus("WAITING")
+            End If
+
+            RunRecommendation()
+
+        Catch ex As Exception
+            SetCgxStatus("ERROR")
+            MessageBox.Show(ex.ToString(), "Scenario Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
+
     End Sub
     Private Sub ApplyMarketGuideVisualState()
 
@@ -2329,5 +2347,44 @@ Public Class frmMain
         End If
 
         ShowLookupPrompt("CallPilot Lookup Results", output.ToString())
+    End Sub
+    Private Sub StartNewAuthChecklist()
+        If _newAuthPrompt Is Nothing OrElse _newAuthPrompt.IsDisposed Then
+            _newAuthPrompt = New frmNewAuthChecklist()
+            _newAuthPrompt.Show(Me)
+        End If
+
+        _newAuthChecklistTimer.Start()
+    End Sub
+    Private Sub StopNewAuthChecklist()
+        _newAuthChecklistTimer.Stop()
+        If _newAuthPrompt IsNot Nothing AndAlso Not _newAuthPrompt.IsDisposed Then _newAuthPrompt.Close()
+
+        _newAuthPrompt = Nothing
+        _newAuthChecklistBusy = False
+    End Sub
+    Private Async Sub NewAuthChecklistTimer_Tick(sender As Object, e As EventArgs) Handles _newAuthChecklistTimer.Tick
+
+        If _newAuthChecklistBusy Then Return
+
+        If _newAuthPrompt Is Nothing OrElse _newAuthPrompt.IsDisposed Then
+            _newAuthChecklistTimer.Stop()
+            Return
+        End If
+
+        _newAuthChecklistBusy = True
+
+        Try
+
+            Dim result As NewAuthChecklistResult = Await Task.Run(Function() BrowserManager.CheckNewAuthorizationFields())
+
+            If _newAuthPrompt IsNot Nothing AndAlso Not _newAuthPrompt.IsDisposed Then _newAuthPrompt.UpdateChecklist(result)
+
+        Catch ex As Exception
+            Debug.WriteLine("New Auth checker error: " & ex.Message)
+        Finally
+            _newAuthChecklistBusy = False
+        End Try
+
     End Sub
 End Class

@@ -961,4 +961,199 @@ Public Class BrowserManager
         End Try
 
     End Function
+    Public Shared Sub OpenNewAuthorization()
+
+        If Not IsBrowserAvailable() Then Throw New InvalidOperationException("The CGX browser is not available.")
+
+        SyncLock _driverLock
+
+            Dim wait As New WebDriverWait(_driver, TimeSpan.FromSeconds(20))
+
+            'Member Central
+            Dim memberCentral As IWebElement = WaitForClickableElement(wait, By.XPath("/html/body/div[3]/div/div[2]/div[2]/nav/section/ul[1]/li[2]/a"))
+            memberCentral.Click()
+
+            'Authorizations
+            Dim authorizations As IWebElement = WaitForClickableElement(wait, By.XPath("/html/body/div[3]/div/div[2]/div[2]/nav/section/ul[1]/li[2]/ul/li[3]/div/div/ul[1]/li[3]/a"))
+            authorizations.Click()
+
+            'Switch to Authorizations tab
+            wait.Until(
+                Function(driver As IWebDriver)
+                    For Each handle As String In driver.WindowHandles
+                        driver.SwitchTo().Window(handle)
+                        If String.Equals(driver.Title.Trim(), "Authorizations", StringComparison.OrdinalIgnoreCase) Then Return True
+                    Next
+                    Return False
+                End Function)
+
+            'Create Auth
+            Dim createAuth As IWebElement = WaitForClickableElement(wait, By.Id("create-authorization"))
+            createAuth.Click()
+
+        End SyncLock
+
+    End Sub
+    Public Shared Function CheckNewAuthorizationFields() As NewAuthChecklistResult
+
+        Dim result As New NewAuthChecklistResult()
+
+        If Not IsBrowserAvailable() Then Return result
+
+        SyncLock _driverLock
+
+            Try
+
+                result.ContactMethod = HasSelectedValue(By.Id("ContactMethodCode"))
+                result.ContactName = HasElementValue(By.Id("ContactName"))
+                result.ContactType = HasSelectedValue(By.Id("ContactTypeCode"))
+                result.ServiceDate = HasElementValue(By.Id("DateOfService"))
+
+                result.RequestingProvider = HasPanelInformation(By.Id("requesting-provider-panel"))
+                result.TreatingProvider = HasPanelInformation(By.Id("treating-provider-panel"))
+                result.FacilityProvider = HasPanelInformation(By.Id("facility-provider-panel"))
+
+                result.NotificationDate = HasElementValue(By.Id("NotificationDate"))
+                result.ProgramManagement = HasSelectedValue(By.Id("ProgramManagementCode"))
+                result.AuthType = HasSelectedValue(By.Id("AuthTypeCode"))
+
+                Dim authTypeText As String = GetSelectedText(By.Id("AuthTypeCode"))
+
+                If authTypeText.IndexOf("INPATIENT", StringComparison.OrdinalIgnoreCase) >= 0 Then
+                    result.CareSetting = "INPATIENT"
+                    result.RequestType = HasSelectedValue(By.Id("RequestTypeCode"))
+                    result.AdmissionType = HasSelectedValue(By.Id("AdmissionTypeCode"))
+                ElseIf authTypeText.IndexOf("OUTPATIENT", StringComparison.OrdinalIgnoreCase) >= 0 Then
+                    result.CareSetting = "OUTPATIENT"
+                    result.RequestType = HasSelectedValue(By.Id("RequestTypeCode"))
+                    result.ServiceType = IsOutpatientServiceTypeComplete()
+                    result.TotalDays = HasElementValue(By.Id("TotalDays"))
+                Else
+                    result.CareSetting = String.Empty
+                End If
+
+                result.PrimaryDiagnosis = GridHasRows(By.Id("AuthDirectPrimaryDiagnosisCodeGrid"))
+                result.ProcedureCodes = GridHasRows(By.Id("AuthDirectProcedureCodeGrid"))
+
+            Catch ex As WebDriverException
+                Debug.WriteLine("New Auth checklist error: " & ex.Message)
+            End Try
+
+        End SyncLock
+
+        Return result
+
+    End Function
+    Private Shared Function HasElementValue(locator As By) As Boolean
+
+        Try
+            Dim elements = _driver.FindElements(locator)
+            If elements.Count = 0 Then Return False
+
+            Dim element As IWebElement = elements.First()
+            Dim value As String = element.GetAttribute("value")
+
+            If Not String.IsNullOrWhiteSpace(value) Then Return True
+            Return Not String.IsNullOrWhiteSpace(element.Text)
+
+        Catch
+            Return False
+        End Try
+
+    End Function
+    Private Shared Function HasSelectedValue(locator As By) As Boolean
+
+        Try
+            Dim elements = _driver.FindElements(locator)
+            If elements.Count = 0 Then Return False
+
+            Dim selectElement As New SelectElement(elements.First())
+            Dim selected As IWebElement = selectElement.SelectedOption
+
+            If selected Is Nothing Then Return False
+
+            Dim value As String = selected.GetAttribute("value")
+            Dim text As String = selected.Text.Trim()
+
+            If String.IsNullOrWhiteSpace(value) Then Return False
+            If String.IsNullOrWhiteSpace(text) Then Return False
+            If text.Equals("SELECT", StringComparison.OrdinalIgnoreCase) Then Return False
+            If text.Equals("-- SELECT --", StringComparison.OrdinalIgnoreCase) Then Return False
+
+            Return True
+
+        Catch
+            Return False
+        End Try
+
+    End Function
+    Private Shared Function GetSelectedText(locator As By) As String
+
+        Try
+            Dim elements = _driver.FindElements(locator)
+            If elements.Count = 0 Then Return String.Empty
+
+            Dim selectElement As New SelectElement(elements.First())
+            If selectElement.SelectedOption Is Nothing Then Return String.Empty
+
+            Return selectElement.SelectedOption.Text.Trim()
+
+        Catch
+            Return String.Empty
+        End Try
+
+    End Function
+    Private Shared Function HasPanelInformation(locator As By) As Boolean
+        Try
+            Dim elements = _driver.FindElements(locator)
+            If elements.Count = 0 Then Return False
+
+            Dim text As String = elements.First().Text.Trim()
+            Return Not String.IsNullOrWhiteSpace(text)
+
+        Catch
+            Return False
+        End Try
+    End Function
+    Private Shared Function IsRadioChecked(locator As By) As Boolean
+        Try
+            Dim elements = _driver.FindElements(locator)
+            Return elements.Count > 0 AndAlso elements.First().Selected
+        Catch
+            Return False
+        End Try
+    End Function
+    Private Shared Function IsOutpatientServiceTypeComplete() As Boolean
+        Try
+            If IsRadioChecked(By.Id("IsHomeHealthServiceTypeSelected")) Then Return True
+
+            If Not IsRadioChecked(By.Id("IsOtherServiceTypesSelected")) Then Return False
+
+            Dim elements = _driver.FindElements(By.Id("ServiceTypes"))
+            If elements.Count = 0 Then Return False
+
+            Dim selectElement As New SelectElement(elements.First())
+            Return selectElement.AllSelectedOptions.Count > 0
+
+        Catch
+            Return False
+        End Try
+    End Function
+    Private Shared Function GridHasRows(locator As By) As Boolean
+        Try
+
+            Dim grids = _driver.FindElements(locator)
+            If grids.Count = 0 Then Return False
+
+            Dim rows = grids.First().FindElements(By.CssSelector("tbody tr"))
+
+            For Each row As IWebElement In rows
+                If Not String.IsNullOrWhiteSpace(row.Text) Then Return True
+            Next
+
+        Catch
+        End Try
+
+        Return False
+    End Function
 End Class

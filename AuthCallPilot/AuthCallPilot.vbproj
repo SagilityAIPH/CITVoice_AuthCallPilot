@@ -218,10 +218,17 @@
       <DependentUpon>frmMain.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\frmNewAuthChecklist.Designer.vb">
+      <DependentUpon>frmNewAuthChecklist.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmNewAuthChecklist.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Models\BrowserCaptureResult.vb" />
     <Compile Include="Models\CallContext.vb" />
     <Compile Include="Models\DelegatedGrouperResult.vb" />
     <Compile Include="Models\LookupResult.vb" />
+    <Compile Include="Models\NewAuthChecklistResult.vb" />
     <Compile Include="Models\QuestionState.vb" />
     <Compile Include="Models\RecommendationResult.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
