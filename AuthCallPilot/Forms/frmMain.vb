@@ -1,9 +1,13 @@
-﻿Imports System.Linq
+﻿Imports System.Diagnostics
+Imports System.Linq
+Imports System.Threading
+Imports System.Threading.Tasks
 Imports MaterialSkin
 Imports MaterialSkin.Controls
 Imports OpenQA.Selenium
-Imports System.Threading.Tasks
-Imports System.Diagnostics
+Imports Newtonsoft.Json
+Imports System.Collections.Generic
+
 Public Class frmMain
     Private _currentContext As CallContext
     Private _currentLookup As LookupResult
@@ -11,7 +15,8 @@ Public Class frmMain
     Private _currentQuestionText As String
     Private ReadOnly _questionHistory As New Stack(Of QuestionState)
 
-    Private WithEvents _browserMonitorTimer As New Timer()
+
+    Private WithEvents _browserMonitorTimer As New System.Windows.Forms.Timer()
     Private _browserMonitorBusy As Boolean = False
     Private _ignoredMemberId As String
     Private _ignoredAuthorizationId As String
@@ -21,9 +26,11 @@ Public Class frmMain
 
     Private _nextBestActionLinks As New Dictionary(Of String, String)
 
-    Private WithEvents _newAuthChecklistTimer As New Timer()
+
+    Private WithEvents _newAuthChecklistTimer As New System.Windows.Forms.Timer()
     Private _newAuthPrompt As frmNewAuthChecklist
     Private _newAuthChecklistBusy As Boolean = False
+    Private ReadOnly _handledNonParProviderNpis As New HashSet(Of String)(StringComparer.OrdinalIgnoreCase)
 
     '========================================
     ' CALLPILOT COLOR PALETTE
@@ -1340,6 +1347,7 @@ Public Class frmMain
         _currentContext.MemberId = detected.MemberId
         _currentContext.MemberName = detected.MemberName
         _currentContext.DateOfBirth = detected.DateOfBirth
+        _currentContext.MemberZip = detected.MemberZip
         _currentContext.Product = NormalizeProductForLookup(detected.Product)
         _currentContext.Conso = detected.Conso
         _currentContext.IssueState = detected.IssueState
@@ -2349,6 +2357,7 @@ Public Class frmMain
         ShowLookupPrompt("CallPilot Lookup Results", output.ToString())
     End Sub
     Private Sub StartNewAuthChecklist()
+        _handledNonParProviderNpis.Clear()
         If _newAuthPrompt Is Nothing OrElse _newAuthPrompt.IsDisposed Then
             _newAuthPrompt = New frmNewAuthChecklist()
             _newAuthPrompt.Show(Me)
@@ -2364,7 +2373,6 @@ Public Class frmMain
         _newAuthChecklistBusy = False
     End Sub
     Private Async Sub NewAuthChecklistTimer_Tick(sender As Object, e As EventArgs) Handles _newAuthChecklistTimer.Tick
-
         If _newAuthChecklistBusy Then Return
 
         If _newAuthPrompt Is Nothing OrElse _newAuthPrompt.IsDisposed Then
@@ -2375,16 +2383,55 @@ Public Class frmMain
         _newAuthChecklistBusy = True
 
         Try
-
             Dim result As NewAuthChecklistResult = Await Task.Run(Function() BrowserManager.CheckNewAuthorizationFields())
-
             If _newAuthPrompt IsNot Nothing AndAlso Not _newAuthPrompt.IsDisposed Then _newAuthPrompt.UpdateChecklist(result)
+            Await CheckNonParProviderAndOfferSteerageAsync(result)
 
         Catch ex As Exception
             Debug.WriteLine("New Auth checker error: " & ex.Message)
         Finally
             _newAuthChecklistBusy = False
         End Try
-
     End Sub
+    Private Async Function CheckNonParProviderAndOfferSteerageAsync(result As NewAuthChecklistResult) As Task
+        If result Is Nothing OrElse _currentContext Is Nothing Then Return
+        If Not String.Equals(_currentContext.Scenario, "NEW AUTHORIZATION", StringComparison.OrdinalIgnoreCase) Then Return
+        If Not result.RequestingProvider OrElse Not result.TreatingProvider OrElse Not result.FacilityProvider Then Return
+
+        Dim allProvidersReady As Boolean = Await Task.Run(Function() BrowserManager.AreAllProviderPanelsPopulated())
+        If Not allProvidersReady Then Return
+
+        Dim requestingNonPar As Boolean = result.RequestingProviderNonPar
+        Dim treatingNonPar As Boolean = result.TreatingProviderNonPar
+        Dim facilityNonPar As Boolean = result.FacilityProviderNonPar
+
+        If Not requestingNonPar AndAlso Not treatingNonPar AndAlso Not facilityNonPar Then Return
+
+        Dim providers As List(Of NonParProviderInfo) = Await Task.Run(Function() BrowserManager.GetNonParProviders(requestingNonPar, treatingNonPar, facilityNonPar))
+
+        For Each provider As NonParProviderInfo In providers
+            If String.IsNullOrWhiteSpace(provider.Npi) Then Return
+        Next
+
+        For Each provider As NonParProviderInfo In providers
+            If _handledNonParProviderNpis.Contains(provider.Npi) Then Continue For
+
+            _handledNonParProviderNpis.Add(provider.Npi)
+
+            Dim message As String = provider.Role & " is Non-PAR." & Environment.NewLine & Environment.NewLine
+            If Not String.IsNullOrWhiteSpace(provider.Dba) Then message &= "DBA: " & provider.Dba & Environment.NewLine
+            message &= "NPI: " & provider.Npi & Environment.NewLine & Environment.NewLine & "Click OK to continue to PAR Steerage for the " & provider.Role & "."
+
+            Dim response As DialogResult = MessageBox.Show(message, "Non-PAR Provider", MessageBoxButtons.OKCancel, MessageBoxIcon.Information)
+
+            If response = DialogResult.OK Then Await RunParSteerageAsync(_currentContext.MemberId, _currentContext.DateOfBirth, _currentContext.MemberZip, provider.Npi)
+        Next
+    End Function
+    Private Async Function RunParSteerageAsync(memberId As String, dob As String, zipCode As String, nonParNpi As String) As Task
+        Try
+            Await ParSteerageService.NavigateToPhysicianFinderAsync(memberId, dob, zipCode, nonParNpi)
+        Catch ex As Exception
+            MessageBox.Show("PAR Steerage could not navigate to Physician Finder." & Environment.NewLine & Environment.NewLine & ex.Message, "PAR Steerage", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Function
 End Class

@@ -11,6 +11,7 @@
     Public Property MemberId As String
     Public Property MemberName As String
     Public Property DateOfBirth As String
+    Public Property MemberZip As String
 
     Public Property Product As String
     Public Property Conso As String
@@ -67,5 +68,6 @@
     Public Property DischargeDate As String
 
     Public Property GrouperId As String
+
 
 End Class

@@ -759,6 +759,14 @@ Public Class BrowserManager
         End If
         Return currentUrl.IndexOf("/cgx/MemberCentral/MemberInfo/Index", StringComparison.OrdinalIgnoreCase) >= 0
     End Function
+    Private Shared Function ExtractMemberZip(address As String) As String
+        If String.IsNullOrWhiteSpace(address) Then Return String.Empty
+        Dim cleanAddress As String = address.Trim()
+        Dim lastComma As Integer = cleanAddress.LastIndexOf(","c)
+        If lastComma >= 0 Then cleanAddress = cleanAddress.Substring(lastComma + 1).Trim()
+        Dim match As System.Text.RegularExpressions.Match = System.Text.RegularExpressions.Regex.Match(cleanAddress, "^\d{5}")
+        Return If(match.Success, match.Value, String.Empty)
+    End Function
     Private Shared Function CaptureMemberInformation() As CallContext
         Dim wait As New WebDriverWait(_driver, TimeSpan.FromSeconds(10))
         ExpandMemberInformationIfNeeded(wait)
@@ -767,6 +775,9 @@ Public Class BrowserManager
         context.MemberName = ReadElementTextSafely(wait, By.Id("MaskedSubscriber"))
         Const dateOfBirthXPath As String = "/html/body/div[3]/div/div[2]/div[3]/div/div[1]/div[3]"
         context.DateOfBirth = ReadElementTextSafely(wait, By.XPath(dateOfBirthXPath))
+        Dim rawAddress As String = ReadElementTextSafely(wait, By.Id("memberaddressdiv"))
+        context.MemberZip = ExtractMemberZip(rawAddress)
+
         Dim rawProduct As String = ReadCgxFieldValue(wait, "Product/MTV or CAS")
         Dim rawConso As String = ReadCgxFieldValue(wait, "Consolidated Selling Market")
         Dim rawGroup As String = ReadCgxFieldValue(wait, "Group Name/ID")
@@ -995,13 +1006,9 @@ Public Class BrowserManager
 
     End Sub
     Public Shared Function CheckNewAuthorizationFields() As NewAuthChecklistResult
-
         Dim result As New NewAuthChecklistResult()
-
         If Not IsBrowserAvailable() Then Return result
-
         SyncLock _driverLock
-
             Try
 
                 result.ContactMethod = HasSelectedValue(By.Id("ContactMethodCode"))
@@ -1012,6 +1019,10 @@ Public Class BrowserManager
                 result.RequestingProvider = HasPanelInformation(By.Id("requesting-provider-panel"))
                 result.TreatingProvider = HasPanelInformation(By.Id("treating-provider-panel"))
                 result.FacilityProvider = HasPanelInformation(By.Id("facility-provider-panel"))
+
+                result.RequestingProviderNonPar = result.RequestingProvider AndAlso IsProviderNonPar(By.Id("requesting-provider-panel"))
+                result.TreatingProviderNonPar = result.TreatingProvider AndAlso IsProviderNonPar(By.Id("treating-provider-panel"))
+                result.FacilityProviderNonPar = result.FacilityProvider AndAlso IsProviderNonPar(By.Id("facility-provider-panel"))
 
                 result.NotificationDate = HasElementValue(By.Id("NotificationDate"))
                 result.ProgramManagement = HasSelectedValue(By.Id("ProgramManagementCode"))
@@ -1040,9 +1051,7 @@ Public Class BrowserManager
             End Try
 
         End SyncLock
-
         Return result
-
     End Function
     Private Shared Function HasElementValue(locator As By) As Boolean
 
@@ -1115,6 +1124,22 @@ Public Class BrowserManager
             Return False
         End Try
     End Function
+    Private Shared Function IsProviderNonPar(locator As By) As Boolean
+        Try
+            Dim elements = _driver.FindElements(locator)
+            If elements.Count = 0 Then Return False
+
+            Dim text As String = elements.First().Text.Trim()
+
+            If String.IsNullOrWhiteSpace(text) Then Return False
+
+            Return text.IndexOf("NON-PAR", StringComparison.OrdinalIgnoreCase) >= 0 OrElse
+               text.IndexOf("NON PAR", StringComparison.OrdinalIgnoreCase) >= 0 OrElse
+               text.IndexOf("NONPAR", StringComparison.OrdinalIgnoreCase) >= 0
+        Catch
+            Return False
+        End Try
+    End Function
     Private Shared Function IsRadioChecked(locator As By) As Boolean
         Try
             Dim elements = _driver.FindElements(locator)
@@ -1141,19 +1166,176 @@ Public Class BrowserManager
     End Function
     Private Shared Function GridHasRows(locator As By) As Boolean
         Try
-
             Dim grids = _driver.FindElements(locator)
             If grids.Count = 0 Then Return False
 
             Dim rows = grids.First().FindElements(By.CssSelector("tbody tr"))
 
             For Each row As IWebElement In rows
-                If Not String.IsNullOrWhiteSpace(row.Text) Then Return True
-            Next
+                Dim cells = row.FindElements(By.TagName("td"))
+                If cells.Count = 0 Then Continue For
 
+                For Each cell As IWebElement In cells
+                    If Not String.IsNullOrWhiteSpace(cell.Text) Then Return True
+                Next
+            Next
         Catch
         End Try
 
         Return False
+    End Function
+    Public Shared Sub OpenPhysicianFinder(memberId As String, dob As String, zipCode As String, providerType As String, taxonomyCode As String, taxonomyDescription As String)
+        If Not IsBrowserAvailable() Then Throw New InvalidOperationException("CGX browser is not available.")
+
+        Dim cleanMemberId As String = If(memberId, String.Empty).Trim()
+        If cleanMemberId.Length > 9 Then cleanMemberId = cleanMemberId.Substring(0, 9)
+
+        Dim cleanDob As String = If(dob, String.Empty).Trim()
+        Dim commaIndex As Integer = cleanDob.IndexOf(","c)
+        If commaIndex >= 0 Then cleanDob = cleanDob.Substring(0, commaIndex).Trim()
+
+        Dim cleanZip As String = If(zipCode, String.Empty).Trim()
+        Dim lastCommaIndex As Integer = cleanZip.LastIndexOf(","c)
+        If lastCommaIndex >= 0 Then cleanZip = cleanZip.Substring(lastCommaIndex + 1).Trim()
+        Dim zipMatch As System.Text.RegularExpressions.Match = System.Text.RegularExpressions.Regex.Match(cleanZip, "\d{5}")
+        If zipMatch.Success Then cleanZip = zipMatch.Value
+
+        If cleanMemberId.Length <> 9 Then Throw New InvalidOperationException("Member ID must contain at least 9 characters.")
+        If String.IsNullOrWhiteSpace(cleanDob) Then Throw New InvalidOperationException("Member DOB was not found.")
+        If cleanZip.Length <> 5 Then Throw New InvalidOperationException("Member ZIP code was not found.")
+        If String.IsNullOrWhiteSpace(taxonomyDescription) Then Throw New InvalidOperationException("NPPES taxonomy was not found.")
+
+        SyncLock _driverLock
+            Dim originalWindow As String = _driver.CurrentWindowHandle
+            _driver.SwitchTo().NewWindow(WindowType.Tab)
+            _driver.Navigate().GoToUrl("https://verify.humana.com/en/?redirect=https://findcare.humana.com/lite-login")
+
+            Dim wait As New WebDriverWait(_driver, TimeSpan.FromSeconds(30))
+
+            Dim memberIdInput As IWebElement = wait.Until(Function(d) FindElementDeep("#nucleus-form-field-0-element"))
+            memberIdInput.Clear()
+            memberIdInput.SendKeys(cleanMemberId)
+
+            Dim dobInput As IWebElement = wait.Until(Function(d) FindElementDeep("#nucleus-form-field-2-element"))
+            dobInput.Clear()
+            dobInput.SendKeys(cleanDob)
+
+            Dim zipInput As IWebElement = wait.Until(Function(d) FindElementDeep("#nucleus-form-field-3-element"))
+            zipInput.Clear()
+            zipInput.SendKeys(cleanZip)
+
+            Dim signInButton As IWebElement = wait.Until(Function(d) FindElementDeep("button[type='submit']"))
+            signInButton.Click()
+
+            Dim medicalButton As IWebElement = wait.Until(Function(d) d.FindElement(By.XPath("/html/body/div[1]/div/div[2]/main/div/div/div/div/div/nucleus-button[1]")))
+            medicalButton.Click()
+
+            Dim taxonomyInput As IWebElement = wait.Until(Function(d) d.FindElement(By.Id("findcare-domain__search-input")))
+            taxonomyInput.Clear()
+            taxonomyInput.SendKeys(taxonomyDescription)
+
+            Dim taxonomySearchButton As IWebElement = wait.Until(Function(d) d.FindElement(By.Id("search-view-search-btn")))
+            taxonomySearchButton.Click()
+
+            _driver.SwitchTo().Window(originalWindow)
+        End SyncLock
+    End Sub
+    Public Shared Function GetNonParProviderNpi(requestingNonPar As Boolean, treatingNonPar As Boolean, facilityNonPar As Boolean) As String
+        SyncLock _driverLock
+            If requestingNonPar Then
+                Dim npi As String = ExtractNpiFromProviderPanel(By.Id("requesting-provider-panel"))
+                If Not String.IsNullOrWhiteSpace(npi) Then Return npi
+            End If
+            If treatingNonPar Then
+                Dim npi As String = ExtractNpiFromProviderPanel(By.Id("treating-provider-panel"))
+                If Not String.IsNullOrWhiteSpace(npi) Then Return npi
+            End If
+            If facilityNonPar Then
+                Dim npi As String = ExtractNpiFromProviderPanel(By.Id("facility-provider-panel"))
+                If Not String.IsNullOrWhiteSpace(npi) Then Return npi
+            End If
+            Return String.Empty
+        End SyncLock
+    End Function
+
+    Private Shared Function ExtractNpiFromProviderPanel(locator As By) As String
+        Try
+            Dim elements = _driver.FindElements(locator)
+            If elements.Count = 0 Then Return String.Empty
+            Dim text As String = elements.First().Text
+            Dim match As System.Text.RegularExpressions.Match = System.Text.RegularExpressions.Regex.Match(text, "NPI\s*:\s*(\d{10})", System.Text.RegularExpressions.RegexOptions.IgnoreCase)
+            Return If(match.Success, match.Groups(1).Value, String.Empty)
+        Catch
+            Return String.Empty
+        End Try
+    End Function
+    Public Shared Function GetNonParProviders(requestingNonPar As Boolean, treatingNonPar As Boolean, facilityNonPar As Boolean) As List(Of NonParProviderInfo)
+        Dim providers As New List(Of NonParProviderInfo)
+
+        SyncLock _driverLock
+            If treatingNonPar Then AddNonParProvider(providers, "Treating Provider", By.Id("treating-provider-panel"))
+            If requestingNonPar Then AddNonParProvider(providers, "Requesting Provider", By.Id("requesting-provider-panel"))
+            If facilityNonPar Then AddNonParProvider(providers, "Facility Provider", By.Id("facility-provider-panel"))
+        End SyncLock
+
+        Return CombineDuplicateProviders(providers)
+    End Function
+
+    Private Shared Function CombineDuplicateProviders(providers As List(Of NonParProviderInfo)) As List(Of NonParProviderInfo)
+        Dim result As New List(Of NonParProviderInfo)
+
+        For Each provider As NonParProviderInfo In providers
+            If String.IsNullOrWhiteSpace(provider.Npi) Then
+                result.Add(provider)
+                Continue For
+            End If
+
+            Dim existing As NonParProviderInfo = result.FirstOrDefault(Function(p) String.Equals(p.Npi, provider.Npi, StringComparison.OrdinalIgnoreCase))
+
+            If existing Is Nothing Then
+                result.Add(provider)
+            Else
+                existing.Role &= " / " & provider.Role
+            End If
+        Next
+
+        Return result
+    End Function
+
+    Private Shared Sub AddNonParProvider(providers As List(Of NonParProviderInfo), role As String, locator As By)
+        Try
+            Dim elements = _driver.FindElements(locator)
+            If elements.Count = 0 Then Return
+            Dim text As String = elements.First().Text
+            Dim npiMatch As System.Text.RegularExpressions.Match = System.Text.RegularExpressions.Regex.Match(text, "NPI\s*:\s*(\d{10})", System.Text.RegularExpressions.RegexOptions.IgnoreCase)
+            Dim dbaMatch As System.Text.RegularExpressions.Match = System.Text.RegularExpressions.Regex.Match(text, "DBA\s*:\s*([^\r\n]+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase)
+            Dim provider As New NonParProviderInfo()
+            provider.Role = role
+            provider.Npi = If(npiMatch.Success, npiMatch.Groups(1).Value.Trim(), String.Empty)
+            provider.Dba = If(dbaMatch.Success, dbaMatch.Groups(1).Value.Trim(), String.Empty)
+            providers.Add(provider)
+        Catch
+        End Try
+    End Sub
+    Public Shared Function AreAllProviderPanelsPopulated() As Boolean
+        SyncLock _driverLock
+            Return IsProviderPanelPopulated(By.Id("treating-provider-panel")) AndAlso IsProviderPanelPopulated(By.Id("requesting-provider-panel")) AndAlso IsProviderPanelPopulated(By.Id("facility-provider-panel"))
+        End SyncLock
+    End Function
+    Private Shared Function IsProviderPanelPopulated(locator As By) As Boolean
+        Try
+            Dim elements = _driver.FindElements(locator)
+            If elements.Count = 0 Then Return False
+            Dim text As String = elements.First().Text.Trim()
+            If String.IsNullOrWhiteSpace(text) Then Return False
+            Return text.IndexOf("NPI", StringComparison.OrdinalIgnoreCase) >= 0
+        Catch
+            Return False
+        End Try
+    End Function
+    Private Shared Function FindElementDeep(cssSelector As String) As IWebElement
+        Dim js As IJavaScriptExecutor = DirectCast(_driver, IJavaScriptExecutor)
+        Dim script As String = "const findDeep=(root,selector)=>{const found=root.querySelector(selector);if(found)return found;const all=root.querySelectorAll('*');for(const el of all){if(el.shadowRoot){const result=findDeep(el.shadowRoot,selector);if(result)return result;}}return null;};return findDeep(document,arguments[0]);"
+        Return TryCast(js.ExecuteScript(script, cssSelector), IWebElement)
     End Function
 End Class
