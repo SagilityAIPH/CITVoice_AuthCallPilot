@@ -346,3 +346,5 @@ D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilo
 D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.exe
 D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.xml
 D:\Office Works\VS\CIT Voice - AuthCallPilot\CITVoice_AuthCallPilot\AuthCallPilot\obj\Debug\AuthCallPilot.pdb
+D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\Newtonsoft.Json.dll
+D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\bin\Debug\Newtonsoft.Json.xml

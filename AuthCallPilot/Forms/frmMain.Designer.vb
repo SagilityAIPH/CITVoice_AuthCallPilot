@@ -53,6 +53,7 @@ Partial Class frmMain
         Me.lblMemberHeader = New System.Windows.Forms.Label()
         Me.txtMemberInfo = New Guna.UI2.WinForms.Guna2TextBox()
         Me.pnlCallDetailsCard = New Guna.UI2.WinForms.Guna2Panel()
+        Me.txtExtension = New Guna.UI2.WinForms.Guna2TextBox()
         Me.lblCallDetailsHeader = New System.Windows.Forms.Label()
         Me.txtCallerName = New Guna.UI2.WinForms.Guna2TextBox()
         Me.txtCallbackNum = New Guna.UI2.WinForms.Guna2TextBox()
@@ -66,7 +67,8 @@ Partial Class frmMain
         Me.btnTest = New Guna.UI2.WinForms.Guna2Button()
         Me.btnRefreshCGX = New Guna.UI2.WinForms.Guna2Button()
         Me.lblCgxStatus = New Guna.UI2.WinForms.Guna2HtmlLabel()
-        Me.txtExtension = New Guna.UI2.WinForms.Guna2TextBox()
+        Me.btnStartTracking = New Guna.UI2.WinForms.Guna2Button()
+        Me.btnSaveTracking = New Guna.UI2.WinForms.Guna2Button()
         Me.Guna2Panel1.SuspendLayout()
         Me.pnlVerificationCard.SuspendLayout()
         Me.pnlNextBestActionCard.SuspendLayout()
@@ -448,6 +450,24 @@ Partial Class frmMain
         Me.pnlCallDetailsCard.Size = New System.Drawing.Size(368, 108)
         Me.pnlCallDetailsCard.TabIndex = 25
         '
+        'txtExtension
+        '
+        Me.txtExtension.Cursor = System.Windows.Forms.Cursors.IBeam
+        Me.txtExtension.DefaultText = ""
+        Me.txtExtension.DisabledState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer))
+        Me.txtExtension.DisabledState.FillColor = System.Drawing.Color.FromArgb(CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer))
+        Me.txtExtension.DisabledState.ForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
+        Me.txtExtension.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
+        Me.txtExtension.FocusedState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
+        Me.txtExtension.Font = New System.Drawing.Font("Segoe UI", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.txtExtension.HoverState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
+        Me.txtExtension.Location = New System.Drawing.Point(194, 51)
+        Me.txtExtension.Name = "txtExtension"
+        Me.txtExtension.PlaceholderText = "Phone Ext."
+        Me.txtExtension.SelectedText = ""
+        Me.txtExtension.Size = New System.Drawing.Size(164, 22)
+        Me.txtExtension.TabIndex = 4
+        '
         'lblCallDetailsHeader
         '
         Me.lblCallDetailsHeader.AutoSize = True
@@ -601,7 +621,7 @@ Partial Class frmMain
         Me.btnTest.DisabledState.ForeColor = System.Drawing.Color.FromArgb(CType(CType(141, Byte), Integer), CType(CType(141, Byte), Integer), CType(CType(141, Byte), Integer))
         Me.btnTest.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.btnTest.ForeColor = System.Drawing.Color.White
-        Me.btnTest.Location = New System.Drawing.Point(215, 29)
+        Me.btnTest.Location = New System.Drawing.Point(164, 33)
         Me.btnTest.Name = "btnTest"
         Me.btnTest.Size = New System.Drawing.Size(119, 25)
         Me.btnTest.TabIndex = 23
@@ -616,7 +636,7 @@ Partial Class frmMain
         Me.btnRefreshCGX.DisabledState.ForeColor = System.Drawing.Color.FromArgb(CType(CType(141, Byte), Integer), CType(CType(141, Byte), Integer), CType(CType(141, Byte), Integer))
         Me.btnRefreshCGX.Font = New System.Drawing.Font("Segoe UI", 9.0!)
         Me.btnRefreshCGX.ForeColor = System.Drawing.Color.White
-        Me.btnRefreshCGX.Location = New System.Drawing.Point(340, 29)
+        Me.btnRefreshCGX.Location = New System.Drawing.Point(289, 33)
         Me.btnRefreshCGX.Name = "btnRefreshCGX"
         Me.btnRefreshCGX.Size = New System.Drawing.Size(119, 25)
         Me.btnRefreshCGX.TabIndex = 5
@@ -625,35 +645,49 @@ Partial Class frmMain
         'lblCgxStatus
         '
         Me.lblCgxStatus.BackColor = System.Drawing.Color.Transparent
-        Me.lblCgxStatus.Location = New System.Drawing.Point(636, 39)
+        Me.lblCgxStatus.Location = New System.Drawing.Point(700, 39)
         Me.lblCgxStatus.Name = "lblCgxStatus"
         Me.lblCgxStatus.Size = New System.Drawing.Size(74, 15)
         Me.lblCgxStatus.TabIndex = 3
         Me.lblCgxStatus.Text = "● CGX Waiting"
         '
-        'txtExtension
+        'btnStartTracking
         '
-        Me.txtExtension.Cursor = System.Windows.Forms.Cursors.IBeam
-        Me.txtExtension.DefaultText = ""
-        Me.txtExtension.DisabledState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer), CType(CType(208, Byte), Integer))
-        Me.txtExtension.DisabledState.FillColor = System.Drawing.Color.FromArgb(CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer), CType(CType(226, Byte), Integer))
-        Me.txtExtension.DisabledState.ForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
-        Me.txtExtension.DisabledState.PlaceholderForeColor = System.Drawing.Color.FromArgb(CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer), CType(CType(138, Byte), Integer))
-        Me.txtExtension.FocusedState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
-        Me.txtExtension.Font = New System.Drawing.Font("Segoe UI", 8.25!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.txtExtension.HoverState.BorderColor = System.Drawing.Color.FromArgb(CType(CType(94, Byte), Integer), CType(CType(148, Byte), Integer), CType(CType(255, Byte), Integer))
-        Me.txtExtension.Location = New System.Drawing.Point(194, 51)
-        Me.txtExtension.Name = "txtExtension"
-        Me.txtExtension.PlaceholderText = "Phone Ext."
-        Me.txtExtension.SelectedText = ""
-        Me.txtExtension.Size = New System.Drawing.Size(164, 22)
-        Me.txtExtension.TabIndex = 4
+        Me.btnStartTracking.BorderRadius = 10
+        Me.btnStartTracking.DisabledState.BorderColor = System.Drawing.Color.DarkGray
+        Me.btnStartTracking.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray
+        Me.btnStartTracking.DisabledState.FillColor = System.Drawing.Color.FromArgb(CType(CType(169, Byte), Integer), CType(CType(169, Byte), Integer), CType(CType(169, Byte), Integer))
+        Me.btnStartTracking.DisabledState.ForeColor = System.Drawing.Color.FromArgb(CType(CType(141, Byte), Integer), CType(CType(141, Byte), Integer), CType(CType(141, Byte), Integer))
+        Me.btnStartTracking.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnStartTracking.ForeColor = System.Drawing.Color.White
+        Me.btnStartTracking.Location = New System.Drawing.Point(413, 33)
+        Me.btnStartTracking.Name = "btnStartTracking"
+        Me.btnStartTracking.Size = New System.Drawing.Size(119, 25)
+        Me.btnStartTracking.TabIndex = 25
+        Me.btnStartTracking.Text = "Start"
+        '
+        'btnSaveTracking
+        '
+        Me.btnSaveTracking.BorderRadius = 10
+        Me.btnSaveTracking.DisabledState.BorderColor = System.Drawing.Color.DarkGray
+        Me.btnSaveTracking.DisabledState.CustomBorderColor = System.Drawing.Color.DarkGray
+        Me.btnSaveTracking.DisabledState.FillColor = System.Drawing.Color.FromArgb(CType(CType(169, Byte), Integer), CType(CType(169, Byte), Integer), CType(CType(169, Byte), Integer))
+        Me.btnSaveTracking.DisabledState.ForeColor = System.Drawing.Color.FromArgb(CType(CType(141, Byte), Integer), CType(CType(141, Byte), Integer), CType(CType(141, Byte), Integer))
+        Me.btnSaveTracking.Font = New System.Drawing.Font("Segoe UI", 9.0!)
+        Me.btnSaveTracking.ForeColor = System.Drawing.Color.White
+        Me.btnSaveTracking.Location = New System.Drawing.Point(538, 33)
+        Me.btnSaveTracking.Name = "btnSaveTracking"
+        Me.btnSaveTracking.Size = New System.Drawing.Size(119, 25)
+        Me.btnSaveTracking.TabIndex = 24
+        Me.btnSaveTracking.Text = "Save"
         '
         'frmMain
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(1061, 711)
+        Me.Controls.Add(Me.btnStartTracking)
+        Me.Controls.Add(Me.btnSaveTracking)
         Me.Controls.Add(Me.lblCgxStatus)
         Me.Controls.Add(Me.Guna2Panel1)
         Me.Controls.Add(Me.btnLaunchBrowser)
@@ -734,4 +768,6 @@ Partial Class frmMain
     Friend WithEvents chkGenesysVerified As Guna.UI2.WinForms.Guna2CheckBox
     Friend WithEvents chkProviderAuthenticated As Guna.UI2.WinForms.Guna2CheckBox
     Friend WithEvents txtExtension As Guna.UI2.WinForms.Guna2TextBox
+    Friend WithEvents btnStartTracking As Guna.UI2.WinForms.Guna2Button
+    Friend WithEvents btnSaveTracking As Guna.UI2.WinForms.Guna2Button
 End Class

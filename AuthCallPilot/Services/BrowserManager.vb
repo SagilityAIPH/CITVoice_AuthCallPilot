@@ -1034,17 +1034,21 @@ Public Class BrowserManager
                     result.CareSetting = "INPATIENT"
                     result.RequestType = HasSelectedValue(By.Id("RequestTypeCode"))
                     result.AdmissionType = HasSelectedValue(By.Id("AdmissionTypeCode"))
+                    result.ProcedureCodes = GridHasRows(By.Id("AuthDirectProcedureCodeGrid"))
                 ElseIf authTypeText.IndexOf("OUTPATIENT", StringComparison.OrdinalIgnoreCase) >= 0 Then
                     result.CareSetting = "OUTPATIENT"
                     result.RequestType = HasSelectedValue(By.Id("RequestTypeCode"))
                     result.ServiceType = IsOutpatientServiceTypeComplete()
                     result.TotalDays = HasElementValue(By.Id("TotalDays"))
+                    result.ProcedureCodes = GridHasRows(By.Id("AuthDirectOpProcedureCodeGrid"))
                 Else
                     result.CareSetting = String.Empty
                 End If
 
                 result.PrimaryDiagnosis = GridHasRows(By.Id("AuthDirectPrimaryDiagnosisCodeGrid"))
-                result.ProcedureCodes = GridHasRows(By.Id("AuthDirectProcedureCodeGrid"))
+
+                'AuthDirectOpProcedureCodeGrid OA
+                'AuthDirectProcedureCodeGrid IA
 
             Catch ex As WebDriverException
                 Debug.WriteLine("New Auth checklist error: " & ex.Message)
@@ -1337,5 +1341,40 @@ Public Class BrowserManager
         Dim js As IJavaScriptExecutor = DirectCast(_driver, IJavaScriptExecutor)
         Dim script As String = "const findDeep=(root,selector)=>{const found=root.querySelector(selector);if(found)return found;const all=root.querySelectorAll('*');for(const el of all){if(el.shadowRoot){const result=findDeep(el.shadowRoot,selector);if(result)return result;}}return null;};return findDeep(document,arguments[0]);"
         Return TryCast(js.ExecuteScript(script, cssSelector), IWebElement)
+    End Function
+    Public Shared Function GetNewAuthorizationProcedureCodes() As List(Of String)
+        Dim procedureCodes As New List(Of String)
+
+        SyncLock _driverLock
+            If _driver Is Nothing Then Return procedureCodes
+
+            Try
+                Dim grid As IWebElement = Nothing
+
+                Dim inpatientGrids = _driver.FindElements(By.Id("AuthDirectProcedureCodeGrid"))
+                If inpatientGrids.Count > 0 AndAlso inpatientGrids(0).Displayed Then
+                    grid = inpatientGrids(0)
+                Else
+                    Dim outpatientGrids = _driver.FindElements(By.Id("AuthDirectOpProcedureCodeGrid"))
+                    If outpatientGrids.Count > 0 AndAlso outpatientGrids(0).Displayed Then grid = outpatientGrids(0)
+                End If
+
+                If grid Is Nothing Then Return procedureCodes
+
+                Dim rows = grid.FindElements(By.CssSelector("tbody tr"))
+
+                For Each row As IWebElement In rows
+                    Dim cells = row.FindElements(By.TagName("td"))
+                    If cells.Count = 0 Then Continue For
+
+                    Dim code As String = cells(0).Text.Trim()
+                    If Not String.IsNullOrWhiteSpace(code) AndAlso Not procedureCodes.Contains(code, StringComparer.OrdinalIgnoreCase) Then procedureCodes.Add(code)
+                Next
+
+            Catch
+            End Try
+        End SyncLock
+
+        Return procedureCodes
     End Function
 End Class

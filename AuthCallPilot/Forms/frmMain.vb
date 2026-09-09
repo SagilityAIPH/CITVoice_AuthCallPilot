@@ -15,6 +15,9 @@ Public Class frmMain
     Private _currentQuestionText As String
     Private ReadOnly _questionHistory As New Stack(Of QuestionState)
 
+    Private _trackingStarted As Boolean = False
+    Private _trackingStartTime As DateTime
+
 
     Private WithEvents _browserMonitorTimer As New System.Windows.Forms.Timer()
     Private _browserMonitorBusy As Boolean = False
@@ -659,6 +662,9 @@ Public Class frmMain
         lblCgxStatus.BackColor = Color.Transparent
         SetAuthorizationWaitingState()
         ShowMemberInformationPanel()
+
+        btnStartTracking.Enabled = True
+        btnSaveTracking.Enabled = False
 
         _newAuthChecklistTimer.Interval = 750
     End Sub
@@ -2092,9 +2098,9 @@ Public Class frmMain
                 pnlPALSection.Visible = True
 
             Case "NEW AUTHORIZATION"
-                pnlOutOfScopeSection.Visible = False
-                pnlMarketGuideSection.Visible = False
-                pnlPALSection.Visible = False
+                pnlOutOfScopeSection.Visible = True
+                pnlMarketGuideSection.Visible = True
+                pnlPALSection.Visible = True
 
             Case Else
                 pnlOutOfScopeSection.Visible = False
@@ -2385,6 +2391,7 @@ Public Class frmMain
         Try
             Dim result As NewAuthChecklistResult = Await Task.Run(Function() BrowserManager.CheckNewAuthorizationFields())
             If _newAuthPrompt IsNot Nothing AndAlso Not _newAuthPrompt.IsDisposed Then _newAuthPrompt.UpdateChecklist(result)
+            If result.ProcedureCodes Then Await UpdateNewAuthorizationProcedureLookupsAsync()
             Await CheckNonParProviderAndOfferSteerageAsync(result)
 
         Catch ex As Exception
@@ -2434,4 +2441,135 @@ Public Class frmMain
             MessageBox.Show("PAR Steerage could not navigate to Physician Finder." & Environment.NewLine & Environment.NewLine & ex.Message, "PAR Steerage", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Function
+    Private Async Function UpdateNewAuthorizationProcedureLookupsAsync() As Task
+        If _currentContext Is Nothing Then Return
+
+        Dim procedureCodes As List(Of String) = Await Task.Run(Function() BrowserManager.GetNewAuthorizationProcedureCodes())
+        If procedureCodes Is Nothing OrElse procedureCodes.Count = 0 Then Return
+
+        Dim currentCodes As String = String.Join("|", _currentContext.ProcedureCodes.OrderBy(Function(x) x))
+        Dim newCodes As String = String.Join("|", procedureCodes.OrderBy(Function(x) x))
+        If String.Equals(currentCodes, newCodes, StringComparison.OrdinalIgnoreCase) Then Return
+
+        _currentContext.ProcedureCodes.Clear()
+        _currentContext.ProcedureCodes.AddRange(procedureCodes)
+
+        Dim existingDelegatedGrouper As DelegatedGrouperResult = Nothing
+        If _currentLookup IsNot Nothing Then existingDelegatedGrouper = _currentLookup.DelegatedGrouper
+
+        _currentLookup = Await Task.Run(Function() CallPilotRepository.RunLookups(_currentContext))
+
+        If existingDelegatedGrouper IsNot Nothing Then _currentLookup.DelegatedGrouper = existingDelegatedGrouper
+
+        RefreshOutputs()
+    End Function
+
+    Private Sub btnStartTracking_Click(sender As Object, e As EventArgs) Handles btnStartTracking.Click
+        If _trackingStarted Then Return
+
+        _trackingStartTime = DateTime.Now
+        _trackingStarted = True
+
+        btnStartTracking.Enabled = False
+        btnSaveTracking.Enabled = True
+    End Sub
+    Private Function BuildTrackingProviderDetails() As String
+        If _currentContext Is Nothing Then Return String.Empty
+
+        Dim lines As New List(Of String)
+
+        If Not String.IsNullOrWhiteSpace(_currentContext.RequestingProvider) Then lines.Add("REQUESTING PROVIDER" & Environment.NewLine & _currentContext.RequestingProvider)
+        If Not String.IsNullOrWhiteSpace(_currentContext.TreatingProvider) Then lines.Add("TREATING PROVIDER" & Environment.NewLine & _currentContext.TreatingProvider)
+        If Not String.IsNullOrWhiteSpace(_currentContext.FacilityProvider) Then lines.Add("FACILITY PROVIDER" & Environment.NewLine & _currentContext.FacilityProvider)
+
+        Return String.Join(Environment.NewLine & Environment.NewLine, lines)
+    End Function
+    Private Function BuildTrackingQuestionAnswers() As String
+        If _questionHistory Is Nothing OrElse _questionHistory.Count = 0 Then Return String.Empty
+
+        Dim lines As New List(Of String)
+
+        For Each item As QuestionState In _questionHistory.Reverse()
+            If String.IsNullOrWhiteSpace(item.QuestionText) Then Continue For
+            lines.Add(item.QuestionText & " = " & If(item.SelectedAnswer, String.Empty))
+        Next
+
+        Return String.Join(Environment.NewLine, lines)
+    End Function
+    Private Sub btnSaveTracking_Click(sender As Object, e As EventArgs) Handles btnSaveTracking.Click
+        If Not _trackingStarted Then
+            MessageBox.Show("Click Start before saving.", "CallPilot Tracking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            Return
+        End If
+
+        Dim response As DialogResult = MessageBox.Show("Are you sure you want to save this tracking record?", "Save Tracking", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question)
+        If response <> DialogResult.Yes Then Return
+
+        Try
+            Dim endTime As DateTime = DateTime.Now
+            Dim memberId As String = If(_currentContext Is Nothing, String.Empty, _currentContext.MemberId)
+            Dim concern As String = If(cmbScenario.SelectedItem Is Nothing, String.Empty, cmbScenario.SelectedItem.ToString())
+            Dim authNumber As String = If(_currentContext Is Nothing, String.Empty, _currentContext.AuthorizationNumber)
+            Dim providerDetails As String = BuildTrackingProviderDetails()
+            Dim questionAnswers As String = BuildTrackingQuestionAnswers()
+            Dim callNotes As String = txtOverAllOutput.Text.Trim()
+
+            TrackingDatabaseManager.SaveTracking(Environment.UserName, _trackingStartTime, endTime, memberId, authNumber, concern, providerDetails, questionAnswers, callNotes)
+
+            MessageBox.Show("Tracking record saved successfully.", "CallPilot Tracking", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            ResetAfterTrackingSave()
+
+        Catch ex As Exception
+            MessageBox.Show("Unable to save tracking record." & Environment.NewLine & Environment.NewLine & ex.Message, "Tracking Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+        End Try
+    End Sub
+    Private Sub ResetAfterTrackingSave()
+        _trackingStarted = False
+        _trackingStartTime = DateTime.MinValue
+
+        btnStartTracking.Enabled = True
+        btnSaveTracking.Enabled = False
+
+        StopNewAuthChecklist()
+
+        _questionHistory.Clear()
+        ClearActionsPanel()
+
+        _currentContext = Nothing
+        _currentLookup = Nothing
+
+        _ignoredMemberId = Nothing
+        _ignoredAuthorizationId = Nothing
+        _lastProcessedUrl = String.Empty
+        _lastProcessedTitle = String.Empty
+
+        txtCallerName.Clear()
+        txtCallbackNum.Clear()
+        txtSecuredFax.Clear()
+        txtCallingFrom.Clear()
+        txtDOS.Clear()
+        txtExtension.Clear()
+
+        cmbScenario.SelectedIndex = -1
+
+        txtOverAllOutput.Clear()
+        rtbNextBestAction.Clear()
+
+        SetOutputWaiting(txtMemberInfo, "Waiting for member information...")
+        SetOutputWaiting(txtAuthInfo, "Waiting for authorization information...")
+        SetOutputWaiting(rtbOutOfScope, "Waiting for member lookup...")
+        SetOutputWaiting(rtbMarketGuide, "Waiting for member lookup...")
+        SetOutputWaiting(rtbPAL, "Waiting for authorization...")
+
+        SetAuthorizationWaitingState()
+        SetOutOfScopeWaitingState()
+        SetMarketGuideWaitingState()
+        SetPALWaitingState()
+
+        chkGenesysVerified.Checked = False
+        chkProviderAuthenticated.Checked = False
+        chkMailingAddressVerified.Checked = False
+
+        ShowMemberInformationPanel()
+    End Sub
 End Class
