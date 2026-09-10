@@ -1,9 +1,30 @@
 ﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+# Visual Studio
 ################################################################################
 
-/.vs/CITVoice_AuthCallPilot/CopilotIndices/17.14.794.21998
-/.vs/CITVoice_AuthCallPilot/v17/.wsuo
-/AuthCallPilot/.vs/AuthCallPilot/FileContentIndex
-/AuthCallPilot/bin/Debug/app.publish/Application Files/AuthCallPilot_1_0_0_48/x86
-/AuthCallPilot/bin/Debug/app.publish/Application Files/AuthCallPilot_1_0_0_48/x64
+.vs/
+
+################################################################################
+# Build output
+################################################################################
+
+bin/
+obj/
+publish/
+
+################################################################################
+# Visual Studio user-specific files
+################################################################################
+
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.wsuo
+
+################################################################################
+# Visual Studio / Copilot temporary database files
+################################################################################
+
+*.db-shm
+*.db-wal
