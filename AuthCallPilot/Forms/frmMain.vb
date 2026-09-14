@@ -251,9 +251,15 @@ Public Class frmMain
         '========================================
         ' Secondary BUTTONS
         '========================================
-        StyleSecondaryButton(btnRefreshCGX)
         StyleSecondaryButton(btnCopyDocumentation)
-        StyleSecondaryButton(btnTest)
+
+        '========================================
+        ' Header BUTTONS
+        '========================================
+        StyleHeaderButton(btnRefreshCGX)
+        StyleHeaderButton(btnTest)
+        StyleHeaderButton(btnStartTracking)
+        StyleHeaderButton(btnSaveTracking)
 
         '========================================
         ' INPUT CONTROLS
@@ -545,6 +551,17 @@ Public Class frmMain
         button.BorderColor = ColorPrimaryGreen
         button.FillColor = Color.White
         button.ForeColor = ColorDarkGreen
+        button.Font = New Font("Segoe UI Semibold", 9.0!)
+        button.Cursor = Cursors.Hand
+    End Sub
+    Private Sub StyleHeaderButton(button As Guna.UI2.WinForms.Guna2Button)
+        button.BorderRadius = 8
+        button.BorderThickness = 1
+        button.BorderColor = ColorPrimaryGreen
+        button.FillColor = Color.White
+        button.ForeColor = ColorDarkGreen
+        button.BackColor = Color.Transparent
+        button.UseTransparentBackground = True
         button.Font = New Font("Segoe UI Semibold", 9.0!)
         button.Cursor = Cursors.Hand
     End Sub
