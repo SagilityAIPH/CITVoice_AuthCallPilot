@@ -625,7 +625,7 @@ Partial Class frmMain
         Me.btnTest.Name = "btnTest"
         Me.btnTest.Size = New System.Drawing.Size(119, 25)
         Me.btnTest.TabIndex = 23
-        Me.btnTest.Text = "Test"
+        Me.btnTest.Text = "Refresh Fields"
         '
         'btnRefreshCGX
         '

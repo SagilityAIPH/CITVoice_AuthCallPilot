@@ -1377,4 +1377,55 @@ Public Class BrowserManager
 
         Return procedureCodes
     End Function
+    Public Shared Function GetNewAuthorizationDocumentationData() As CallContext
+        Dim context As New CallContext()
+
+        SyncLock _driverLock
+            If Not IsBrowserAvailable() Then Return context
+
+            Try
+                context.RequestingProvider = ReadElementTextImmediate(By.Id("requesting-provider-panel"))
+                context.TreatingProvider = ReadElementTextImmediate(By.Id("treating-provider-panel"))
+                context.FacilityProvider = ReadElementTextImmediate(By.Id("facility-provider-panel"))
+                context.PrimaryDiagnosisCode = GetNewAuthorizationPrimaryDiagnosis()
+            Catch ex As Exception
+                Debug.WriteLine("Unable to read New Authorization documentation data: " & ex.Message)
+            End Try
+        End SyncLock
+
+        Return context
+    End Function
+    Private Shared Function GetNewAuthorizationPrimaryDiagnosis() As String
+        Try
+            Dim grids = _driver.FindElements(By.Id("AuthDirectPrimaryDiagnosisCodeGrid"))
+            If grids.Count = 0 Then Return String.Empty
+
+            Dim rows = grids.First().FindElements(By.CssSelector("tbody tr"))
+
+            For Each row As IWebElement In rows
+                Dim cells = row.FindElements(By.TagName("td"))
+                If cells.Count = 0 Then Continue For
+
+                Dim code As String = cells(0).Text.Trim()
+                If Not String.IsNullOrWhiteSpace(code) Then Return code
+            Next
+
+        Catch ex As Exception
+            Debug.WriteLine("Unable to read New Authorization primary diagnosis: " & ex.Message)
+        End Try
+
+        Return String.Empty
+    End Function
+    Public Shared Function GetAuthorizationUpdateData() As CallContext
+        SyncLock _driverLock
+            If Not IsBrowserAvailable() Then Return Nothing
+            Try
+                Return CaptureAuthorizationInformation()
+            Catch ex As Exception
+                Debug.WriteLine("Unable to read authorization update data: " & ex.Message)
+                Return Nothing
+            End Try
+        End SyncLock
+    End Function
+
 End Class

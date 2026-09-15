@@ -80,8 +80,19 @@ Public Class frmMain
         '========================================
         ' NORMAL OOS OUTPUT
         '========================================
-        Dim oosText As String = OutputFormatter.BuildOutOfScope(_currentLookup)
-        rtbOutOfScope.AppendText(oosText)
+        If _currentLookup.IsOutOfScope.HasValue Then
+            If _currentLookup.IsOutOfScope.Value Then
+                rtbOutOfScope.AppendText("Group is Out of Scope")
+            Else
+                rtbOutOfScope.AppendText("In Scope")
+            End If
+        Else
+            rtbOutOfScope.AppendText("Out of Scope status could not be determined.")
+        End If
+
+        If _currentContext IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(_currentContext.GroupNumber) Then
+            rtbOutOfScope.AppendText(Environment.NewLine & "Group ID: " & _currentContext.GroupNumber)
+        End If
         '========================================
         ' IPA / PCODSOT DATABASE RESULT
         '========================================
@@ -98,11 +109,26 @@ Public Class frmMain
             Dim dg = _currentLookup.DelegatedGrouper
             rtbOutOfScope.AppendText(Environment.NewLine & Environment.NewLine)
             rtbOutOfScope.AppendText("Delegated Grouper Search:" & Environment.NewLine)
-            rtbOutOfScope.AppendText("UM Inpatient: " & dg.UmInpatient & Environment.NewLine)
-            rtbOutOfScope.AppendText("UM Outpatient: " & dg.UmOutpatient & Environment.NewLine)
-            rtbOutOfScope.AppendText("UM Behavioral: " & dg.UmBehavioral & Environment.NewLine)
-            rtbOutOfScope.AppendText("UM Transplant: " & dg.UmTransplant & Environment.NewLine)
-            rtbOutOfScope.AppendText("UM Out of Area: " & dg.UmOutOfArea)
+
+            If _currentContext Is Nothing OrElse String.IsNullOrWhiteSpace(_currentContext.AuthorizationNumber) Then
+                rtbOutOfScope.AppendText("UM Inpatient: " & dg.UmInpatient & Environment.NewLine)
+                rtbOutOfScope.AppendText("UM Outpatient: " & dg.UmOutpatient & Environment.NewLine)
+                rtbOutOfScope.AppendText("UM Behavioral: " & dg.UmBehavioral & Environment.NewLine)
+                rtbOutOfScope.AppendText("UM Transplant: " & dg.UmTransplant & Environment.NewLine)
+                rtbOutOfScope.AppendText("UM Out of Area: " & dg.UmOutOfArea)
+            ElseIf String.Equals(_currentContext.HealthType, "BEHAVIORAL HEALTH", StringComparison.OrdinalIgnoreCase) Then
+                rtbOutOfScope.AppendText("UM Behavioral: " & dg.UmBehavioral)
+            ElseIf String.Equals(_currentContext.CareSetting, "INPATIENT", StringComparison.OrdinalIgnoreCase) Then
+                rtbOutOfScope.AppendText("UM Inpatient: " & dg.UmInpatient)
+            ElseIf String.Equals(_currentContext.CareSetting, "OUTPATIENT", StringComparison.OrdinalIgnoreCase) Then
+                rtbOutOfScope.AppendText("UM Outpatient: " & dg.UmOutpatient)
+            Else
+                rtbOutOfScope.AppendText("UM Inpatient: " & dg.UmInpatient & Environment.NewLine)
+                rtbOutOfScope.AppendText("UM Outpatient: " & dg.UmOutpatient & Environment.NewLine)
+                rtbOutOfScope.AppendText("UM Behavioral: " & dg.UmBehavioral & Environment.NewLine)
+                rtbOutOfScope.AppendText("UM Transplant: " & dg.UmTransplant & Environment.NewLine)
+                rtbOutOfScope.AppendText("UM Out of Area: " & dg.UmOutOfArea)
+            End If
         End If
 
         rtbOutOfScope.AppendText(Environment.NewLine & Environment.NewLine)
@@ -164,6 +190,12 @@ Public Class frmMain
         If Not BrowserManager.GetCurrentPageLocation(currentUrl, currentTitle) Then
             Exit Sub
         End If
+
+        'Update Auth Monitoring
+        If _currentContext IsNot Nothing AndAlso String.Equals(_currentContext.Scenario, "UPDATING AUTHORIZATION", StringComparison.OrdinalIgnoreCase) AndAlso Not String.IsNullOrWhiteSpace(_currentContext.AuthorizationNumber) Then
+            Await CheckUpdatingAuthorizationChangesAsync()
+        End If
+
 
         'Do nothing while CGX remains on the same page.
         If String.Equals(currentUrl, _lastProcessedUrl, StringComparison.OrdinalIgnoreCase) And String.Equals(currentTitle, _lastProcessedTitle, StringComparison.OrdinalIgnoreCase) Then
@@ -682,6 +714,10 @@ Public Class frmMain
 
         btnStartTracking.Enabled = True
         btnSaveTracking.Enabled = False
+
+        'UAT Testing: Hide tracking buttons for now
+        btnStartTracking.Visible = False
+        btnSaveTracking.Visible = False
 
         _newAuthChecklistTimer.Interval = 750
     End Sub
@@ -1611,7 +1647,59 @@ Public Class frmMain
     End Function
     Private Sub btnTest_Click(sender As Object, e As EventArgs) Handles btnTest.Click
         'TestUpdatingAuthorizationOffline()
-        TestCurrentMarketGuideLookup()
+        'TestCurrentMarketGuideLookup()
+        RefreshCallPilotFields
+    End Sub
+    Private Sub RefreshCallPilotFields()
+        StopNewAuthChecklist()
+
+        _currentContext = Nothing
+        _currentLookup = Nothing
+
+        _questionHistory.Clear()
+        ClearActionsPanel()
+
+        _ignoredMemberId = Nothing
+        _ignoredAuthorizationId = Nothing
+        _lastProcessedUrl = String.Empty
+        _lastProcessedTitle = String.Empty
+
+        _handledNonParProviderNpis.Clear()
+
+        txtCallerName.Clear()
+        txtCallbackNum.Clear()
+        txtSecuredFax.Clear()
+        txtCallingFrom.Clear()
+        txtDOS.Clear()
+        txtExtension.Clear()
+
+        cmbScenario.SelectedIndex = -1
+
+        chkGenesysVerified.Checked = False
+        chkProviderAuthenticated.Checked = False
+        chkMailingAddressVerified.Checked = False
+
+        txtMemberInfo.Clear()
+        txtAuthInfo.Clear()
+        rtbOutOfScope.Clear()
+        rtbMarketGuide.Clear()
+        rtbPAL.Clear()
+        rtbNextBestAction.Clear()
+        txtOverAllOutput.Clear()
+
+        SetOutputWaiting(txtMemberInfo, "Waiting for member information...")
+        SetOutputWaiting(txtAuthInfo, "Waiting for authorization information...")
+        SetOutputWaiting(rtbOutOfScope, "Waiting for member lookup...")
+        SetOutputWaiting(rtbMarketGuide, "Waiting for member lookup...")
+        SetOutputWaiting(rtbPAL, "Waiting for authorization...")
+
+        SetAuthorizationWaitingState()
+        SetOutOfScopeWaitingState()
+        SetMarketGuideWaitingState()
+        SetPALWaitingState()
+
+        ShowMemberInformationPanel()
+        SetCgxStatus("WAITING")
     End Sub
     Private Sub TestLouisianaMarketGuide()
 
@@ -2348,34 +2436,73 @@ Public Class frmMain
         prompt.Show(Me)
     End Sub
     Private Sub ShowLookupSummaryPrompt()
-        If _currentLookup Is Nothing Then
-            Exit Sub
-        End If
+        If _currentLookup Is Nothing Then Exit Sub
 
         Dim output As New Text.StringBuilder()
 
-        output.AppendLine("OUT OF SCOPE")
-        output.AppendLine(
-            OutputFormatter.BuildOutOfScope(_currentLookup))
+        If _currentLookup.IsOutOfScope.HasValue Then
+            If _currentLookup.IsOutOfScope.Value Then
+                output.AppendLine("Group is Out of Scope")
+            Else
+                output.AppendLine("In Scope")
+            End If
+        Else
+            output.AppendLine("Out of Scope status could not be determined.")
+        End If
+
         output.AppendLine()
         output.AppendLine("-----------------------------")
         output.AppendLine()
 
-        output.AppendLine("MARKET GUIDE")
-        output.AppendLine(OutputFormatter.BuildMarketGuide(_currentLookup))
+        output.AppendLine("IPA")
 
-        If _currentContext IsNot Nothing AndAlso
-           _currentContext.ProcedureCodes IsNot Nothing AndAlso
-           _currentContext.ProcedureCodes.Count > 0 Then
-
-            output.AppendLine()
-            output.AppendLine("-----------------------------")
-            output.AppendLine()
-
-            output.AppendLine("PAL")
-            output.AppendLine(
-                OutputFormatter.BuildPal(_currentContext, _currentLookup))
+        If _currentLookup.IpaFound Then
+            output.AppendLine("IPA: Yes")
+            output.AppendLine("Grouper ID: " & _currentLookup.IpaGrouperId)
+            output.AppendLine("Contracted Entity: " & _currentLookup.IpaContractedEntityName)
+        Else
+            output.AppendLine("IPA: No")
         End If
+
+        output.AppendLine()
+        output.AppendLine("-----------------------------")
+        output.AppendLine()
+
+        output.AppendLine("DELEGATED GROUPER SEARCH")
+
+        If _currentLookup.DelegatedGrouper IsNot Nothing AndAlso _currentLookup.DelegatedGrouper.Found Then
+            Dim dg As DelegatedGrouperResult = _currentLookup.DelegatedGrouper
+
+            If _currentContext Is Nothing OrElse String.IsNullOrWhiteSpace(_currentContext.AuthorizationNumber) Then
+                output.AppendLine("UM Inpatient: " & dg.UmInpatient)
+                output.AppendLine("UM Outpatient: " & dg.UmOutpatient)
+                output.AppendLine("UM Behavioral: " & dg.UmBehavioral)
+                output.AppendLine("UM Transplant: " & dg.UmTransplant)
+                output.AppendLine("UM Out of Area: " & dg.UmOutOfArea)
+            ElseIf String.Equals(_currentContext.HealthType, "BEHAVIORAL HEALTH", StringComparison.OrdinalIgnoreCase) Then
+                output.AppendLine("UM Behavioral: " & dg.UmBehavioral)
+            ElseIf String.Equals(_currentContext.CareSetting, "INPATIENT", StringComparison.OrdinalIgnoreCase) Then
+                output.AppendLine("UM Inpatient: " & dg.UmInpatient)
+            ElseIf String.Equals(_currentContext.CareSetting, "OUTPATIENT", StringComparison.OrdinalIgnoreCase) Then
+                output.AppendLine("UM Outpatient: " & dg.UmOutpatient)
+            Else
+                output.AppendLine("UM Inpatient: " & dg.UmInpatient)
+                output.AppendLine("UM Outpatient: " & dg.UmOutpatient)
+                output.AppendLine("UM Behavioral: " & dg.UmBehavioral)
+                output.AppendLine("UM Transplant: " & dg.UmTransplant)
+                output.AppendLine("UM Out of Area: " & dg.UmOutOfArea)
+            End If
+        Else
+            output.AppendLine("No Delegated Grouper result found.")
+        End If
+
+        'If _currentContext IsNot Nothing AndAlso _currentContext.ProcedureCodes IsNot Nothing AndAlso _currentContext.ProcedureCodes.Count > 0 Then
+        '    output.AppendLine()
+        '    output.AppendLine("-----------------------------")
+        '    output.AppendLine()
+        '    output.AppendLine("PAL")
+        '    output.AppendLine(OutputFormatter.BuildPal(_currentContext, _currentLookup))
+        'End If
 
         ShowLookupPrompt("CallPilot Lookup Results", output.ToString())
     End Sub
@@ -2408,6 +2535,7 @@ Public Class frmMain
         Try
             Dim result As NewAuthChecklistResult = Await Task.Run(Function() BrowserManager.CheckNewAuthorizationFields())
             If _newAuthPrompt IsNot Nothing AndAlso Not _newAuthPrompt.IsDisposed Then _newAuthPrompt.UpdateChecklist(result)
+            Await UpdateNewAuthorizationDocumentationAsync()
             If result.ProcedureCodes Then Await UpdateNewAuthorizationProcedureLookupsAsync()
             Await CheckNonParProviderAndOfferSteerageAsync(result)
 
@@ -2531,7 +2659,7 @@ Public Class frmMain
             Dim questionAnswers As String = BuildTrackingQuestionAnswers()
             Dim callNotes As String = txtOverAllOutput.Text.Trim()
 
-            TrackingDatabaseManager.SaveTracking(Environment.UserName, _trackingStartTime, endTime, memberId, authNumber, concern, providerDetails, questionAnswers, callNotes)
+            TrackingDatabaseManager.SaveTracking(AppSession.UserId, _trackingStartTime, endTime, memberId, authNumber, concern, providerDetails, questionAnswers, callNotes)
 
             MessageBox.Show("Tracking record saved successfully.", "CallPilot Tracking", MessageBoxButtons.OK, MessageBoxIcon.Information)
             ResetAfterTrackingSave()
@@ -2589,4 +2717,84 @@ Public Class frmMain
 
         ShowMemberInformationPanel()
     End Sub
+    Private Async Function UpdateNewAuthorizationDocumentationAsync() As Task
+        If _currentContext Is Nothing Then Return
+
+        Dim data As CallContext = Await Task.Run(Function() BrowserManager.GetNewAuthorizationDocumentationData())
+        If data Is Nothing Then Return
+
+        Dim changed As Boolean = False
+
+        If Not String.Equals(_currentContext.RequestingProvider, data.RequestingProvider, StringComparison.Ordinal) Then
+            _currentContext.RequestingProvider = data.RequestingProvider
+            changed = True
+        End If
+
+        If Not String.Equals(_currentContext.TreatingProvider, data.TreatingProvider, StringComparison.Ordinal) Then
+            _currentContext.TreatingProvider = data.TreatingProvider
+            changed = True
+        End If
+
+        If Not String.Equals(_currentContext.FacilityProvider, data.FacilityProvider, StringComparison.Ordinal) Then
+            _currentContext.FacilityProvider = data.FacilityProvider
+            changed = True
+        End If
+
+        If Not String.Equals(_currentContext.PrimaryDiagnosisCode, data.PrimaryDiagnosisCode, StringComparison.OrdinalIgnoreCase) Then
+            _currentContext.PrimaryDiagnosisCode = data.PrimaryDiagnosisCode
+            changed = True
+        End If
+
+        If changed Then RefreshOutputs()
+    End Function
+    Private Async Function CheckUpdatingAuthorizationChangesAsync() As Task
+        If _currentContext Is Nothing Then Return
+        If Not String.Equals(_currentContext.Scenario, "UPDATING AUTHORIZATION", StringComparison.OrdinalIgnoreCase) Then Return
+        If String.IsNullOrWhiteSpace(_currentContext.AuthorizationNumber) Then Return
+
+        Dim data As CallContext = Await Task.Run(Function() BrowserManager.GetAuthorizationUpdateData())
+        If data Is Nothing Then Return
+
+        Dim changed As Boolean = False
+
+        If Not String.Equals(_currentContext.RequestingProvider, data.RequestingProvider, StringComparison.Ordinal) Then
+            _currentContext.RequestingProvider = data.RequestingProvider
+            changed = True
+        End If
+
+        If Not String.Equals(_currentContext.TreatingProvider, data.TreatingProvider, StringComparison.Ordinal) Then
+            _currentContext.TreatingProvider = data.TreatingProvider
+            changed = True
+        End If
+
+        If Not String.Equals(_currentContext.FacilityProvider, data.FacilityProvider, StringComparison.Ordinal) Then
+            _currentContext.FacilityProvider = data.FacilityProvider
+            changed = True
+        End If
+
+        If Not String.Equals(_currentContext.PrimaryDiagnosisCode, data.PrimaryDiagnosisCode, StringComparison.OrdinalIgnoreCase) Then
+            _currentContext.PrimaryDiagnosisCode = data.PrimaryDiagnosisCode
+            changed = True
+        End If
+
+        Dim currentSecondaryDx As String = String.Join("|", _currentContext.SecondaryDiagnosisCodes.OrderBy(Function(x) x, StringComparer.OrdinalIgnoreCase))
+        Dim newSecondaryDx As String = String.Join("|", data.SecondaryDiagnosisCodes.OrderBy(Function(x) x, StringComparer.OrdinalIgnoreCase))
+
+        If Not String.Equals(currentSecondaryDx, newSecondaryDx, StringComparison.OrdinalIgnoreCase) Then
+            _currentContext.SecondaryDiagnosisCodes.Clear()
+            _currentContext.SecondaryDiagnosisCodes.AddRange(data.SecondaryDiagnosisCodes)
+            changed = True
+        End If
+
+        Dim currentProcedureCodes As String = String.Join("|", _currentContext.ProcedureCodes.OrderBy(Function(x) x, StringComparer.OrdinalIgnoreCase))
+        Dim newProcedureCodes As String = String.Join("|", data.ProcedureCodes.OrderBy(Function(x) x, StringComparer.OrdinalIgnoreCase))
+
+        If Not String.Equals(currentProcedureCodes, newProcedureCodes, StringComparison.OrdinalIgnoreCase) Then
+            _currentContext.ProcedureCodes.Clear()
+            _currentContext.ProcedureCodes.AddRange(data.ProcedureCodes)
+            changed = True
+        End If
+
+        If changed Then RefreshOutputs()
+    End Function
 End Class

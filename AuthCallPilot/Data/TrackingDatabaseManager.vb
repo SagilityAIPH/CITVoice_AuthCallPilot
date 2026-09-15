@@ -6,18 +6,24 @@ Public NotInheritable Class TrackingDatabaseManager
     Private Sub New()
     End Sub
 
+    'Public Shared ReadOnly Property DatabasePath As String
+    '    Get
+    '        'Local Laptop
+    '        'Return "D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\Database\CallPilotTracking.db"
+    '        'Live
+    '        Return "X:\HGSL CIT Faxes\13_CIT - Web Queue - EOD\Client\CallPilot\CallPilotTracking.db"
+    '    End Get
+    'End Property
     Public Shared ReadOnly Property DatabasePath As String
         Get
-            'Local Laptop
-            'Return "D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\Database\CallPilotTracking.db"
-            'Live
-            Return "X:\HGSL CIT Faxes\13_CIT - Web Queue - EOD\Client\CallPilot\CallPilotTracking.db"
+            Return AppSession.TrackingDatabasePath
         End Get
     End Property
 
     Public Shared Function GetConnection() As SQLiteConnection
+        If String.IsNullOrWhiteSpace(DatabasePath) Then Throw New InvalidOperationException("No tracking database has been selected.")
         If Not File.Exists(DatabasePath) Then Throw New FileNotFoundException("CallPilot tracking database was not found.", DatabasePath)
-        Return New SQLiteConnection("Data Source=" & DatabasePath & ";Version=3;FailIfMissing=True;")
+        Return New SQLiteConnection("Data Source=" & DatabasePath & ";Version=3;FailIfMissing=True;Busy Timeout=10000;")
     End Function
     Public Shared Sub SaveTracking(userName As String, startTime As DateTime, endTime As DateTime, memberId As String, authNumber As String, concern As String, providerDetails As String, questionAnswers As String, callNotes As String)
 

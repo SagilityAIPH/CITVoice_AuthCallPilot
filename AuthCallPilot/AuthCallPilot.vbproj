@@ -28,7 +28,7 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>50</ApplicationRevision>
+    <ApplicationRevision>52</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -209,6 +209,12 @@
     <Compile Include="Data\DatabaseManager.vb" />
     <Compile Include="Data\TrackingDatabaseManager.vb" />
     <Compile Include="Engine\RecommendationEngine.vb" />
+    <Compile Include="Forms\frmLogin.Designer.vb">
+      <DependentUpon>frmLogin.vb</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\frmLogin.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\frmLookupPrompt.Designer.vb">
       <DependentUpon>frmLookupPrompt.vb</DependentUpon>
     </Compile>
@@ -228,6 +234,7 @@
     <Compile Include="Forms\frmNewAuthChecklist.vb">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Models\AppSession.vb" />
     <Compile Include="Models\BrowserCaptureResult.vb" />
     <Compile Include="Models\CallContext.vb" />
     <Compile Include="Models\DelegatedGrouperResult.vb" />
@@ -244,6 +251,7 @@
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
       <DependentUpon>Application.myapp</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="My Project\Resources.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -271,6 +279,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Data\AuthCallPilot.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="x64\SQLite.Interop.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
