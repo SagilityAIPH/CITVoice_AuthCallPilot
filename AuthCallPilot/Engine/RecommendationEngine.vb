@@ -409,11 +409,11 @@ Public NotInheritable Class RecommendationEngine
     Private Shared Function BuildSpecialistExpeditedAction(careSetting As String, healthType As String) As String
 
         Dim actions As New List(Of String)
-        If healthType = "BEHAVIORAL HEALTH" Then
-            actions.Add(GuideLink("https://dctm.humana.com/Mentor/xWeb/viewtopic.aspx?sChronicleID=09000929877eda0b&dl=0&searchID=VI-8de6a4a0200a0d6&row=0&mode=Mentor&launchId=1770927524924"))
-        Else
-            actions.Add(GuideLink("https://dctm.humana.com/mentor/xweb/ViewTopic.aspx?schronicleID=0900092987745d15&searchID=link"))
-        End If
+        'If healthType = "BEHAVIORAL HEALTH" Then
+        '    actions.Add(GuideLink("https://dctm.humana.com/Mentor/xWeb/viewtopic.aspx?sChronicleID=09000929877eda0b&dl=0&searchID=VI-8de6a4a0200a0d6&row=0&mode=Mentor&launchId=1770927524924"))
+        'Else
+        '    actions.Add(GuideLink("https://dctm.humana.com/mentor/xweb/ViewTopic.aspx?schronicleID=0900092987745d15&searchID=link"))
+        'End If
 
         actions.Add("Request the required clinical information.")
         actions.Add(GuideLink("https://dctm.humana.com/mentor/web/v.aspx/CO-Overview%20Common%20Records%20Request%20Verbiage?chronicleID=090009298687b587&dl=0&searchID=wdkLink"))

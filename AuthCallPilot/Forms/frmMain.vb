@@ -749,7 +749,7 @@ Public Class frmMain
     Private Async Sub btnAnalyze_Click(sender As Object, e As EventArgs) Handles btnRefreshCGX.Click
         If Not BrowserManager.IsBrowserAvailable() Then
             SetCgxStatus("OFFLINE")
-            MessageBox.Show("Launch the CGX browser first.", "Browser Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            MessageBox.Show(Me, "Launch the CGX browser first.", "Browser Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -772,7 +772,7 @@ Public Class frmMain
 
             If captured Is Nothing Or captured.Context Is Nothing Then
                 SetCgxStatus("WAITING")
-                MessageBox.Show("Navigate to the Member Information or View Authorization page.", "Refresh CGX", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                MessageBox.Show(Me, "Navigate to the Member Information or View Authorization page.", "Refresh CGX", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 Exit Sub
             End If
 
@@ -787,7 +787,7 @@ Public Class frmMain
                     SetCgxStatus("AUTH")
                 Case Else
                     SetCgxStatus("WAITING")
-                    MessageBox.Show("The current page is not a supported CGX page.", "Refresh CGX", MessageBoxButtons.OK,
+                    MessageBox.Show(Me, "The current page is not a supported CGX page.", "Refresh CGX", MessageBoxButtons.OK,
                         MessageBoxIcon.Information)
             End Select
 
@@ -1117,7 +1117,7 @@ Public Class frmMain
         If Not String.IsNullOrWhiteSpace(txtDOS.Text) Then
             Dim parsedDos As DateTime
             If Not DateTime.TryParseExact(txtDOS.Text.Trim(), "MMddyy", Globalization.CultureInfo.InvariantCulture, Globalization.DateTimeStyles.None, parsedDos) Then
-                MessageBox.Show("Date of Service must use MMddyy format. Example: 080526.", "Invalid Date of Service", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                MessageBox.Show(Me, "Date of Service must use MMddyy format. Example: 080526.", "Invalid Date of Service", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 txtDOS.Focus()
                 Return False
             End If
@@ -1355,7 +1355,7 @@ Public Class frmMain
         If Not String.IsNullOrWhiteSpace(currentMemberId) Then
 
             Dim response As DialogResult =
-                MessageBox.Show(
+                MessageBox.Show(Me,
                     "CGX is showing a different member." &
                     Environment.NewLine &
                     Environment.NewLine &
@@ -1492,7 +1492,7 @@ Public Class frmMain
 
         If Not String.IsNullOrWhiteSpace(currentAuthId) Then
             Dim response As DialogResult =
-                MessageBox.Show(
+                MessageBox.Show(Me,
                     "CGX is showing a different authorization." &
                     Environment.NewLine &
                     Environment.NewLine &
@@ -2574,7 +2574,7 @@ Public Class frmMain
             If Not String.IsNullOrWhiteSpace(provider.Dba) Then message &= "DBA: " & provider.Dba & Environment.NewLine
             message &= "NPI: " & provider.Npi & Environment.NewLine & Environment.NewLine & "Click OK to continue to PAR Steerage for the " & provider.Role & "."
 
-            Dim response As DialogResult = MessageBox.Show(message, "Non-PAR Provider", MessageBoxButtons.OKCancel, MessageBoxIcon.Information)
+            Dim response As DialogResult = MessageBox.Show(Me, message, "Non-PAR Provider", MessageBoxButtons.OKCancel, MessageBoxIcon.Information)
 
             If response = DialogResult.OK Then Await RunParSteerageAsync(_currentContext.MemberId, _currentContext.DateOfBirth, _currentContext.MemberZip, provider.Npi)
         Next
@@ -2583,7 +2583,7 @@ Public Class frmMain
         Try
             Await ParSteerageService.NavigateToPhysicianFinderAsync(memberId, dob, zipCode, nonParNpi)
         Catch ex As Exception
-            MessageBox.Show("PAR Steerage could not navigate to Physician Finder." & Environment.NewLine & Environment.NewLine & ex.Message, "PAR Steerage", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show(Me, "PAR Steerage could not navigate to Physician Finder." & Environment.NewLine & Environment.NewLine & ex.Message, "PAR Steerage", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Function
     Private Async Function UpdateNewAuthorizationProcedureLookupsAsync() As Task
@@ -2643,11 +2643,11 @@ Public Class frmMain
     End Function
     Private Sub btnSaveTracking_Click(sender As Object, e As EventArgs) Handles btnSaveTracking.Click
         If Not _trackingStarted Then
-            MessageBox.Show("Click Start before saving.", "CallPilot Tracking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            MessageBox.Show(Me, "Click Start before saving.", "CallPilot Tracking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
-        Dim response As DialogResult = MessageBox.Show("Are you sure you want to save this tracking record?", "Save Tracking", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question)
+        Dim response As DialogResult = MessageBox.Show(Me, "Are you sure you want to save this tracking record?", "Save Tracking", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question)
         If response <> DialogResult.Yes Then Return
 
         Try
@@ -2661,11 +2661,11 @@ Public Class frmMain
 
             TrackingDatabaseManager.SaveTracking(AppSession.UserId, _trackingStartTime, endTime, memberId, authNumber, concern, providerDetails, questionAnswers, callNotes)
 
-            MessageBox.Show("Tracking record saved successfully.", "CallPilot Tracking", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            MessageBox.Show(Me, "Tracking record saved successfully.", "CallPilot Tracking", MessageBoxButtons.OK, MessageBoxIcon.Information)
             ResetAfterTrackingSave()
 
         Catch ex As Exception
-            MessageBox.Show("Unable to save tracking record." & Environment.NewLine & Environment.NewLine & ex.Message, "Tracking Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            MessageBox.Show(Me, "Unable to save tracking record." & Environment.NewLine & Environment.NewLine & ex.Message, "Tracking Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
     Private Sub ResetAfterTrackingSave()

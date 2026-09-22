@@ -48,6 +48,18 @@ Public Class BrowserManager
             searchBox.SendKeys(Keys.Backspace)
             searchBox.SendKeys(grouperId.Trim())
 
+            Dim grouperCheckboxXPath As String = "//div[@role='checkbox' and @title=" & EscapeXPathLiteral(grouperId.Trim()) & "]"
+            Dim grouperCheckbox As IWebElement = wait.Until(Function(driver As IWebDriver) As IWebElement
+                                                                Try
+                                                                    Dim element As IWebElement = driver.FindElement(By.XPath(grouperCheckboxXPath))
+                                                                    If element.Displayed AndAlso element.Enabled Then Return element
+                                                                Catch
+                                                                End Try
+                                                                Return Nothing
+                                                            End Function)
+
+            If Not String.Equals(grouperCheckbox.GetAttribute("aria-checked"), "true", StringComparison.OrdinalIgnoreCase) Then grouperCheckbox.Click()
+
             wait.Until(
             Function(driver As IWebDriver)
                 Try
@@ -65,6 +77,12 @@ Public Class BrowserManager
             result.UmOutOfArea = ReadPowerBiValue(UmOutOfAreaXPath)
 
             result.Found = Not String.IsNullOrWhiteSpace(result.UmInpatient) OrElse Not String.IsNullOrWhiteSpace(result.UmOutpatient) OrElse Not String.IsNullOrWhiteSpace(result.UmBehavioral) OrElse Not String.IsNullOrWhiteSpace(result.UmTransplant) OrElse Not String.IsNullOrWhiteSpace(result.UmOutOfArea)
+
+            Try
+                grouperCheckbox = _driver.FindElement(By.XPath(grouperCheckboxXPath))
+                If String.Equals(grouperCheckbox.GetAttribute("aria-checked"), "true", StringComparison.OrdinalIgnoreCase) Then grouperCheckbox.Click()
+            Catch
+            End Try
 
         Catch ex As Exception
             Debug.WriteLine("Delegated Grouper lookup failed: " & ex.ToString())
@@ -1034,18 +1052,18 @@ Public Class BrowserManager
                     result.CareSetting = "INPATIENT"
                     result.RequestType = HasSelectedValue(By.Id("RequestTypeCode"))
                     result.AdmissionType = HasSelectedValue(By.Id("AdmissionTypeCode"))
-                    result.ProcedureCodes = GridHasRows(By.Id("AuthDirectProcedureCodeGrid"))
+                    result.ProcedureCodes = SlickGridHasValue("AuthDirectProcedureCodeGrid")
                 ElseIf authTypeText.IndexOf("OUTPATIENT", StringComparison.OrdinalIgnoreCase) >= 0 Then
                     result.CareSetting = "OUTPATIENT"
                     result.RequestType = HasSelectedValue(By.Id("RequestTypeCode"))
                     result.ServiceType = IsOutpatientServiceTypeComplete()
                     result.TotalDays = HasElementValue(By.Id("TotalDays"))
-                    result.ProcedureCodes = GridHasRows(By.Id("AuthDirectOpProcedureCodeGrid"))
+                    result.ProcedureCodes = SlickGridHasValue("AuthDirectOpProcedureCodeGrid")
                 Else
                     result.CareSetting = String.Empty
                 End If
 
-                result.PrimaryDiagnosis = GridHasRows(By.Id("AuthDirectPrimaryDiagnosisCodeGrid"))
+                result.PrimaryDiagnosis = SlickGridHasValue("AuthDirectPrimaryDiagnosisCodeGrid")
 
                 'AuthDirectOpProcedureCodeGrid OA
                 'AuthDirectProcedureCodeGrid IA
@@ -1343,39 +1361,13 @@ Public Class BrowserManager
         Return TryCast(js.ExecuteScript(script, cssSelector), IWebElement)
     End Function
     Public Shared Function GetNewAuthorizationProcedureCodes() As List(Of String)
-        Dim procedureCodes As New List(Of String)
-
         SyncLock _driverLock
-            If _driver Is Nothing Then Return procedureCodes
-
-            Try
-                Dim grid As IWebElement = Nothing
-
-                Dim inpatientGrids = _driver.FindElements(By.Id("AuthDirectProcedureCodeGrid"))
-                If inpatientGrids.Count > 0 AndAlso inpatientGrids(0).Displayed Then
-                    grid = inpatientGrids(0)
-                Else
-                    Dim outpatientGrids = _driver.FindElements(By.Id("AuthDirectOpProcedureCodeGrid"))
-                    If outpatientGrids.Count > 0 AndAlso outpatientGrids(0).Displayed Then grid = outpatientGrids(0)
-                End If
-
-                If grid Is Nothing Then Return procedureCodes
-
-                Dim rows = grid.FindElements(By.CssSelector("tbody tr"))
-
-                For Each row As IWebElement In rows
-                    Dim cells = row.FindElements(By.TagName("td"))
-                    If cells.Count = 0 Then Continue For
-
-                    Dim code As String = cells(0).Text.Trim()
-                    If Not String.IsNullOrWhiteSpace(code) AndAlso Not procedureCodes.Contains(code, StringComparer.OrdinalIgnoreCase) Then procedureCodes.Add(code)
-                Next
-
-            Catch
-            End Try
+            If Not IsBrowserAvailable() Then Return New List(Of String)
+            Dim inpatientCodes As List(Of String) = ReadSlickGridCodes("AuthDirectProcedureCodeGrid")
+            Dim outpatientCodes As List(Of String) = ReadSlickGridCodes("AuthDirectOpProcedureCodeGrid")
+            If inpatientCodes.Count > 0 Then Return inpatientCodes
+            Return outpatientCodes
         End SyncLock
-
-        Return procedureCodes
     End Function
     Public Shared Function GetNewAuthorizationDocumentationData() As CallContext
         Dim context As New CallContext()
@@ -1396,24 +1388,8 @@ Public Class BrowserManager
         Return context
     End Function
     Private Shared Function GetNewAuthorizationPrimaryDiagnosis() As String
-        Try
-            Dim grids = _driver.FindElements(By.Id("AuthDirectPrimaryDiagnosisCodeGrid"))
-            If grids.Count = 0 Then Return String.Empty
-
-            Dim rows = grids.First().FindElements(By.CssSelector("tbody tr"))
-
-            For Each row As IWebElement In rows
-                Dim cells = row.FindElements(By.TagName("td"))
-                If cells.Count = 0 Then Continue For
-
-                Dim code As String = cells(0).Text.Trim()
-                If Not String.IsNullOrWhiteSpace(code) Then Return code
-            Next
-
-        Catch ex As Exception
-            Debug.WriteLine("Unable to read New Authorization primary diagnosis: " & ex.Message)
-        End Try
-
+        Dim codes As List(Of String) = ReadSlickGridCodes("AuthDirectPrimaryDiagnosisCodeGrid")
+        If codes.Count > 0 Then Return codes(0)
         Return String.Empty
     End Function
     Public Shared Function GetAuthorizationUpdateData() As CallContext
@@ -1427,5 +1403,23 @@ Public Class BrowserManager
             End Try
         End SyncLock
     End Function
-
+    Private Shared Function ReadSlickGridCodes(gridId As String) As List(Of String)
+        Dim codes As New List(Of String)
+        Try
+            Dim grid As IWebElement = _driver.FindElement(By.Id(gridId))
+            Dim rows = grid.FindElements(By.CssSelector(".slick-row"))
+            For Each row As IWebElement In rows
+                Dim codeCells = row.FindElements(By.CssSelector(".slick-cell.l0.r0"))
+                If codeCells.Count = 0 Then Continue For
+                Dim code As String = codeCells.First().Text.Trim()
+                If Not String.IsNullOrWhiteSpace(code) AndAlso Not codes.Any(Function(x) String.Equals(x, code, StringComparison.OrdinalIgnoreCase)) Then codes.Add(code)
+            Next
+        Catch ex As WebDriverException
+            Debug.WriteLine("Unable to read SlickGrid '" & gridId & "': " & ex.Message)
+        End Try
+        Return codes
+    End Function
+    Private Shared Function SlickGridHasValue(gridId As String) As Boolean
+        Return ReadSlickGridCodes(gridId).Count > 0
+    End Function
 End Class
