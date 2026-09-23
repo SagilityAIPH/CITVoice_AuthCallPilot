@@ -1252,6 +1252,10 @@ Public Class BrowserManager
             Dim medicalButton As IWebElement = wait.Until(Function(d) d.FindElement(By.XPath("/html/body/div[1]/div/div[2]/main/div/div/div/div/div/nucleus-button[1]")))
             medicalButton.Click()
 
+            'added 092326 click specialty button
+            Dim specialtyButton As IWebElement = wait.Until(Function(d) d.FindElement(By.XPath("/html/body/div/div/div[2]/main/div/div[1]/div[2]/div/div/div[1]/div/div[2]/div/div[1]/div[1]/div[2]/div[3]/button")))
+            specialtyButton.Click()
+
             Dim taxonomyInput As IWebElement = wait.Until(Function(d) d.FindElement(By.Id("findcare-domain__search-input")))
             taxonomyInput.Clear()
             taxonomyInput.SendKeys(taxonomyDescription)
