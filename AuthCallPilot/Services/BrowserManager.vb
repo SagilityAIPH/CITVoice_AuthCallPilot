@@ -27,8 +27,11 @@ Public Class BrowserManager
         End If
 
         Dim originalHandle As String = _driver.CurrentWindowHandle
+        Dim powerBiHandle As String = String.Empty
+
         Try
             _driver.SwitchTo().NewWindow(WindowType.Tab)
+            powerBiHandle = _driver.CurrentWindowHandle
             _driver.Navigate().GoToUrl(DelegatedGrouperSearchUrl)
             Dim wait As New WebDriverWait(_driver, TimeSpan.FromSeconds(60))
 
@@ -88,10 +91,12 @@ Public Class BrowserManager
             Debug.WriteLine("Delegated Grouper lookup failed: " & ex.ToString())
         Finally
             Try
-                If _driver.WindowHandles.Count > 1 Then
+                If Not String.IsNullOrWhiteSpace(powerBiHandle) AndAlso _driver.WindowHandles.Contains(powerBiHandle) Then
+                    _driver.SwitchTo().Window(powerBiHandle)
                     _driver.Close()
                 End If
-                _driver.SwitchTo().Window(originalHandle)
+
+                If _driver.WindowHandles.Contains(originalHandle) Then _driver.SwitchTo().Window(originalHandle)
             Catch
             End Try
         End Try
@@ -1395,6 +1400,7 @@ Public Class BrowserManager
     Public Shared Function GetAuthorizationUpdateData() As CallContext
         SyncLock _driverLock
             If Not IsBrowserAvailable() Then Return Nothing
+
             Try
                 Return CaptureAuthorizationInformation()
             Catch ex As Exception

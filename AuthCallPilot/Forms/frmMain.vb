@@ -175,55 +175,39 @@ Public Class frmMain
 
     End Sub
     Private Async Sub BrowserMonitorTimer_Tick(sender As Object, e As EventArgs) Handles _browserMonitorTimer.Tick
-        If _browserMonitorBusy Then
-            Exit Sub
-        End If
-
-        If Not BrowserManager.IsBrowserAvailable() Then
-            SetCgxStatus("OFFLINE")
-            Exit Sub
-        End If
-
-        Dim currentUrl As String = String.Empty
-        Dim currentTitle As String = String.Empty
-
-        If Not BrowserManager.GetCurrentPageLocation(currentUrl, currentTitle) Then
-            Exit Sub
-        End If
-
-        'Update Auth Monitoring
-        If _currentContext IsNot Nothing AndAlso String.Equals(_currentContext.Scenario, "UPDATING AUTHORIZATION", StringComparison.OrdinalIgnoreCase) AndAlso Not String.IsNullOrWhiteSpace(_currentContext.AuthorizationNumber) Then
-            Await CheckUpdatingAuthorizationChangesAsync()
-        End If
-
-
-        'Do nothing while CGX remains on the same page.
-        If String.Equals(currentUrl, _lastProcessedUrl, StringComparison.OrdinalIgnoreCase) And String.Equals(currentTitle, _lastProcessedTitle, StringComparison.OrdinalIgnoreCase) Then
-            Exit Sub
-        End If
-
-        SetCgxStatus("READING")
+        If _browserMonitorBusy Then Return
         _browserMonitorBusy = True
 
         Try
-            Dim captured As BrowserCaptureResult =
-                Await Task.Run(
-                    Function()
-                        Return BrowserManager.CaptureCurrentCgxPage()
-                    End Function)
+            If _currentContext IsNot Nothing AndAlso String.Equals(_currentContext.Scenario, "NEW AUTHORIZATION", StringComparison.OrdinalIgnoreCase) AndAlso _newAuthPrompt IsNot Nothing AndAlso Not _newAuthPrompt.IsDisposed Then Return
 
-            If captured Is Nothing Then
-                Exit Sub
+            If Not BrowserManager.IsBrowserAvailable() Then
+                SetCgxStatus("OFFLINE")
+                Return
             End If
 
-            Select Case captured.PageType
+            Dim currentUrl As String = String.Empty
+            Dim currentTitle As String = String.Empty
 
+            If Not BrowserManager.GetCurrentPageLocation(currentUrl, currentTitle) Then Return
+
+            Dim isViewAuthorizationPage As Boolean = currentUrl.IndexOf("ViewAuth", StringComparison.OrdinalIgnoreCase) >= 0 OrElse currentTitle.IndexOf("View Authorization", StringComparison.OrdinalIgnoreCase) >= 0
+            If _currentContext IsNot Nothing AndAlso String.Equals(_currentContext.Scenario, "UPDATING AUTHORIZATION", StringComparison.OrdinalIgnoreCase) AndAlso Not String.IsNullOrWhiteSpace(_currentContext.AuthorizationNumber) AndAlso isViewAuthorizationPage Then Await CheckUpdatingAuthorizationChangesAsync()
+
+            If String.Equals(currentUrl, _lastProcessedUrl, StringComparison.OrdinalIgnoreCase) AndAlso String.Equals(currentTitle, _lastProcessedTitle, StringComparison.OrdinalIgnoreCase) Then Return
+
+            SetCgxStatus("READING")
+
+            Dim captured As BrowserCaptureResult = Await Task.Run(Function() BrowserManager.CaptureCurrentCgxPage())
+
+            If captured Is Nothing Then Return
+
+            Select Case captured.PageType
                 Case CgxPageType.MemberInformation
                     If captured.Context Is Nothing Then
                         SetCgxStatus("WAITING")
-                        Exit Sub
+                        Return
                     End If
-
                     ProcessDetectedMember(captured.Context)
                     ShowMemberInformationPanel()
                     SetCgxStatus("MEMBER")
@@ -231,10 +215,7 @@ Public Class frmMain
                     _lastProcessedTitle = currentTitle
 
                 Case CgxPageType.ViewAuthorization
-                    If captured.Context Is Nothing Then
-                        Exit Sub
-                    End If
-
+                    If captured.Context Is Nothing Then Return
                     ProcessDetectedAuthorization(captured.Context)
                     ShowAuthorizationInformationPanel()
                     SetCgxStatus("AUTH")
@@ -245,12 +226,11 @@ Public Class frmMain
                     SetCgxStatus("WAITING")
                     _lastProcessedUrl = currentUrl
                     _lastProcessedTitle = currentTitle
-
             End Select
+
         Catch ex As OpenQA.Selenium.WebDriverException
             SetCgxStatus("ERROR")
             Debug.WriteLine("CGX listener error: " & ex.Message)
-
         Catch ex As Exception
             SetCgxStatus("ERROR")
             Debug.WriteLine("CGX listener error: " & ex.ToString())
@@ -686,6 +666,7 @@ Public Class frmMain
         cmbScenario.Items.Add("NEW AUTHORIZATION")
         cmbScenario.Items.Add("UPDATING AUTHORIZATION")
         cmbScenario.Items.Add("CHECKING STATUS OF THE AUTHORIZATION")
+        cmbScenario.Items.Add("OTHER SCENARIO")
         cmbScenario.SelectedIndex = -1
 
         txtOverAllOutput.Clear()
@@ -716,8 +697,8 @@ Public Class frmMain
         btnSaveTracking.Enabled = False
 
         'UAT Testing: Hide tracking buttons for now
-        btnStartTracking.Visible = False
-        btnSaveTracking.Visible = False
+        btnStartTracking.Visible = True
+        btnSaveTracking.Visible = True
 
         _newAuthChecklistTimer.Interval = 750
     End Sub
@@ -2207,6 +2188,11 @@ Public Class frmMain
                 pnlMarketGuideSection.Visible = True
                 pnlPALSection.Visible = True
 
+            Case "OTHER SCENARIO"
+                pnlOutOfScopeSection.Visible = True
+                pnlMarketGuideSection.Visible = True
+                pnlPALSection.Visible = True
+
             Case Else
                 pnlOutOfScopeSection.Visible = False
                 pnlMarketGuideSection.Visible = False
@@ -2574,7 +2560,15 @@ Public Class frmMain
             If Not String.IsNullOrWhiteSpace(provider.Dba) Then message &= "DBA: " & provider.Dba & Environment.NewLine
             message &= "NPI: " & provider.Npi & Environment.NewLine & Environment.NewLine & "Click OK to continue to PAR Steerage for the " & provider.Role & "."
 
-            Dim response As DialogResult = MessageBox.Show(Me, message, "Non-PAR Provider", MessageBoxButtons.OKCancel, MessageBoxIcon.Information)
+            Dim checklistWasTopMost As Boolean = _newAuthPrompt IsNot Nothing AndAlso Not _newAuthPrompt.IsDisposed AndAlso _newAuthPrompt.TopMost
+            Dim response As DialogResult
+
+            Try
+                If checklistWasTopMost Then _newAuthPrompt.TopMost = False
+                response = MessageBox.Show(Me, message, "Non-PAR Provider", MessageBoxButtons.OKCancel, MessageBoxIcon.Information)
+            Finally
+                If checklistWasTopMost AndAlso _newAuthPrompt IsNot Nothing AndAlso Not _newAuthPrompt.IsDisposed Then _newAuthPrompt.TopMost = True
+            End Try
 
             If response = DialogResult.OK Then Await RunParSteerageAsync(_currentContext.MemberId, _currentContext.DateOfBirth, _currentContext.MemberZip, provider.Npi)
         Next
