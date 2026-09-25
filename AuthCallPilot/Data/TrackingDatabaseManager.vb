@@ -6,19 +6,19 @@ Public NotInheritable Class TrackingDatabaseManager
     Private Sub New()
     End Sub
 
-    'Public Shared ReadOnly Property DatabasePath As String
-    '    Get
-    '        'Local Laptop
-    '        'Return "D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\Database\CallPilotTracking.db"
-    '        'Live
-    '        Return "X:\HGSL CIT Faxes\13_CIT - Web Queue - EOD\Client\CallPilot\CallPilotTracking.db"
-    '    End Get
-    'End Property
     Public Shared ReadOnly Property DatabasePath As String
         Get
-            Return AppSession.TrackingDatabasePath
+            'Local Laptop
+            'Return "D:\Office Works\VS\CITVoice_AuthCallPilot\AuthCallPilot\Database\CallPilotTracking.db"
+            'Live
+            Return "X:\HGSL CIT Faxes\13_CIT - Web Queue - EOD\Client\CallPilot\CallPilotTracking.db"
         End Get
     End Property
+    'Public Shared ReadOnly Property DatabasePath As String
+    '    Get
+    '        Return AppSession.TrackingDatabasePath
+    '    End Get
+    'End Property
 
     Public Shared Function GetConnection() As SQLiteConnection
         If String.IsNullOrWhiteSpace(DatabasePath) Then Throw New InvalidOperationException("No tracking database has been selected.")
