@@ -165,46 +165,50 @@ Public NotInheritable Class CallPilotRepository
     End Sub
     Private Shared Sub CheckPal(connection As SQLiteConnection, context As CallContext, result As LookupResult)
         If context.ProcedureCodes Is Nothing OrElse context.ProcedureCodes.Count = 0 Then
-
             result.PalFound = False
             Return
         End If
 
         For Each procedureCode As String In context.ProcedureCodes
+            If String.IsNullOrWhiteSpace(procedureCode) Then Continue For
 
-            If String.IsNullOrWhiteSpace(procedureCode) Then
-                Continue For
-            End If
+            Dim pxCode As String = procedureCode.Trim()
 
-            Const sql As String = "SELECT PALMedHMO, PALMedPPO, PALMedPFFS, PALResponseCode " &
-                "FROM PALAndOOS_tbPAL " &
-                "WHERE PALCode = @palCode;"
+            '========================================
+            ' CHECK REGULAR PAL
+            '========================================
+            Const sql As String = "SELECT PALMedHMO, PALMedPPO, PALMedPFFS, PALResponseCode FROM PALAndOOS_tbPAL WHERE PALCode = @palCode;"
 
             Using command As New SQLiteCommand(sql, connection)
-
-                command.Parameters.AddWithValue("@palCode", procedureCode.Trim())
+                command.Parameters.AddWithValue("@palCode", pxCode)
 
                 Using reader As SQLiteDataReader = command.ExecuteReader()
-
                     While reader.Read()
                         Dim palText As String = GetPalTextByProduct(reader, context.Product)
                         Dim responseCode As String = SafeGet(reader, "PALResponseCode")
                         Dim beforeCount As Integer = result.PalResults.Count
                         AddPalClassification(result, palText, responseCode)
-                        If result.PalResults.Count > beforeCount Then
-                            AddUnique(result.PalMatchedProcedureCodes, procedureCode.Trim())
-                        End If
+
+                        If result.PalResults.Count > beforeCount Then AddUnique(result.PalMatchedProcedureCodes, pxCode)
                     End While
                 End Using
             End Using
 
+            '========================================
+            ' CHECK MIT PAL
+            '========================================
+            Const mitPalSql As String = "SELECT 1 FROM tblMITPAL WHERE UPPER(TRIM(ProcedureCode)) = UPPER(@procedureCode) LIMIT 1;"
+
+            Using command As New SQLiteCommand(mitPalSql, connection)
+                command.Parameters.AddWithValue("@procedureCode", pxCode)
+
+                If command.ExecuteScalar() IsNot Nothing Then AddUnique(result.MitPalMatchedProcedureCodes, pxCode)
+            End Using
         Next
 
         result.PalFound = result.PalResults.Count > 0
 
-        If Not result.PalFound Then
-            result.PalResults.Add("No matching PAL result found.")
-        End If
+        If Not result.PalFound Then result.PalResults.Add("No matching PAL result found.")
     End Sub
 
     Private Shared Function GetPalTextByProduct(

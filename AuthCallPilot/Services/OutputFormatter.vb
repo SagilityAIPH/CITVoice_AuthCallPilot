@@ -138,10 +138,20 @@ Public NotInheritable Class OutputFormatter
         ' PX CODES THAT HAVE PAL
         '========================================
         If lookup.PalMatchedProcedureCodes Is Nothing OrElse lookup.PalMatchedProcedureCodes.Count = 0 Then
-            output.AppendLine("Found PX: None")
+            output.AppendLine("Found PX in PAL: None")
         Else
-            output.AppendLine("Found PX: " & String.Join(", ", lookup.PalMatchedProcedureCodes))
+            output.AppendLine("Found PX in PAL: " & String.Join(", ", lookup.PalMatchedProcedureCodes))
         End If
+
+        '========================================
+        ' PX CODES THAT HAVE MIT PAL
+        '========================================
+        If lookup.MitPalMatchedProcedureCodes Is Nothing OrElse lookup.MitPalMatchedProcedureCodes.Count = 0 Then
+            output.AppendLine("Found PX in MIT PAL: None")
+        Else
+            output.AppendLine("Found PX in MIT PAL: " & String.Join(", ", lookup.MitPalMatchedProcedureCodes))
+        End If
+
         '========================================
         ' PAL RESULTS
         '========================================

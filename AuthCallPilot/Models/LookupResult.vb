@@ -11,7 +11,7 @@
     Public Property PalFound As Boolean
     Public Property PalResults As New List(Of String)
     Public Property PalMatchedProcedureCodes As New List(Of String)
-
+    Public Property MitPalMatchedProcedureCodes As New List(Of String)
     '========================================
     ' IPA / PCODSOT LOOKUP
     '========================================
