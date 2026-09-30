@@ -60,6 +60,8 @@ Public Class BrowserManager
                                                          End Function)
             resetConfirm.Click()
 
+            Threading.Thread.Sleep(5000)
+
             Dim searchBox As IWebElement = wait.Until(
                 Function(driver As IWebDriver)
                     Try
