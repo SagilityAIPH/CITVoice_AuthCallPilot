@@ -5,6 +5,11 @@ Public Class BrowserManager
     Private Shared _driver As EdgeDriver
     Private Shared ReadOnly _driverLock As New Object()
     Private Const DelegatedGrouperSearchUrl As String = "https://app.powerbi.com/groups/me/reports/1d9cdc40-1454-455e-98d4-399ede4a15e7/ReportSectioneaef45f0db640833762b?experience=power-bi"
+
+    Private Const DelegatedResetButton As String = "/html/body/div[1]/root/mat-sidenav-container/mat-sidenav-content/tri-shell-panel-outlet/tri-item-renderer-panel/tri-extension-panel-outlet/mat-sidenav-container/mat-sidenav-content/div/div/div[2]/tri-shell/tri-item-renderer/tri-extension-page-outlet/div[2]/report/exploration-container/div/div/docking-container/div/div/div/section/app-bar/div/div[3]/button[1]"
+
+    Private Const DelegatedResetConfirm As String = "/html/body/div[2]/div[4]/div/mat-dialog-container/div/div/simple-confirmation-dialog/dialog-footer/mat-dialog-actions/div[2]/button[1]"
+
     Private Const GrouperSearchXPath As String = "/html/body/div[1]/root/mat-sidenav-container/mat-sidenav-content/tri-shell-panel-outlet/tri-item-renderer-panel/tri-extension-panel-outlet/mat-sidenav-container/mat-sidenav-content/div/div/div[2]/tri-shell/tri-item-renderer/tri-extension-page-outlet/div[2]/report/exploration-container/div/div/docking-container/div/div/div/div/exploration-host/div/div/exploration/div/explore-canvas/div/div[2]/div/div[2]/div[2]/visual-container-repeat/visual-container[7]/transform/div/div[3]/div/div/visual-modern/div/div/div[2]/div/div[1]/input"
 
     Private Const UmInpatientXPath As String = "/html/body/div[1]/root/mat-sidenav-container/mat-sidenav-content/tri-shell-panel-outlet/tri-item-renderer-panel/tri-extension-panel-outlet/mat-sidenav-container/mat-sidenav-content/div/div/div[2]/tri-shell/tri-item-renderer/tri-extension-page-outlet/div[2]/report/exploration-container/div/div/docking-container/div/div/div/div/exploration-host/div/div/exploration/div/explore-canvas/div/div[2]/div/div[2]/div[2]/visual-container-repeat/visual-container[18]/transform/div/div[3]/div/div/visual-modern/div/div/div[2]/div[1]/div[2]/div/div/div/div/div[4]"
@@ -35,6 +40,26 @@ Public Class BrowserManager
             _driver.Navigate().GoToUrl(DelegatedGrouperSearchUrl)
             Dim wait As New WebDriverWait(_driver, TimeSpan.FromSeconds(60))
 
+            Dim resetButton As IWebElement = wait.Until(Function(driver As IWebDriver) As IWebElement
+                                                            Try
+                                                                Dim element As IWebElement = driver.FindElement(By.XPath(DelegatedResetButton))
+                                                                If element.Displayed AndAlso element.Enabled Then Return element
+                                                            Catch
+                                                            End Try
+                                                            Return Nothing
+                                                        End Function)
+            resetButton.Click()
+
+            Dim resetConfirm As IWebElement = wait.Until(Function(driver As IWebDriver) As IWebElement
+                                                             Try
+                                                                 Dim element As IWebElement = driver.FindElement(By.XPath(DelegatedResetConfirm))
+                                                                 If element.Displayed AndAlso element.Enabled Then Return element
+                                                             Catch
+                                                             End Try
+                                                             Return Nothing
+                                                         End Function)
+            resetConfirm.Click()
+
             Dim searchBox As IWebElement = wait.Until(
                 Function(driver As IWebDriver)
                     Try
@@ -47,8 +72,8 @@ Public Class BrowserManager
                     Return Nothing
                 End Function)
             searchBox.Click()
-            searchBox.SendKeys(Keys.Control & "a")
-            searchBox.SendKeys(Keys.Backspace)
+            'searchBox.SendKeys(Keys.Control & "a")
+            'searchBox.SendKeys(Keys.Backspace)
             searchBox.SendKeys(grouperId.Trim())
 
             Dim grouperCheckboxXPath As String = "//div[@role='checkbox' and @title=" & EscapeXPathLiteral(grouperId.Trim()) & "]"

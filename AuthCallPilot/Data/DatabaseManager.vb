@@ -32,10 +32,11 @@ Public NotInheritable Class DatabaseManager
         'End Get
         'Prod
         Get
-            Return Path.Combine(
-                Application.StartupPath,
-                "Database",
-                "CallPilot.db")
+            'Return Path.Combine(
+            '    Application.StartupPath,
+            '    "Database",
+            '    "CallPilot.db")
+            Return "X:\HGSL CIT Faxes\13_CIT - Web Queue - EOD\Client\CallPilot\CallPilot.db"
         End Get
     End Property
 
