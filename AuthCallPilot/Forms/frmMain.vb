@@ -947,7 +947,11 @@ Public Class frmMain
                 _currentContext.CallerType = Nothing
 
             Case "CALLER_TYPE"
-                _currentContext.CallerType = selectedValue
+                If String.Equals(selectedValue, "YES", StringComparison.OrdinalIgnoreCase) Then
+                    _currentContext.CallerType = "SPECIALIST"
+                ElseIf String.Equals(selectedValue, "NO", StringComparison.OrdinalIgnoreCase) Then
+                    _currentContext.CallerType = "PCP"
+                End If
 
             Case "CLINICAL_REVIEW"
                 _currentContext.ClinicalReviewNeeded = String.Equals(selectedValue, "YES", StringComparison.OrdinalIgnoreCase)
@@ -2519,6 +2523,9 @@ Public Class frmMain
         _newAuthChecklistBusy = True
 
         Try
+            Dim isNewAuthPage As Boolean = Await Task.Run(Function() BrowserManager.IsNewAuthorizationPage())
+            If Not isNewAuthPage Then Return
+
             Dim result As NewAuthChecklistResult = Await Task.Run(Function() BrowserManager.CheckNewAuthorizationFields())
             If _newAuthPrompt IsNot Nothing AndAlso Not _newAuthPrompt.IsDisposed Then _newAuthPrompt.UpdateChecklist(result)
             Await UpdateNewAuthorizationDocumentationAsync()
@@ -2719,24 +2726,35 @@ Public Class frmMain
 
         Dim changed As Boolean = False
 
-        If Not String.Equals(_currentContext.RequestingProvider, data.RequestingProvider, StringComparison.Ordinal) Then
+        If Not String.IsNullOrWhiteSpace(data.RequestingProvider) AndAlso Not String.Equals(_currentContext.RequestingProvider, data.RequestingProvider, StringComparison.Ordinal) Then
             _currentContext.RequestingProvider = data.RequestingProvider
             changed = True
         End If
 
-        If Not String.Equals(_currentContext.TreatingProvider, data.TreatingProvider, StringComparison.Ordinal) Then
+        If Not String.IsNullOrWhiteSpace(data.TreatingProvider) AndAlso Not String.Equals(_currentContext.TreatingProvider, data.TreatingProvider, StringComparison.Ordinal) Then
             _currentContext.TreatingProvider = data.TreatingProvider
             changed = True
         End If
 
-        If Not String.Equals(_currentContext.FacilityProvider, data.FacilityProvider, StringComparison.Ordinal) Then
+        If Not String.IsNullOrWhiteSpace(data.FacilityProvider) AndAlso Not String.Equals(_currentContext.FacilityProvider, data.FacilityProvider, StringComparison.Ordinal) Then
             _currentContext.FacilityProvider = data.FacilityProvider
             changed = True
         End If
 
-        If Not String.Equals(_currentContext.PrimaryDiagnosisCode, data.PrimaryDiagnosisCode, StringComparison.OrdinalIgnoreCase) Then
+        If Not String.IsNullOrWhiteSpace(data.PrimaryDiagnosisCode) AndAlso Not String.Equals(_currentContext.PrimaryDiagnosisCode, data.PrimaryDiagnosisCode, StringComparison.OrdinalIgnoreCase) Then
             _currentContext.PrimaryDiagnosisCode = data.PrimaryDiagnosisCode
             changed = True
+        End If
+
+        If data.SecondaryDiagnosisCodes IsNot Nothing AndAlso data.SecondaryDiagnosisCodes.Count > 0 Then
+            Dim currentSecondaryDx As String = String.Join("|", _currentContext.SecondaryDiagnosisCodes.OrderBy(Function(x) x, StringComparer.OrdinalIgnoreCase))
+            Dim newSecondaryDx As String = String.Join("|", data.SecondaryDiagnosisCodes.OrderBy(Function(x) x, StringComparer.OrdinalIgnoreCase))
+
+            If Not String.Equals(currentSecondaryDx, newSecondaryDx, StringComparison.OrdinalIgnoreCase) Then
+                _currentContext.SecondaryDiagnosisCodes.Clear()
+                _currentContext.SecondaryDiagnosisCodes.AddRange(data.SecondaryDiagnosisCodes)
+                changed = True
+            End If
         End If
 
         If changed Then RefreshOutputs()

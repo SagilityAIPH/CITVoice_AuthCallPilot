@@ -43,24 +43,27 @@ Public Class BrowserManager
             Dim resetButton As IWebElement = wait.Until(Function(driver As IWebDriver) As IWebElement
                                                             Try
                                                                 Dim element As IWebElement = driver.FindElement(By.XPath(DelegatedResetButton))
-                                                                If element.Displayed AndAlso element.Enabled Then Return element
+                                                                If element.Displayed Then Return element
                                                             Catch
                                                             End Try
                                                             Return Nothing
                                                         End Function)
-            resetButton.Click()
 
-            Dim resetConfirm As IWebElement = wait.Until(Function(driver As IWebDriver) As IWebElement
-                                                             Try
-                                                                 Dim element As IWebElement = driver.FindElement(By.XPath(DelegatedResetConfirm))
-                                                                 If element.Displayed AndAlso element.Enabled Then Return element
-                                                             Catch
-                                                             End Try
-                                                             Return Nothing
-                                                         End Function)
-            resetConfirm.Click()
+            If resetButton.Enabled Then
+                resetButton.Click()
 
-            Threading.Thread.Sleep(5000)
+                Dim resetConfirm As IWebElement = wait.Until(Function(driver As IWebDriver) As IWebElement
+                                                                 Try
+                                                                     Dim element As IWebElement = driver.FindElement(By.XPath(DelegatedResetConfirm))
+                                                                     If element.Displayed AndAlso element.Enabled Then Return element
+                                                                 Catch
+                                                                 End Try
+                                                                 Return Nothing
+                                                             End Function)
+
+                resetConfirm.Click()
+                Threading.Thread.Sleep(5000)
+            End If
 
             Dim searchBox As IWebElement = wait.Until(
                 Function(driver As IWebDriver)
@@ -1406,22 +1409,25 @@ Public Class BrowserManager
         End SyncLock
     End Function
     Public Shared Function GetNewAuthorizationDocumentationData() As CallContext
-        Dim context As New CallContext()
-
         SyncLock _driverLock
-            If Not IsBrowserAvailable() Then Return context
+            If Not IsBrowserAvailable() Then Return Nothing
 
             Try
+                If _driver.FindElements(By.Id("ContactMethodCode")).Count = 0 OrElse _driver.FindElements(By.Id("AuthTypeCode")).Count = 0 Then Return Nothing
+
+                Dim context As New CallContext()
                 context.RequestingProvider = ReadElementTextImmediate(By.Id("requesting-provider-panel"))
                 context.TreatingProvider = ReadElementTextImmediate(By.Id("treating-provider-panel"))
                 context.FacilityProvider = ReadElementTextImmediate(By.Id("facility-provider-panel"))
                 context.PrimaryDiagnosisCode = GetNewAuthorizationPrimaryDiagnosis()
+                context.SecondaryDiagnosisCodes.AddRange(ReadSlickGridCodes("AuthDirectSecondaryDiagnosisCodeGrid"))
+                Return context
+
             Catch ex As Exception
                 Debug.WriteLine("Unable to read New Authorization documentation data: " & ex.Message)
+                Return Nothing
             End Try
         End SyncLock
-
-        Return context
     End Function
     Private Shared Function GetNewAuthorizationPrimaryDiagnosis() As String
         Dim codes As List(Of String) = ReadSlickGridCodes("AuthDirectPrimaryDiagnosisCodeGrid")
@@ -1458,5 +1464,15 @@ Public Class BrowserManager
     End Function
     Private Shared Function SlickGridHasValue(gridId As String) As Boolean
         Return ReadSlickGridCodes(gridId).Count > 0
+    End Function
+    Public Shared Function IsNewAuthorizationPage() As Boolean
+        SyncLock _driverLock
+            If Not IsBrowserAvailable() Then Return False
+            Try
+                Return _driver.FindElements(By.Id("ContactMethodCode")).Count > 0 AndAlso _driver.FindElements(By.Id("AuthTypeCode")).Count > 0
+            Catch
+                Return False
+            End Try
+        End SyncLock
     End Function
 End Class

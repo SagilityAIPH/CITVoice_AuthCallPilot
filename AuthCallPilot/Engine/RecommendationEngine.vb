@@ -324,7 +324,7 @@ Public NotInheritable Class RecommendationEngine
 
         'Expedited requires caller type.
         If String.IsNullOrWhiteSpace(context.CallerType) Then
-            Return AskQuestion(result, "CALLER_TYPE", "Is the caller Specialist or PCP?", "SPECIALIST", "PCP")
+            Return AskQuestion(result, "CALLER_TYPE", "Is the caller Specialist/PCP?", "YES", "NO")
         End If
 
         Select Case Normalize(context.CallerType)
