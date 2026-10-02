@@ -169,7 +169,7 @@ Public Class frmLogin
 
     Private Sub btnLogin_Click(sender As Object, e As EventArgs)
         If cmbTeam.SelectedIndex < 0 Then
-            MessageBox.Show("Please select your team.", "Auth Call Pilot", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            frmCallPilotPrompt.ShowPrompt(Me, "Auth Call Pilot", "Please select your team.", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
@@ -177,17 +177,16 @@ Public Class frmLogin
         Dim databasePath As String = GetTeamDatabasePath(team)
 
         If String.IsNullOrWhiteSpace(databasePath) Then
-            MessageBox.Show("No database has been configured for " & team & ".", "Auth Call Pilot", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            frmCallPilotPrompt.ShowPrompt(Me, "Auth Call Pilot", "No database has been configured for " & team & ".", MessageBoxButtons.OK, MessageBoxIcon.Error)
             Return
         End If
 
         If Not File.Exists(databasePath) Then
-            MessageBox.Show(
+            frmCallPilotPrompt.ShowPrompt(Me, "Database Not Found",
                 "The tracking database for " & team & " was not found." &
                 Environment.NewLine &
                 Environment.NewLine &
                 databasePath,
-                "Database Not Found",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error)
             Return

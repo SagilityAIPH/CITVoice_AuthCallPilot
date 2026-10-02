@@ -94,6 +94,13 @@ Public Class frmMain
             rtbOutOfScope.AppendText(Environment.NewLine & "Group ID: " & _currentContext.GroupNumber)
         End If
         '========================================
+        ' MES PLAN OUTPUT
+        '========================================
+        If _currentContext IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(_currentContext.Product) AndAlso String.Equals(_currentContext.Product.Trim(), "MES", StringComparison.OrdinalIgnoreCase) Then
+            rtbOutOfScope.AppendText(Environment.NewLine & "MES Plan")
+            rtbOutOfScope.AppendText(Environment.NewLine & "Authorization or referral not required. Offer to transfer to benefits department.")
+        End If
+        '========================================
         ' IPA / PCODSOT DATABASE RESULT
         '========================================
         If _currentLookup.IpaFound Then
@@ -179,7 +186,7 @@ Public Class frmMain
         _browserMonitorBusy = True
 
         Try
-            If _currentContext IsNot Nothing AndAlso String.Equals(_currentContext.Scenario, "NEW AUTHORIZATION", StringComparison.OrdinalIgnoreCase) AndAlso _newAuthPrompt IsNot Nothing AndAlso Not _newAuthPrompt.IsDisposed Then Return
+            If _currentContext IsNot Nothing AndAlso String.Equals(_currentContext.Scenario, "NEW AUTHORIZATION", StringComparison.OrdinalIgnoreCase) Then Return
 
             If Not BrowserManager.IsBrowserAvailable() Then
                 SetCgxStatus("OFFLINE")
@@ -633,11 +640,7 @@ Public Class frmMain
 
         Catch ex As Exception
 
-            MessageBox.Show(
-        ex.Message,
-        "Database Error",
-        MessageBoxButtons.OK,
-        MessageBoxIcon.Error)
+            frmCallPilotPrompt.ShowPrompt(Me, "Database Error", ex.Message, MessageBoxButtons.OK, MessageBoxIcon.Error)
 
         End Try
 
@@ -724,13 +727,13 @@ Public Class frmMain
             BrowserManager.Launch()
             SetCgxStatus("WAITING")
         Catch ex As Exception
-            MessageBox.Show(ex.Message, "Browser Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            frmCallPilotPrompt.ShowPrompt(Me, "Browser Error", ex.Message, MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
     Private Async Sub btnAnalyze_Click(sender As Object, e As EventArgs) Handles btnRefreshCGX.Click
         If Not BrowserManager.IsBrowserAvailable() Then
             SetCgxStatus("OFFLINE")
-            MessageBox.Show(Me, "Launch the CGX browser first.", "Browser Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            frmCallPilotPrompt.ShowPrompt(Me, "Browser Required", "Launch the CGX browser first.", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Exit Sub
         End If
 
@@ -753,7 +756,7 @@ Public Class frmMain
 
             If captured Is Nothing Or captured.Context Is Nothing Then
                 SetCgxStatus("WAITING")
-                MessageBox.Show(Me, "Navigate to the Member Information or View Authorization page.", "Refresh CGX", MessageBoxButtons.OK, MessageBoxIcon.Information)
+                frmCallPilotPrompt.ShowPrompt(Me, "Refresh CGX", "Navigate to the Member Information or View Authorization page.", MessageBoxButtons.OK, MessageBoxIcon.Information)
                 Exit Sub
             End If
 
@@ -768,8 +771,7 @@ Public Class frmMain
                     SetCgxStatus("AUTH")
                 Case Else
                     SetCgxStatus("WAITING")
-                    MessageBox.Show(Me, "The current page is not a supported CGX page.", "Refresh CGX", MessageBoxButtons.OK,
-                        MessageBoxIcon.Information)
+                    frmCallPilotPrompt.ShowPrompt(Me, "Refresh CGX", "The current page is not a supported CGX page.", MessageBoxButtons.OK, MessageBoxIcon.Information)
             End Select
 
             Dim currentUrl As String = String.Empty
@@ -780,7 +782,7 @@ Public Class frmMain
             End If
         Catch ex As Exception
             SetCgxStatus("ERROR")
-            MessageBox.Show(ex.ToString(), "Refresh CGX Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            frmCallPilotPrompt.ShowPrompt(Me, "Refresh CGX Error", ex.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error)
         Finally
             btnRefreshCGX.Enabled = True
             btnRefreshCGX.Text = "Refresh CGX"
@@ -1102,7 +1104,7 @@ Public Class frmMain
         If Not String.IsNullOrWhiteSpace(txtDOS.Text) Then
             Dim parsedDos As DateTime
             If Not DateTime.TryParseExact(txtDOS.Text.Trim(), "MMddyy", Globalization.CultureInfo.InvariantCulture, Globalization.DateTimeStyles.None, parsedDos) Then
-                MessageBox.Show(Me, "Date of Service must use MMddyy format. Example: 080526.", "Invalid Date of Service", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                frmCallPilotPrompt.ShowPrompt(Me, "Invalid Date of Service", "Date of Service must use MMddyy format. Example: 080526.", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                 txtDOS.Focus()
                 Return False
             End If
@@ -1339,29 +1341,10 @@ Public Class frmMain
 
         If Not String.IsNullOrWhiteSpace(currentMemberId) Then
 
-            Dim response As DialogResult =
-                MessageBox.Show(Me,
-                    "CGX is showing a different member." &
-                    Environment.NewLine &
-                    Environment.NewLine &
-                    "Current Member ID: " &
-                    currentMemberId &
-                    Environment.NewLine &
-                    "Detected Member ID: " &
-                    detectedMemberId &
-                    Environment.NewLine &
-                    Environment.NewLine &
-                    "Use the detected member information?" &
-                    Environment.NewLine &
-                    Environment.NewLine &
-                    "Selecting Yes will scrape the member information again and clear the current authorization and scenario results.",
-                    "Different Member Detected",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question)
+            Dim response As DialogResult = frmCallPilotPrompt.ShowPrompt(Me, "Different Member Detected", "CGX is showing a different member." & Environment.NewLine & Environment.NewLine & "Current Member ID: " & currentMemberId & Environment.NewLine & "Detected Member ID: " & detectedMemberId & Environment.NewLine & Environment.NewLine & "Use the detected member information?" & Environment.NewLine & Environment.NewLine & "Selecting Yes will scrape the member information again and clear the current authorization and scenario results.", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
 
             If response <> DialogResult.Yes Then
-                _ignoredMemberId =
-                    detectedMemberId
+                _ignoredMemberId = detectedMemberId
                 Exit Sub
             End If
         End If
@@ -1462,7 +1445,7 @@ Public Class frmMain
         End If
 
         If _currentContext Is Nothing Then
-            MessageBox.Show("Open the Member Information page first so CallPilot can associate this authorization with a member.", "Member Information Required", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            frmCallPilotPrompt.ShowPrompt(Me, "Member Information Required", "Open the Member Information page first so CallPilot can associate this authorization with a member.", MessageBoxButtons.OK, MessageBoxIcon.Information)
             Exit Sub
         End If
 
@@ -1477,7 +1460,7 @@ Public Class frmMain
 
         If Not String.IsNullOrWhiteSpace(currentAuthId) Then
             Dim response As DialogResult =
-                MessageBox.Show(Me,
+                frmCallPilotPrompt.ShowPrompt(Me, "Different Authorization Detected",
                     "CGX is showing a different authorization." &
                     Environment.NewLine &
                     Environment.NewLine &
@@ -1492,7 +1475,6 @@ Public Class frmMain
                     Environment.NewLine &
                     Environment.NewLine &
                     "Selecting Yes will scrape the authorization information again and reset the current scenario decisions.",
-                    "Different Authorization Detected",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question)
 
@@ -1714,9 +1696,8 @@ Public Class frmMain
 
             If testLookup Is Nothing Then
 
-                MessageBox.Show(
+                frmCallPilotPrompt.ShowPrompt(Me,"Market Guide Test",
                 "RunLookups returned Nothing.",
-                "Market Guide Test",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Warning)
 
@@ -1777,9 +1758,8 @@ Public Class frmMain
                testLookup.MarketGuideMessage))
 
 
-            MessageBox.Show(
+            frmCallPilotPrompt.ShowPrompt(Me, "Louisiana Market Guide Test",
             output.ToString(),
-            "Louisiana Market Guide Test",
             MessageBoxButtons.OK,
             MessageBoxIcon.Information)
 
@@ -1795,9 +1775,8 @@ Public Class frmMain
 
         Catch ex As Exception
 
-            MessageBox.Show(
+            frmCallPilotPrompt.ShowPrompt(Me, "Market Guide Test Error",
             ex.ToString(),
-            "Market Guide Test Error",
             MessageBoxButtons.OK,
             MessageBoxIcon.Error)
 
@@ -1810,9 +1789,8 @@ Public Class frmMain
 
             If _currentContext Is Nothing Then
 
-                MessageBox.Show(
+                frmCallPilotPrompt.ShowPrompt(Me, "Market Guide Test",
                 "No live member context is loaded.",
-                "Market Guide Test",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Warning)
 
@@ -1876,17 +1854,15 @@ Public Class frmMain
                lookup.MarketGuideMessage))
 
 
-            MessageBox.Show(
+            frmCallPilotPrompt.ShowPrompt(Me, "Live Market Guide Lookup",
             output.ToString(),
-            "Live Market Guide Lookup",
             MessageBoxButtons.OK,
             MessageBoxIcon.Information)
 
         Catch ex As Exception
 
-            MessageBox.Show(
+            frmCallPilotPrompt.ShowPrompt(Me, "Market Guide Test Error",
             ex.ToString(),
-            "Market Guide Test Error",
             MessageBoxButtons.OK,
             MessageBoxIcon.Error)
 
@@ -1946,22 +1922,20 @@ Public Class frmMain
             "TEST PAL RESULT")
             Dim result As RecommendationResult = RecommendationEngine.Analyze(testContext, testLookup)
 
-            MessageBox.Show(
+            frmCallPilotPrompt.ShowPrompt(Me, "Offline Recommendation Test",
                 "TEST COMPLETED SUCCESSFULLY" &
                 Environment.NewLine &
                 Environment.NewLine &
                 "Next Best Action:" &
                 Environment.NewLine &
                 result.NextBestAction,
-                "Offline Recommendation Test",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information)
 
         Catch ex As Exception
 
-            MessageBox.Show(
+            frmCallPilotPrompt.ShowPrompt(Me, "Offline Test Error",
                 ex.ToString(),
-                "Offline Test Error",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Error)
 
@@ -1972,12 +1946,11 @@ Public Class frmMain
         Try
             Process.Start(New ProcessStartInfo With {.FileName = e.LinkText, .UseShellExecute = True})
         Catch ex As Exception
-            MessageBox.Show(
+            frmCallPilotPrompt.ShowPrompt(Me, "Open Link",
                 "Unable to open the link." &
                 Environment.NewLine &
                 Environment.NewLine &
                 ex.Message,
-                "Open Link",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Warning)
         End Try
@@ -2134,12 +2107,11 @@ Public Class frmMain
                 })
 
         Catch ex As Exception
-            MessageBox.Show(
+            frmCallPilotPrompt.ShowPrompt(Me, "Open Guide",
                 "Unable to open the guide." &
                 Environment.NewLine &
                 Environment.NewLine &
                 ex.Message,
-                "Open Guide",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Warning)
         End Try
@@ -2225,7 +2197,7 @@ Public Class frmMain
 
             If String.Equals(_currentContext.Scenario, "NEW AUTHORIZATION", StringComparison.OrdinalIgnoreCase) Then
                 If Not BrowserManager.IsBrowserAvailable() Then
-                    MessageBox.Show("Launch the CGX browser first.", "Browser Required", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+                    frmCallPilotPrompt.ShowPrompt(Me, "Browser Required", "Launch the CGX browser first.", MessageBoxButtons.OK, MessageBoxIcon.Warning)
                     Return
                 End If
 
@@ -2239,7 +2211,7 @@ Public Class frmMain
 
         Catch ex As Exception
             SetCgxStatus("ERROR")
-            MessageBox.Show(ex.ToString(), "Scenario Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            frmCallPilotPrompt.ShowPrompt(Me, "Scenario Error", ex.ToString(), MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
 
     End Sub
@@ -2371,12 +2343,11 @@ Public Class frmMain
         Try
             Process.Start(New ProcessStartInfo With {.FileName = url, .UseShellExecute = True})
         Catch ex As Exception
-            MessageBox.Show(
+            frmCallPilotPrompt.ShowPrompt(Me, "Open Link",
                 "Unable to open the link." &
                 Environment.NewLine &
                 Environment.NewLine &
                 ex.Message,
-                "Open Link",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Warning)
         End Try
@@ -2443,6 +2414,14 @@ Public Class frmMain
         output.AppendLine()
         output.AppendLine("-----------------------------")
         output.AppendLine()
+
+        If _currentContext IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(_currentContext.Product) AndAlso String.Equals(_currentContext.Product.Trim(), "MES", StringComparison.OrdinalIgnoreCase) Then
+            output.AppendLine("MES Plan")
+            output.AppendLine("Authorization or referral not required. Offer to transfer to benefits department.")
+            output.AppendLine()
+            output.AppendLine("-----------------------------")
+            output.AppendLine()
+        End If
 
         output.AppendLine("IPA")
 
@@ -2515,7 +2494,7 @@ Public Class frmMain
     Private Async Sub NewAuthChecklistTimer_Tick(sender As Object, e As EventArgs) Handles _newAuthChecklistTimer.Tick
         If _newAuthChecklistBusy Then Return
 
-        If _newAuthPrompt Is Nothing OrElse _newAuthPrompt.IsDisposed Then
+        If _currentContext Is Nothing OrElse Not String.Equals(_currentContext.Scenario, "NEW AUTHORIZATION", StringComparison.OrdinalIgnoreCase) Then
             _newAuthChecklistTimer.Stop()
             Return
         End If
@@ -2527,9 +2506,13 @@ Public Class frmMain
             If Not isNewAuthPage Then Return
 
             Dim result As NewAuthChecklistResult = Await Task.Run(Function() BrowserManager.CheckNewAuthorizationFields())
+
             If _newAuthPrompt IsNot Nothing AndAlso Not _newAuthPrompt.IsDisposed Then _newAuthPrompt.UpdateChecklist(result)
+
             Await UpdateNewAuthorizationDocumentationAsync()
+
             If result.ProcedureCodes Then Await UpdateNewAuthorizationProcedureLookupsAsync()
+
             Await CheckNonParProviderAndOfferSteerageAsync(result)
 
         Catch ex As Exception
@@ -2567,15 +2550,7 @@ Public Class frmMain
             If Not String.IsNullOrWhiteSpace(provider.Dba) Then message &= "DBA: " & provider.Dba & Environment.NewLine
             message &= "NPI: " & provider.Npi & Environment.NewLine & Environment.NewLine & "Click OK to continue to PAR Steerage for the " & provider.Role & "."
 
-            Dim checklistWasTopMost As Boolean = _newAuthPrompt IsNot Nothing AndAlso Not _newAuthPrompt.IsDisposed AndAlso _newAuthPrompt.TopMost
-            Dim response As DialogResult
-
-            Try
-                If checklistWasTopMost Then _newAuthPrompt.TopMost = False
-                response = MessageBox.Show(Me, message, "Non-PAR Provider", MessageBoxButtons.OKCancel, MessageBoxIcon.Information)
-            Finally
-                If checklistWasTopMost AndAlso _newAuthPrompt IsNot Nothing AndAlso Not _newAuthPrompt.IsDisposed Then _newAuthPrompt.TopMost = True
-            End Try
+            Dim response As DialogResult = frmCallPilotPrompt.ShowPrompt(Me, "Non-PAR Provider", message, MessageBoxButtons.OKCancel, MessageBoxIcon.Information)
 
             If response = DialogResult.OK Then Await RunParSteerageAsync(_currentContext.MemberId, _currentContext.DateOfBirth, _currentContext.MemberZip, provider.Npi)
         Next
@@ -2584,7 +2559,7 @@ Public Class frmMain
         Try
             Await ParSteerageService.NavigateToPhysicianFinderAsync(memberId, dob, zipCode, nonParNpi)
         Catch ex As Exception
-            MessageBox.Show(Me, "PAR Steerage could not navigate to Physician Finder." & Environment.NewLine & Environment.NewLine & ex.Message, "PAR Steerage", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            frmCallPilotPrompt.ShowPrompt(Me, "PAR Steerage", "PAR Steerage could not navigate to Physician Finder." & Environment.NewLine & Environment.NewLine & ex.Message, MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Function
     Private Async Function UpdateNewAuthorizationProcedureLookupsAsync() As Task
@@ -2644,11 +2619,12 @@ Public Class frmMain
     End Function
     Private Sub btnSaveTracking_Click(sender As Object, e As EventArgs) Handles btnSaveTracking.Click
         If Not _trackingStarted Then
-            MessageBox.Show(Me, "Click Start before saving.", "CallPilot Tracking", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            frmCallPilotPrompt.ShowPrompt(Me, "CallPilot Tracking", "Click Start before saving.", MessageBoxButtons.OK, MessageBoxIcon.Warning)
             Return
         End If
 
-        Dim response As DialogResult = MessageBox.Show(Me, "Are you sure you want to save this tracking record?", "Save Tracking", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question)
+        Dim response As DialogResult = frmCallPilotPrompt.ShowPrompt(Me, "Save Tracking", "Are you sure you want to save this tracking record?", MessageBoxButtons.YesNo, MessageBoxIcon.Question)
+
         If response <> DialogResult.Yes Then Return
 
         Try
@@ -2662,11 +2638,11 @@ Public Class frmMain
 
             TrackingDatabaseManager.SaveTracking(AppSession.UserId, _trackingStartTime, endTime, memberId, authNumber, concern, providerDetails, questionAnswers, callNotes)
 
-            MessageBox.Show(Me, "Tracking record saved successfully.", "CallPilot Tracking", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            frmCallPilotPrompt.ShowPrompt(Me, "CallPilot Tracking", "Tracking record saved successfully.", MessageBoxButtons.OK, MessageBoxIcon.Information)
             ResetAfterTrackingSave()
 
         Catch ex As Exception
-            MessageBox.Show(Me, "Unable to save tracking record." & Environment.NewLine & Environment.NewLine & ex.Message, "Tracking Error", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            frmCallPilotPrompt.ShowPrompt(Me, "Tracking Error", "Unable to save tracking record." & Environment.NewLine & Environment.NewLine & ex.Message, MessageBoxButtons.OK, MessageBoxIcon.Error)
         End Try
     End Sub
     Private Sub ResetAfterTrackingSave()
