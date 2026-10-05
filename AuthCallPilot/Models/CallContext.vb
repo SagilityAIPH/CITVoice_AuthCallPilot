@@ -39,6 +39,7 @@
 
     'Selected scenario and dynamic answers.
     Public Property Scenario As String
+    Public Property Concern As String
     Public Property HealthType As String
     Public Property CareSetting As String
     Public Property IsExpedited As Boolean?

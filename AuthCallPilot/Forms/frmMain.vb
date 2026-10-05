@@ -1215,7 +1215,8 @@ Public Class frmMain
         output.AppendLine("Provider/Member Authenticated: " & If(context.ProviderMemberAuthenticated, "Yes", "No"))
         output.AppendLine("Mailing Address Verified: " & If(context.MailingAddressVerified, "Yes", "No"))
         output.AppendLine()
-        output.AppendLine("Concern: " & DisplayDocumentationValue(context.Scenario))
+        'output.AppendLine("Concern: " & DisplayDocumentationValue(context.Scenario))
+        output.AppendLine("Concern: " & DisplayDocumentationValue(If(String.Equals(context.Scenario, "OTHER SCENARIO", StringComparison.OrdinalIgnoreCase) AndAlso Not String.IsNullOrWhiteSpace(context.Concern), context.Concern, context.Scenario)))
         output.AppendLine("Date of Service: " & FormatDocumentationDate(context.DateOfService))
         output.AppendLine()
         output.AppendLine("Requesting Provider: " & DisplayDocumentationValue(context.RequestingProvider))
@@ -1385,6 +1386,19 @@ Public Class frmMain
         'must not remain in memory.
         ClearAuthorizationInformation()
         ClearScenarioDecisionState()
+
+        If String.Equals(_currentContext.Product, "MES", StringComparison.OrdinalIgnoreCase) Then
+            _currentLookup = Nothing
+            SetOutputValue(txtMemberInfo, OutputFormatter.BuildMemberInformation(_currentContext))
+            ShowMemberInformationPanel()
+            txtAuthInfo.Clear()
+            rtbOutOfScope.Text = "MES Plan" & Environment.NewLine & "Authorization or referral not required. Offer to transfer to benefits department."
+            rtbMarketGuide.Clear()
+            rtbPAL.Clear()
+            txtOverAllOutput.Text = OutputFormatter.BuildDocumentation(_currentContext)
+            frmCallPilotPrompt.ShowPrompt(Me, "MES Plan", "Authorization or referral not required." & Environment.NewLine & Environment.NewLine & "Offer to transfer to benefits department.", MessageBoxButtons.OK, MessageBoxIcon.Information)
+            Return
+        End If
 
         'Run member-level lookups.
         _currentLookup = CallPilotRepository.RunLookups(_currentContext)
@@ -2194,6 +2208,14 @@ Public Class frmMain
 
             ClearScenarioDecisionState()
             _currentContext.Scenario = Convert.ToString(cmbScenario.SelectedItem)
+            _currentContext.Concern = Nothing
+
+            If String.Equals(_currentContext.Scenario, "OTHER SCENARIO", StringComparison.OrdinalIgnoreCase) Then
+                ShowOtherScenarioInput()
+                RenderNextBestAction("Enter the call scenario / concern.")
+                RefreshOutputs()
+                Return
+            End If
 
             If String.Equals(_currentContext.Scenario, "NEW AUTHORIZATION", StringComparison.OrdinalIgnoreCase) Then
                 If Not BrowserManager.IsBrowserAvailable() Then
@@ -2630,7 +2652,7 @@ Public Class frmMain
         Try
             Dim endTime As DateTime = DateTime.Now
             Dim memberId As String = If(_currentContext Is Nothing, String.Empty, _currentContext.MemberId)
-            Dim concern As String = If(cmbScenario.SelectedItem Is Nothing, String.Empty, cmbScenario.SelectedItem.ToString())
+            Dim concern As String = If(_currentContext Is Nothing, String.Empty, If(String.Equals(_currentContext.Scenario, "OTHER SCENARIO", StringComparison.OrdinalIgnoreCase) AndAlso Not String.IsNullOrWhiteSpace(_currentContext.Concern), _currentContext.Concern, _currentContext.Scenario))
             Dim authNumber As String = If(_currentContext Is Nothing, String.Empty, _currentContext.AuthorizationNumber)
             Dim providerDetails As String = BuildTrackingProviderDetails()
             Dim questionAnswers As String = BuildTrackingQuestionAnswers()
@@ -2785,4 +2807,77 @@ Public Class frmMain
 
         If changed Then RefreshOutputs()
     End Function
+    Private Sub ShowOtherScenarioInput()
+        ClearActionsPanel()
+        pnlActions.SuspendLayout()
+
+        Dim panelWidth As Integer = Math.Max(200, pnlActions.ClientSize.Width)
+
+        Dim lblConcern As New Label With {
+            .Name = "lblOtherScenario",
+            .Text = "Enter the call scenario / concern:",
+            .AutoSize = False,
+            .Font = New Font("Segoe UI", 10.0!, FontStyle.Bold),
+            .ForeColor = Color.FromArgb(45, 55, 72),
+            .BackColor = Color.White,
+            .Left = 12,
+            .Top = 10,
+            .Width = Math.Max(150, panelWidth - 24),
+            .Height = 32,
+            .TextAlign = ContentAlignment.MiddleLeft
+        }
+
+        Dim txtConcern As New Guna.UI2.WinForms.Guna2TextBox With {
+            .Name = "txtOtherScenarioConcern",
+            .Left = 12,
+            .Top = lblConcern.Bottom + 5,
+            .Width = Math.Max(150, panelWidth - 24),
+            .Height = 38,
+            .PlaceholderText = "Enter scenario / concern...",
+            .Text = If(_currentContext Is Nothing, String.Empty, If(_currentContext.Concern, String.Empty))
+        }
+
+        Dim btnSave As New Guna.UI2.WinForms.Guna2Button With {
+            .Name = "btnSaveOtherScenario",
+            .Text = "Save Concern",
+            .Left = 12,
+            .Top = txtConcern.Bottom + 10,
+            .Width = 120,
+            .Height = 34,
+            .BorderRadius = 4,
+            .FillColor = ColorPrimaryGreen,
+            .ForeColor = Color.White,
+            .Cursor = Cursors.Hand
+        }
+
+        AddHandler btnSave.Click, AddressOf SaveOtherScenarioConcern_Click
+
+        pnlActions.Controls.Add(lblConcern)
+        pnlActions.Controls.Add(txtConcern)
+        pnlActions.Controls.Add(btnSave)
+
+        pnlActions.Height = btnSave.Bottom + 12
+        pnlActions.Visible = True
+        pnlActions.ResumeLayout(True)
+
+        txtConcern.Focus()
+    End Sub
+    Private Sub SaveOtherScenarioConcern_Click(sender As Object, e As EventArgs)
+        If _currentContext Is Nothing Then Return
+
+        Dim txtConcern As Guna.UI2.WinForms.Guna2TextBox = TryCast(pnlActions.Controls("txtOtherScenarioConcern"), Guna.UI2.WinForms.Guna2TextBox)
+        If txtConcern Is Nothing Then Return
+
+        Dim concern As String = txtConcern.Text.Trim()
+
+        If String.IsNullOrWhiteSpace(concern) Then
+            frmCallPilotPrompt.ShowPrompt(Me, "Concern Required", "Enter the call scenario / concern.", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+            txtConcern.Focus()
+            Return
+        End If
+
+        _currentContext.Concern = concern
+        RefreshOutputs()
+        RenderNextBestAction("Other scenario concern saved.")
+    End Sub
 End Class
