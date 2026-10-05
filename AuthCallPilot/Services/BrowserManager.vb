@@ -823,27 +823,48 @@ Public Class BrowserManager
     Private Shared Function CaptureMemberInformation() As CallContext
         Dim wait As New WebDriverWait(_driver, TimeSpan.FromSeconds(10))
         ExpandMemberInformationIfNeeded(wait)
+
         Dim context As New CallContext()
         context.MemberId = ReadElementTextSafely(wait, By.Id("MaskedMemberId"))
         context.MemberName = ReadElementTextSafely(wait, By.Id("MaskedSubscriber"))
+
         Const dateOfBirthXPath As String = "/html/body/div[3]/div/div[2]/div[3]/div/div[1]/div[3]"
         context.DateOfBirth = ReadElementTextSafely(wait, By.XPath(dateOfBirthXPath))
+
         Dim rawAddress As String = ReadElementTextSafely(wait, By.Id("memberaddressdiv"))
         context.MemberZip = ExtractMemberZip(rawAddress)
 
         Dim rawProduct As String = ReadCgxFieldValue(wait, "Product/MTV or CAS")
-        Dim rawConso As String = ReadCgxFieldValue(wait, "Consolidated Selling Market")
-        Dim rawGroup As String = ReadCgxFieldValue(wait, "Group Name/ID")
-        Dim rawGrouper As String = ReadCgxFieldValue(wait, "Grouper Name/ID")
-
-
         context.Product = GetTextBeforeSlash(rawProduct)
+
+        Dim rawConso As String = ReadCgxFieldValue(wait, "Consolidated Selling Market")
         context.Conso = GetTextAfterSlash(rawConso)
-        context.GroupNumber = GetTextAfterSlash(rawGroup)
-        context.GrouperId = GetTextAfterSlash(rawGrouper)
+
         context.IssueState = ReadCgxFieldValue(wait, "State of Issue")
 
+        If String.Equals(context.Product, "MES", StringComparison.OrdinalIgnoreCase) Then
+            context.GroupNumber = String.Empty
+            context.GrouperId = String.Empty
+            Return context
+        End If
+
+        Dim rawGroup As String = ReadCgxFieldValue(wait, "Group Name/ID")
+        context.GroupNumber = GetTextAfterSlash(rawGroup)
+
+        Dim rawGrouper As String = ReadOptionalCgxFieldValue("Grouper Name/ID")
+        context.GrouperId = GetTextAfterSlash(rawGrouper)
+
         Return context
+    End Function
+    Private Shared Function ReadOptionalCgxFieldValue(fieldName As String) As String
+        Try
+            Dim shortWait As New WebDriverWait(_driver, TimeSpan.FromSeconds(1))
+            Return ReadCgxFieldValue(shortWait, fieldName)
+        Catch ex As WebDriverTimeoutException
+            Return String.Empty
+        Catch ex As WebDriverException
+            Return String.Empty
+        End Try
     End Function
     Private Shared Function CaptureAuthorizationInformation() As CallContext
         'MessageBox.Show("CaptureAuthorizationInformation() started", "Authorization")
