@@ -193,7 +193,7 @@ Public NotInheritable Class OutputFormatter
         output.AppendLine("Provider/Member Authenticated: " & If(context.ProviderMemberAuthenticated, "Yes", "No"))
         output.AppendLine("Mailing Address Verified: " & If(context.MailingAddressVerified, "Yes", "No"))
         output.AppendLine()
-        output.AppendLine("Concern: " & DocumentationValue(context.Scenario))
+        output.AppendLine("Concern: " & DocumentationValue(If(Not String.IsNullOrWhiteSpace(context.Concern), context.Concern, context.Scenario)))
         output.AppendLine("Date of Service: " & FormatDate(context.DateOfService))
         output.AppendLine()
         output.AppendLine("Authorization ID: " & DocumentationValue(context.AuthorizationNumber))
