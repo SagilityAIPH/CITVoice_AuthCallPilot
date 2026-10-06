@@ -52,16 +52,25 @@ Public Class BrowserManager
             If resetButton.Enabled Then
                 resetButton.Click()
 
-                Dim resetConfirm As IWebElement = wait.Until(Function(driver As IWebDriver) As IWebElement
-                                                                 Try
-                                                                     Dim element As IWebElement = driver.FindElement(By.XPath(DelegatedResetConfirm))
-                                                                     If element.Displayed AndAlso element.Enabled Then Return element
-                                                                 Catch
-                                                                 End Try
-                                                                 Return Nothing
-                                                             End Function)
+                wait.Until(Function(driver As IWebDriver) As Boolean
+                               Try
+                                   Dim okButton As IWebElement = driver.FindElement(By.Id("okButton"))
+                                   If Not okButton.Displayed OrElse Not okButton.Enabled Then Return False
 
-                resetConfirm.Click()
+                                   Try
+                                       okButton.Click()
+                                   Catch ex As ElementClickInterceptedException
+                                       CType(driver, IJavaScriptExecutor).ExecuteScript("arguments[0].click();", okButton)
+                                   End Try
+
+                                   Return True
+                               Catch ex As StaleElementReferenceException
+                                   Return False
+                               Catch ex As NoSuchElementException
+                                   Return False
+                               End Try
+                           End Function)
+
                 Threading.Thread.Sleep(5000)
             End If
 
@@ -93,15 +102,29 @@ Public Class BrowserManager
 
             If Not String.Equals(grouperCheckbox.GetAttribute("aria-checked"), "true", StringComparison.OrdinalIgnoreCase) Then grouperCheckbox.Click()
 
-            wait.Until(
-            Function(driver As IWebDriver)
-                Try
-                    Dim value As String = driver.FindElement(By.XPath(UmInpatientXPath)).Text
-                    Return Not String.IsNullOrWhiteSpace(value)
-                Catch
-                    Return False
-                End Try
-            End Function)
+            Dim umWait As New WebDriverWait(_driver, TimeSpan.FromSeconds(5))
+
+            Try
+                umWait.Until(
+        Function(driver As IWebDriver)
+            Try
+                Dim inpatient As String = driver.FindElement(By.XPath(UmInpatientXPath)).Text
+                Dim outpatient As String = driver.FindElement(By.XPath(UmOutpatientXPath)).Text
+                Dim behavioral As String = driver.FindElement(By.XPath(UmBehavioralXPath)).Text
+                Dim transplant As String = driver.FindElement(By.XPath(UmTransplantXPath)).Text
+                Dim outOfArea As String = driver.FindElement(By.XPath(UmOutOfAreaXPath)).Text
+
+                Return Not String.IsNullOrWhiteSpace(inpatient) OrElse
+                       Not String.IsNullOrWhiteSpace(outpatient) OrElse
+                       Not String.IsNullOrWhiteSpace(behavioral) OrElse
+                       Not String.IsNullOrWhiteSpace(transplant) OrElse
+                       Not String.IsNullOrWhiteSpace(outOfArea)
+            Catch
+                Return False
+            End Try
+        End Function)
+            Catch ex As WebDriverTimeoutException
+            End Try
 
             result.UmInpatient = ReadPowerBiValue(UmInpatientXPath)
             result.UmOutpatient = ReadPowerBiValue(UmOutpatientXPath)

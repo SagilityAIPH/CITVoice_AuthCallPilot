@@ -1423,7 +1423,7 @@ Public Class frmMain
         rtbPAL.Clear()
         'Documentation only.
         txtOverAllOutput.Text = OutputFormatter.BuildDocumentation(_currentContext)
-        RenderNextBestAction("Member information refreshed. Open an authorization in CGX or select a scenario when ready.")
+        RenderNextBestAction("Check for Dual Eligibility" & Environment.NewLine & "[LINK]Open Guide|https://dctm.humana.com/Mentor/xWeb/viewtopic.aspx?sChronicleID=0900092982eb8130&dl=0&searchID=VI-8dd4b74b67ea112&row=0&mode=Mentor&launchId=1791287141390")
         RefreshOutputs()
     End Sub
     Private Sub ClearAuthorizationInformation()
